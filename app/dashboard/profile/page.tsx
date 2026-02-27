@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Upload, FileText, Trash2, CheckCircle2, Loader2, Sparkles, AlertCircle, Briefcase, Settings, Star, Eye, X } from "lucide-react";
+import { Upload, FileText, Trash2, CheckCircle2, Loader2, Sparkles, AlertCircle, Briefcase, Settings, Star, Eye, X, Copy, Zap, Linkedin, Twitter, Github } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/app/lib/api";
 import { useAuthStore } from "@/app/store/authStore";
@@ -93,6 +93,9 @@ export default function ProfilePage() {
     const [isUploading, setIsUploading] = useState(false);
     const [isDeleting, setIsDeleting] = useState<number | null>(null);
     const [previewCv, setPreviewCv] = useState<CVData | null>(null);
+    const [isGeneratingBios, setIsGeneratingBios] = useState(false);
+    const [biosData, setBiosData] = useState<any>(null);
+    const [isBiosModalOpen, setIsBiosModalOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const fetchCVs = async () => {
@@ -172,6 +175,21 @@ export default function ProfilePage() {
             fetchCVs();
         } catch (err: any) {
             toast.error("Failed to activate CV.", { id: "cv-activate" });
+        }
+    };
+
+    const handleGenerateBios = async () => {
+        setIsGeneratingBios(true);
+        toast.loading("Engine analyzing CV and writing tailored bios...", { id: "bio-gen" });
+        try {
+            const res = await api.post('/cv/generate-bios');
+            setBiosData(res.data);
+            setIsBiosModalOpen(true);
+            toast.success("Social branding bios generated successfully!", { id: "bio-gen" });
+        } catch (err: any) {
+            toast.error(err.response?.data?.error || "Failed to generate bios. Ensure you have an active CV.", { id: "bio-gen" });
+        } finally {
+            setIsGeneratingBios(false);
         }
     };
 
@@ -423,10 +441,128 @@ export default function ProfilePage() {
                             </button>
                         </div>
                     </div>
+
+                    {/* Brand & SEO Bios UI */}
+                    <div className="bg-white border border-zinc-100 rounded-3xl p-8 shadow-sm">
+                        <div className="flex items-start justify-between mb-6">
+                            <div>
+                                <h3 className="text-xl font-black text-black tracking-tight mb-1">Brand & SEO</h3>
+                                <p className="text-sm font-bold text-zinc-400">Optimize for X, LinkedIn & Upwork</p>
+                            </div>
+                            <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-purple-50 text-purple-600 shrink-0">
+                                <Zap className="h-5 w-5" />
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={() => {
+                                if (biosData) setIsBiosModalOpen(true);
+                                else handleGenerateBios();
+                            }}
+                            disabled={isGeneratingBios || cvs.length === 0}
+                            className={`w-full ${biosData ? 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700' : 'bg-zinc-900 text-white hover:bg-zinc-800'} font-black text-xs uppercase tracking-widest py-4 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2`}
+                        >
+                            {isGeneratingBios ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                            {biosData ? "View Generated Bios" : "Generate AI Bios"}
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            {/* Preview Modal */}
+            {/* Bios Modal */}
+            {isBiosModalOpen && biosData && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="w-full max-w-4xl rounded-3xl bg-white shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+                    >
+                        <div className="flex items-center justify-between border-b border-zinc-100 p-6 bg-zinc-50/50 shrink-0">
+                            <div className="flex items-center gap-4">
+                                <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-purple-100 text-purple-600">
+                                    <Zap className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-black text-black tracking-tight">AI Generated Brand Bios</h2>
+                                    <p className="text-xs font-bold text-zinc-400 mt-0.5">Optimized for search indexing</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setIsBiosModalOpen(false)}
+                                className="rounded-full p-2 text-zinc-400 hover:bg-zinc-100 hover:text-black transition-colors"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+
+                        <div className="p-6 overflow-y-auto w-full flex-1 bg-zinc-50/30">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto pb-8 relative">
+                                {['linkedin', 'upwork', 'twitter', 'github'].map((platformKey) => {
+                                    const data = biosData[platformKey];
+                                    if (!data) return null;
+                                    const platform = platformKey;
+                                    const platMeta: Record<string, any> = {
+                                        'linkedin': { icon: Linkedin, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100', label: 'LinkedIn' },
+                                        'twitter': { icon: Twitter, color: 'text-black', bg: 'bg-zinc-100', border: 'border-zinc-200', label: 'X (Twitter)' },
+                                        'github': { icon: Github, color: 'text-zinc-800', bg: 'bg-zinc-100', border: 'border-zinc-200', label: 'GitHub' },
+                                        'upwork': { icon: Briefcase, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100', label: 'Upwork' },
+                                    };
+
+                                    const meta = platMeta[platform.toLowerCase()] || { icon: Zap, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100', label: platform };
+                                    const IconInfo = meta.icon;
+
+                                    return (
+                                        <div key={platform} className={`bg-white border ${meta.border} rounded-3xl p-6 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow flex flex-col h-full`}>
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${meta.bg} ${meta.color}`}>
+                                                    <IconInfo className="h-5 w-5" />
+                                                </div>
+                                                <h4 className="text-sm font-black uppercase tracking-widest text-zinc-800">{meta.label}</h4>
+                                            </div>
+
+                                            <div className="flex-1">
+                                                {typeof data === 'string' ? (
+                                                    <p className="text-sm font-medium text-zinc-600 leading-relaxed bg-zinc-50 p-4 rounded-2xl border border-zinc-100">{data}</p>
+                                                ) : (
+                                                    <div className="space-y-4">
+                                                        {Object.entries(data).map(([key, val]: [string, any]) => (
+                                                            <div key={key} className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100">
+                                                                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 block mb-2">{key}</span>
+                                                                <p className="text-sm font-medium text-zinc-700 leading-relaxed whitespace-pre-wrap">{val}</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <button
+                                                onClick={() => {
+                                                    const text = typeof data === 'string' ? data : Object.entries(data).map(([k, v]) => `${k.toUpperCase()}:\n${v}`).join('\n\n');
+                                                    navigator.clipboard.writeText(text);
+                                                    toast.success(`${meta.label} bio copied!`);
+                                                }}
+                                                className={`w-full mt-6 bg-white border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 ${meta.color} font-black text-[11px] uppercase tracking-widest py-3 rounded-xl transition-all flex items-center justify-center gap-2`}
+                                            >
+                                                <Copy className="h-4 w-4" /> Copy to Clipboard
+                                            </button>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            <div className="flex justify-center -mt-4 pb-8">
+                                <button
+                                    onClick={handleGenerateBios}
+                                    disabled={isGeneratingBios}
+                                    className="bg-white border border-zinc-200 text-zinc-600 hover:text-black hover:border-zinc-300 font-black text-[10px] uppercase tracking-widest py-3 px-6 rounded-full shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    {isGeneratingBios ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                                    {isGeneratingBios ? "Regenerating..." : "Regenerate Bios"}
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
             {previewCv && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
                     <motion.div
