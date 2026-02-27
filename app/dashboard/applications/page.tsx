@@ -33,6 +33,8 @@ interface JobApplication {
     salary: string | null;
     type: string;
     is_remote: boolean;
+    cv_match_score: number | null;
+    cv_match_details: { strengths?: string[]; gaps?: string[]; tip?: string } | null;
     created_at: string;
 }
 
@@ -56,9 +58,11 @@ const emptyForm = {
 };
 
 export default function ApplicationsPage() {
-    const { jobs, isLoading, fetchJobs } = useJobStore();
-    const [search, setSearch] = useState("");
-    const [filterStatus, setFilterStatus] = useState<string>("all");
+    const {
+        jobs, meta, isLoading, isLoadingMore,
+        search, statusFilter,
+        fetchJobs, loadMore, setSearch, setStatusFilter
+    } = useJobStore();
 
     // Modal states
     const [showModal, setShowModal] = useState(false);
@@ -74,32 +78,44 @@ export default function ApplicationsPage() {
     // Delete confirmation
     const [deletingJob, setDeletingJob] = useState<JobApplication | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [showUrlField, setShowUrlField] = useState(false);
 
-    useEffect(() => {
-        fetchJobs();
-    }, [fetchJobs]);
+    const observerTarget = useRef<HTMLTableRowElement>(null);
 
-    // Close dropdown when clicking outside
+    // Debounced fetch when search or filter changes
     useEffect(() => {
-        const handleClickOutside = (e: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-                setOpenDropdownId(null);
+        const timeoutId = setTimeout(() => {
+            fetchJobs();
+        }, 300);
+        return () => clearTimeout(timeoutId);
+    }, [search, statusFilter, fetchJobs]);
+
+    // Infinite scroll observer
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting && meta?.has_more && !isLoadingMore) {
+                    loadMore();
+                }
+            },
+            { rootMargin: "100px", threshold: 0.1 }
+        );
+
+        if (observerTarget.current) {
+            observer.observe(observerTarget.current);
+        }
+
+        return () => {
+            if (observerTarget.current) {
+                observer.unobserve(observerTarget.current);
             }
         };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
-    const filteredJobs = jobs.filter(job => {
-        const matchesSearch = job.title.toLowerCase().includes(search.toLowerCase()) ||
-            job.company.toLowerCase().includes(search.toLowerCase());
-        const matchesFilter = filterStatus === "all" || job.status === filterStatus;
-        return matchesSearch && matchesFilter;
-    });
+    }, [meta?.has_more, isLoadingMore, loadMore]);
 
     const resetForm = () => {
         setFormData({ ...emptyForm });
         setEditingJob(null);
+        setShowUrlField(false);
     };
 
     const openAddModal = () => {
@@ -131,13 +147,13 @@ export default function ApplicationsPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!formData.title || !formData.company || !formData.url) {
+        if (!formData.title || !formData.company) {
             toast.error("Please fill in the required fields.");
             return;
         }
 
         let jobUrl = formData.url;
-        if (!jobUrl.startsWith("http://") && !jobUrl.startsWith("https://")) {
+        if (jobUrl && !jobUrl.startsWith("http://") && !jobUrl.startsWith("https://")) {
             jobUrl = "https://" + jobUrl;
         }
 
@@ -201,7 +217,9 @@ export default function ApplicationsPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
                     <h1 className="text-3xl font-black tracking-tight text-black">Applications</h1>
-                    <p className="mt-2 text-sm font-medium text-zinc-400">Total of {jobs.length} tracked opportunities in your pipeline.</p>
+                    <p className="mt-2 text-sm font-medium text-zinc-400">
+                        {meta ? `Total of ${meta.total} tracked opportunities in your pipeline.` : 'Loading your pipeline...'}
+                    </p>
                 </div>
                 <button
                     className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[#1C4ED8] px-6 text-xs font-black uppercase tracking-widest text-white hover:bg-[#1e40af] transition-all active:scale-[0.98]"
@@ -228,10 +246,10 @@ export default function ApplicationsPage() {
                     {["all", "tracking", "applied", "interview", "offer", "rejected"].map((status) => (
                         <button
                             key={status}
-                            onClick={() => setFilterStatus(status)}
+                            onClick={() => setStatusFilter(status)}
                             className={cn(
                                 "flex-shrink-0 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-                                filterStatus === status
+                                statusFilter === status
                                     ? "bg-[#1C4ED8] text-white"
                                     : "bg-zinc-50 text-zinc-400 hover:bg-zinc-100 hover:text-black hover:scale-105"
                             )}
@@ -248,9 +266,10 @@ export default function ApplicationsPage() {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="border-b border-zinc-50 bg-zinc-50/50">
-                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-400">Company & Role</th>
+                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-400 w-[200px] min-w-[200px]">Company & Role</th>
                                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-400">Location</th>
                                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-400">Status</th>
+                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-400">Match</th>
                                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-400">Salary</th>
                                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-400 text-right">Action</th>
                             </tr>
@@ -258,87 +277,134 @@ export default function ApplicationsPage() {
                         <tbody className="divide-y divide-zinc-50">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={5} className="px-8 py-32 text-center">
+                                    <td colSpan={6} className="px-8 py-32 text-center">
                                         <div className="flex flex-col items-center gap-4">
                                             <Loader2 className="h-10 w-10 text-blue-600 animate-spin" />
                                             <p className="text-sm font-bold text-zinc-500 uppercase tracking-widest">Loading your pipeline...</p>
                                         </div>
                                     </td>
                                 </tr>
-                            ) : filteredJobs.length > 0 ? (
-                                filteredJobs.map((job) => (
-                                    <motion.tr
-                                        key={job.id}
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        className="group hover:bg-blue-50/10 transition-colors"
-                                    >
-                                        <td className="px-8 py-6">
-                                            <div className="flex items-center gap-4">
-                                                <div className="h-12 w-12 rounded-2xl bg-zinc-50 flex items-center justify-center border border-zinc-100 group-hover:border-blue-200 transition-all shrink-0">
-                                                    <Building2 className="h-6 w-6 text-zinc-400 group-hover:text-blue-500 transition-colors" />
+                            ) : jobs.length > 0 ? (
+                                <>
+                                    {jobs.map((job) => (
+                                        <motion.tr
+                                            key={job.id}
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            className="group hover:bg-blue-50/10 transition-colors"
+                                        >
+                                            <td className="px-8 py-6 w-[200px] min-w-[200px]">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="h-12 w-12 rounded-2xl bg-zinc-50 flex items-center justify-center border border-zinc-100 group-hover:border-blue-200 transition-all shrink-0">
+                                                        <Building2 className="h-6 w-6 text-zinc-400 group-hover:text-blue-500 transition-colors" />
+                                                    </div>
+                                                    <div className="flex flex-col min-w-0">
+                                                        <span className="text-sm font-black text-black truncate group-hover:text-blue-600 transition-colors">{job.title}</span>
+                                                        <span className="text-xs font-bold text-zinc-400 mt-0.5">{job.company}</span>
+                                                    </div>
                                                 </div>
-                                                <div className="flex flex-col min-w-0">
-                                                    <span className="text-sm font-black text-black truncate group-hover:text-blue-600 transition-colors">{job.title}</span>
-                                                    <span className="text-xs font-bold text-zinc-400 mt-0.5">{job.company}</span>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <div className="flex items-center gap-2 text-zinc-500">
+                                                    <MapPin className="h-3.5 w-3.5 opacity-50" />
+                                                    <span className="text-xs font-bold leading-none">{job.location}</span>
+                                                    {job.is_remote && (
+                                                        <span className="ml-1 px-1.5 py-0.5 rounded bg-zinc-100 text-[8px] font-black uppercase text-zinc-400">Remote</span>
+                                                    )}
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-6">
-                                            <div className="flex items-center gap-2 text-zinc-500">
-                                                <MapPin className="h-3.5 w-3.5 opacity-50" />
-                                                <span className="text-xs font-bold leading-none">{job.location}</span>
-                                                {job.is_remote && (
-                                                    <span className="ml-1 px-1.5 py-0.5 rounded bg-zinc-100 text-[8px] font-black uppercase text-zinc-400">Remote</span>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <span className={cn(
+                                                    "px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest",
+                                                    statusColors[job.status]
+                                                )}>
+                                                    {job.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                {job.cv_match_score != null ? (
+                                                    <div className="group/match relative inline-flex">
+                                                        <span className={cn(
+                                                            "px-2.5 py-1 rounded-lg text-[10px] font-black tabular-nums cursor-default",
+                                                            job.cv_match_score >= 70 ? "bg-emerald-50 text-emerald-600" :
+                                                                job.cv_match_score >= 40 ? "bg-amber-50 text-amber-600" :
+                                                                    "bg-red-50 text-red-500"
+                                                        )}>
+                                                            {job.cv_match_score}%
+                                                        </span>
+                                                        {job.cv_match_details && (
+                                                            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-56 bg-white rounded-xl border border-zinc-100 shadow-xl shadow-zinc-200/50 p-3 opacity-0 invisible group-hover/match:opacity-100 group-hover/match:visible transition-all z-20 pointer-events-none">
+                                                                {(job.cv_match_details.strengths || []).slice(0, 2).map((s, i) => (
+                                                                    <p key={`s-${i}`} className="text-[10px] text-emerald-600 font-semibold leading-relaxed">✓ {s}</p>
+                                                                ))}
+                                                                {(job.cv_match_details.gaps || []).slice(0, 2).map((g, i) => (
+                                                                    <p key={`g-${i}`} className="text-[10px] text-red-400 font-semibold leading-relaxed">✗ {g}</p>
+                                                                ))}
+                                                                {job.cv_match_details.tip && (
+                                                                    <p className="text-[10px] text-blue-600 font-semibold mt-1 leading-relaxed">💡 {job.cv_match_details.tip}</p>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-xs font-bold text-zinc-300">—</span>
                                                 )}
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-6">
-                                            <span className={cn(
-                                                "px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest",
-                                                statusColors[job.status]
-                                            )}>
-                                                {job.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-8 py-6">
-                                            <span className="text-xs font-bold text-zinc-600">
-                                                {job.salary || "—"}
-                                            </span>
-                                        </td>
-                                        <td className="px-8 py-6 text-right">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <a
-                                                    href={job.job_url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="p-2.5 rounded-xl bg-white border border-zinc-100 text-zinc-400 hover:text-blue-600 hover:border-blue-100 hover:shadow-sm transition-all opacity-0 group-hover:opacity-100"
-                                                >
-                                                    <ExternalLink className="h-4 w-4" />
-                                                </a>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <span className="text-xs font-bold text-zinc-600">
+                                                    {job.salary || "—"}
+                                                </span>
+                                            </td>
+                                            <td className="px-8 py-6 text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <a
+                                                        href={job.job_url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="p-2.5 rounded-xl bg-white border border-zinc-100 text-zinc-400 hover:text-blue-600 hover:border-blue-100 hover:shadow-sm transition-all"
+                                                    >
+                                                        <ExternalLink className="h-4 w-4" />
+                                                    </a>
 
-                                                {/* Actions Dropdown Trigger */}
-                                                <button
-                                                    onClick={(e) => {
-                                                        if (openDropdownId === job.id) {
-                                                            setOpenDropdownId(null);
-                                                        } else {
-                                                            const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                                                            setDropdownPos({ top: rect.bottom + 8, left: rect.right - 176 });
-                                                            setOpenDropdownId(job.id);
-                                                        }
-                                                    }}
-                                                    className="p-2.5 rounded-xl bg-white border border-zinc-100 text-zinc-400 hover:text-black hover:border-zinc-300 hover:shadow-sm transition-all"
-                                                >
-                                                    <MoreVertical className="h-4 w-4" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </motion.tr>
-                                ))
+                                                    {/* Actions Dropdown Trigger */}
+                                                    <button
+                                                        onClick={(e) => {
+                                                            if (openDropdownId === job.id) {
+                                                                setOpenDropdownId(null);
+                                                            } else {
+                                                                const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                                                                setDropdownPos({ top: rect.bottom + 8, left: rect.right - 176 });
+                                                                setOpenDropdownId(job.id);
+                                                            }
+                                                        }}
+                                                        className="p-2.5 rounded-xl bg-white border border-zinc-100 text-zinc-400 hover:text-black hover:border-zinc-300 hover:shadow-sm transition-all"
+                                                    >
+                                                        <MoreVertical className="h-4 w-4" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </motion.tr>
+                                    ))}
+
+                                    {/* Loading / End of list indicator */}
+                                    {(meta?.has_more || isLoadingMore) && (
+                                        <tr ref={observerTarget}>
+                                            <td colSpan={6} className="px-8 py-8 text-center text-zinc-400">
+                                                {isLoadingMore ? (
+                                                    <div className="flex justify-center items-center gap-3">
+                                                        <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
+                                                        <span className="text-xs font-bold uppercase tracking-widest">Loading more...</span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="h-10"></div>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    )}
+                                </>
                             ) : (
                                 <tr>
-                                    <td colSpan={5} className="px-8 py-32 text-center">
+                                    <td colSpan={6} className="px-8 py-32 text-center">
                                         <div className="flex flex-col items-center gap-6 opacity-40">
                                             <Building2 className="h-12 w-12" />
                                             <div>
@@ -469,22 +535,33 @@ export default function ApplicationsPage() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">
-                                        Job Posting URL <span className="text-red-400">*</span>
-                                    </label>
-                                    <div className="relative">
-                                        <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-300" />
-                                        <input
-                                            type="text"
-                                            value={formData.url}
-                                            onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                                            placeholder="https://careers.google.com/jobs/123"
-                                            required
-                                            className="w-full h-12 pl-11 pr-4 rounded-xl bg-zinc-50 border border-zinc-100 focus:border-[#1C4ED8] focus:ring-4 focus:ring-blue-50 transition-all outline-none font-bold text-xs placeholder:text-zinc-300"
-                                        />
+                                {/* URL — hidden by default, toggle to show */}
+                                {(formData.url || showUrlField) ? (
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">
+                                            Job Posting URL
+                                        </label>
+                                        <div className="relative">
+                                            <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-300" />
+                                            <input
+                                                type="text"
+                                                value={formData.url}
+                                                onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                                                placeholder="https://careers.google.com/jobs/123"
+                                                className="w-full h-12 pl-11 pr-4 rounded-xl bg-zinc-50 border border-zinc-100 focus:border-[#1C4ED8] focus:ring-4 focus:ring-blue-50 transition-all outline-none font-bold text-xs placeholder:text-zinc-300"
+                                            />
+                                        </div>
                                     </div>
-                                </div>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowUrlField(true)}
+                                        className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-400 hover:text-[#1C4ED8] transition-colors ml-1"
+                                    >
+                                        <Plus className="h-3 w-3" />
+                                        Add job posting URL
+                                    </button>
+                                )}
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-2">
