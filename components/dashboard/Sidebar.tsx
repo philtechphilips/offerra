@@ -34,8 +34,6 @@ const strategy = [
     { name: 'Profile & CV', href: '/dashboard/profile', icon: FileText },
     { name: 'Resume Refactor', href: '/dashboard/optimizer', icon: Sparkles },
     { name: 'Proposal Writer', href: '/dashboard/proposals', icon: PenTool },
-    { name: 'Market Insights', href: '/dashboard/insights', icon: Compass },
-    { name: 'Salary Engine', href: '/dashboard/salary', icon: Target },
     { name: 'Interview Prep', href: '/dashboard/prep', icon: Zap },
 ];
 

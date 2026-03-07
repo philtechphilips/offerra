@@ -23,6 +23,7 @@ import {
 import { useJobStore } from "@/app/store/jobStore";
 import { cn } from "@/app/lib/utils";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function InterviewsPage() {
     const { jobs, fetchJobs, isLoading } = useJobStore();
@@ -42,17 +43,30 @@ export default function InterviewsPage() {
     }, [jobs, search]);
 
     const stats = useMemo(() => {
-        const total = jobs.filter(j => j.status === 'interview').length;
-        const higherMatch = jobs.filter(j => j.status === 'interview' && j.cv_match_score && j.cv_match_score >= 70).length;
-        const upcoming = total; // In a real app, we'd filter by date
+        const interviewList = jobs.filter(j => j.status === 'interview');
+        const total = interviewList.length;
+        const higherMatch = interviewList.filter(j => j.cv_match_score && j.cv_match_score >= 70).length;
+
+        // Calculate average match score for prep confidence
+        const avgMatch = total > 0
+            ? Math.round(interviewList.reduce((acc, curr) => acc + (curr.cv_match_score || 0), 0) / total)
+            : 0;
 
         return [
             { label: 'Active Interviews', val: total.toString(), icon: Clock, color: "text-amber-500", bg: "bg-amber-50" },
             { label: 'High Match Jobs', val: higherMatch.toString(), icon: Zap, color: "text-blue-600", bg: "bg-blue-50" },
-            { label: 'Prep Score', val: "84%", icon: TrendingUp, color: "text-emerald-500", bg: "bg-emerald-50" },
-            { label: 'Avg. Response', val: "2.4d", icon: Sparkles, color: "text-indigo-600", bg: "bg-indigo-50" },
+            { label: 'Avg. Match Score', val: `${avgMatch}%`, icon: TrendingUp, color: "text-emerald-500", bg: "bg-emerald-50" },
+            { label: 'Success Rate', val: "🚀", icon: Sparkles, color: "text-indigo-600", bg: "bg-indigo-50" },
         ];
     }, [jobs]);
+
+    const handleGeneratePrep = () => {
+        if (interviewJobs.length > 0) {
+            router.push(`/dashboard/prep?job=${interviewJobs[0].id}`);
+        } else {
+            toast.error("No active interviews to prepare for.");
+        }
+    };
 
     return (
         <div className="space-y-10 pb-20">
@@ -121,20 +135,27 @@ export default function InterviewsPage() {
                     <div className="relative z-10 space-y-6">
                         <div className="flex items-center gap-3">
                             <span className="px-3 py-1 rounded-full bg-blue-600/20 text-[9px] font-black uppercase tracking-widest text-blue-400 border border-blue-500/20">
-                                Interview Strategy
+                                AI Strategy
                             </span>
                         </div>
                         <h2 className="text-2xl font-black tracking-tight leading-tight max-w-xl">
-                            You have {interviewJobs.length} active interview rounds. Focus on the STAR method for behavioral questions today.
+                            {interviewJobs.length > 0
+                                ? `You have ${interviewJobs.length} active interview rounds. Focus on the STAR method for ${interviewJobs[0].company} today.`
+                                : "No active interviews. Apply for more jobs to start practicing your pitch."}
                         </h2>
-                        <div className="flex flex-wrap gap-4 pt-4">
-                            <button className="h-11 px-6 bg-white text-brand-blue-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-50 transition-colors">
-                                Generate Prep Sheet
-                            </button>
-                            <button className="h-11 px-6 bg-white/5 border border-white/10 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-colors">
-                                Common Questions
-                            </button>
-                        </div>
+                        {interviewJobs.length > 0 && (
+                            <div className="flex flex-wrap gap-4 pt-4">
+                                <button
+                                    onClick={handleGeneratePrep}
+                                    className="h-11 px-6 bg-white text-brand-blue-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-50 transition-colors"
+                                >
+                                    Generate Prep Sheet
+                                </button>
+                                <button className="h-11 px-6 bg-white/5 border border-white/10 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-colors">
+                                    Latest Tips
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -142,21 +163,35 @@ export default function InterviewsPage() {
                     <div>
                         <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-6 flex items-center gap-2">
                             <Users className="h-4 w-4 text-blue-500" />
-                            Mock Progress
+                            Readiness Level
                         </h3>
                         <div className="space-y-6 text-center py-4">
                             <div className="relative inline-flex items-center justify-center">
                                 <svg className="h-28 w-28 -rotate-90">
                                     <circle className="text-zinc-50" strokeWidth="8" stroke="currentColor" fill="transparent" r="48" cx="56" cy="56" />
-                                    <circle className="text-blue-600" strokeWidth="8" strokeDasharray={301.59} strokeDashoffset={301.59 * (1 - 0.75)} strokeLinecap="round" stroke="currentColor" fill="transparent" r="48" cx="56" cy="56" />
+                                    <circle
+                                        className="text-blue-600 transition-all duration-1000"
+                                        strokeWidth="8"
+                                        strokeDasharray={301.59}
+                                        strokeDashoffset={301.59 * (1 - (interviewJobs.length > 0 ? 0.85 : 0.2))}
+                                        strokeLinecap="round"
+                                        stroke="currentColor"
+                                        fill="transparent"
+                                        r="48"
+                                        cx="56"
+                                        cy="56"
+                                    />
                                 </svg>
-                                <span className="absolute text-2xl font-black text-brand-blue-black">75%</span>
+                                <span className="absolute text-2xl font-black text-brand-blue-black">{interviewJobs.length > 0 ? "85%" : "20%"}</span>
                             </div>
                             <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Confidence Score</p>
                         </div>
                     </div>
-                    <button className="w-full py-4 text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 rounded-2xl hover:bg-blue-100 transition-colors">
-                        Boost Score
+                    <button
+                        onClick={() => router.push('/dashboard/prep')}
+                        className="w-full py-4 text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 rounded-2xl hover:bg-blue-100 transition-colors"
+                    >
+                        Boost My Score
                     </button>
                 </div>
             </motion.div>
