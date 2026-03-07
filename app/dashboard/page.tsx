@@ -66,10 +66,10 @@ export default function DashboardPage() {
     const activePipeline = jobs.filter(j => j.status !== 'rejected').length;
 
     const dynamicStats = [
-        { label: 'Total Tracked', val: totalApplied.toString(), icon: Briefcase, color: "text-blue-600", bg: "bg-blue-50" },
-        { label: 'Interviews', val: interviews.toString(), icon: Clock, color: "text-amber-500", bg: "bg-amber-50" },
-        { label: 'Offer Rate', val: `${offerRate}%`, icon: TrendingUp, color: "text-emerald-500", bg: "bg-emerald-50" },
-        { label: 'Active Pipeline', val: activePipeline.toString(), icon: Zap, color: "text-indigo-600", bg: "bg-indigo-50" },
+        { label: 'Total Tracked', val: totalApplied.toString(), icon: Briefcase, color: "text-blue-600", bg: "bg-blue-50", path: '/dashboard/applications' },
+        { label: 'Interviews', val: interviews.toString(), icon: Clock, color: "text-amber-500", bg: "bg-amber-50", path: '/dashboard/interviews' },
+        { label: 'Offer Rate', val: `${offerRate}%`, icon: TrendingUp, color: "text-emerald-500", bg: "bg-emerald-50", path: '/dashboard/applications?status=offer' },
+        { label: 'Active Pipeline', val: activePipeline.toString(), icon: Zap, color: "text-indigo-600", bg: "bg-indigo-50", path: '/dashboard/applications' },
     ];
 
     const pipelineStages = [
@@ -144,13 +144,14 @@ export default function DashboardPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.1 }}
-                        className="group relative bg-white border border-zinc-100 p-6 rounded-3xl hover:border-blue-200 transition-all flex flex-col justify-between"
+                        onClick={() => router.push(stat.path)}
+                        className="group relative bg-white border border-zinc-100 p-6 rounded-3xl hover:border-blue-200 transition-all flex flex-col justify-between cursor-pointer"
                     >
                         <div className="flex items-center justify-between mb-6">
                             <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center bg-zinc-50 border border-zinc-50 group-hover:scale-110 transition-transform", stat.bg)}>
                                 <stat.icon className={cn("h-6 w-6", stat.color)} />
                             </div>
-                            <div className="h-6 w-6 rounded-full flex items-center justify-center text-zinc-300 group-hover:text-brand-blue transition-colors cursor-pointer">
+                            <div className="h-6 w-6 rounded-full flex items-center justify-center text-zinc-300 group-hover:text-brand-blue transition-colors">
                                 <ArrowUpRight className="h-4 w-4" />
                             </div>
                         </div>
@@ -293,7 +294,7 @@ export default function DashboardPage() {
                         <div className="grid grid-cols-2 gap-3">
                             {[
                                 { label: 'New Job', icon: Briefcase, color: "text-blue-600", bg: "bg-blue-50", path: '/dashboard/applications?new=true' },
-                                { label: 'Optimize CV', icon: Sparkles, color: "text-amber-500", bg: "bg-amber-50", path: '/dashboard/cv-matching' },
+                                { label: 'Refactor CV', icon: Sparkles, color: "text-amber-500", bg: "bg-amber-50", path: '/dashboard/optimizer' },
                                 { label: 'Calendar', icon: Calendar, color: "text-emerald-500", bg: "bg-emerald-50", path: '#' },
                                 { label: 'Analyze', icon: TrendingUp, color: "text-indigo-600", bg: "bg-indigo-50", path: '#' },
                             ].map((item) => (

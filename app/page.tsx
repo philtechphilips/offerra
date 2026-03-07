@@ -4,7 +4,6 @@ import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
 import { Features } from "@/components/landing/Features";
 import { ResumeFeature } from "@/components/landing/ResumeFeature";
-import { PortfolioFeature } from "@/components/landing/PortfolioFeature";
 import { motion } from "framer-motion";
 
 export default function Home() {
@@ -40,7 +39,7 @@ export default function Home() {
                 {[
                   { step: "01", title: "Add the Extension", desc: "Install our simple browser tool to start tracking your applications automatically." },
                   { step: "02", title: "Apply as Usual", desc: "Just hit 'Submit' on any job site. We'll capture all the details for you instantly." },
-                  { step: "03", title: "Get Hired Faster", desc: "Use our AI to fix your resume for every job and show off your best work with a custom portfolio." }
+                  { step: "03", title: "Get Hired Faster", desc: "Use our AI to fix your resume for every job and stay ahead of the competition." }
                 ].map((item, idx) => (
                   <motion.div
                     key={item.step}
@@ -68,7 +67,7 @@ export default function Home() {
         </section>
 
         <ResumeFeature />
-        <PortfolioFeature />
+
 
         {/* Pricing - Premium Tiers */}
         <section id="pricing" className="py-24 lg:py-32 relative bg-white">
@@ -146,7 +145,7 @@ export default function Home() {
                   {[
                     'Everything in Pro',
                     'AI Interview Assistant',
-                    'Portfolio Scoring',
+                    'Strategic Coaching',
                     'Executive Strategy',
                     'Network Referrals'
                   ].map((f) => (

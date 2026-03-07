@@ -16,6 +16,7 @@ import {
     LogOut,
     Command,
     Zap,
+    Sparkles,
     X,
     FileText
 } from "lucide-react";
@@ -30,6 +31,7 @@ const navigation = [
 
 const strategy = [
     { name: 'Profile & CV', href: '/dashboard/profile', icon: FileText },
+    { name: 'Resume Refactor', href: '/dashboard/optimizer', icon: Sparkles },
     { name: 'Market Insights', href: '/dashboard/insights', icon: Compass },
     { name: 'Salary Engine', href: '/dashboard/salary', icon: Target },
     { name: 'Interview Prep', href: '/dashboard/prep', icon: Zap },
@@ -135,7 +137,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                                 {item.name === 'Market Insights' ? 'Job Market' :
                                     item.name === 'Salary Engine' ? 'Salary Check' :
                                         item.name === 'Profile & CV' ? 'My Resume' :
-                                            item.name === 'Interview Prep' ? 'Practice' : item.name}
+                                            item.name === 'Resume Refactor' ? 'Optimize' :
+                                                item.name === 'Interview Prep' ? 'Practice' : item.name}
                             </Link>
                         ))}
                     </nav>

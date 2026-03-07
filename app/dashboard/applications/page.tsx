@@ -17,6 +17,7 @@ import {
     Pencil,
     Trash2
 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import api from "@/app/lib/api";
 import { cn } from "@/app/lib/utils";
 import { toast } from "sonner";
@@ -81,6 +82,15 @@ export default function ApplicationsPage() {
     const [showUrlField, setShowUrlField] = useState(false);
 
     const observerTarget = useRef<HTMLTableRowElement>(null);
+    const searchParams = useSearchParams();
+
+    // Sync status from URL if present
+    useEffect(() => {
+        const status = searchParams.get('status');
+        if (status) {
+            setStatusFilter(status);
+        }
+    }, [searchParams, setStatusFilter]);
 
     // Debounced fetch when search or filter changes
     useEffect(() => {
