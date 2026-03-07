@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { LayoutDashboard, Zap, Sparkles, Briefcase } from "lucide-react";
+import { cn } from "@/app/lib/utils";
 
 const features = [
     {
@@ -27,6 +28,16 @@ const features = [
         description: "See exactly which version of your resume you sent where, so you're always organized.",
         icon: Briefcase,
         color: "blue"
+    },
+    {
+        title: "Smart Gmail Sync",
+        description: "Automatically track application status directly from your official Gmail inbox.",
+        icon: () => (
+            <svg viewBox="0 0 24 24" className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
+                <path d="M24 4.5v15c0 .85-.65 1.5-1.5 1.5H21V7.38l-9 6.75-9-6.75V21H1.5C.65 21 0 20.35 0 19.5v-15c0-.41.17-.8.47-1.09.3-.29.69-.41 1.03-.41h.5l10 7.5 10-7.5h.5c.34 0 .73.12 1.03.41.3.29.47.68.47 1.09z" fill="currentColor" />
+            </svg>
+        ),
+        color: "red"
     }
 ];
 
@@ -84,7 +95,10 @@ export function Features() {
                             {/* Card Spotlight Background Glow */}
                             <div className="absolute inset-x-0 -top-px h-px w-full bg-gradient-to-r from-transparent via-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                            <div className="mb-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-white border border-zinc-100 shadow-sm transition-all duration-500 group-hover:bg-[#1C4ED8] group-hover:text-white group-hover:scale-110 group-hover:shadow-[0_20px_40px_rgba(28,78,216,0.25)]">
+                            <div className={cn(
+                                "mb-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-white border border-zinc-100 shadow-sm transition-all duration-500 group-hover:scale-110 group-hover:shadow-xl",
+                                feature.color === 'red' ? "text-[#EA4335] group-hover:bg-[#EA4335] group-hover:text-white" : "group-hover:bg-[#1C4ED8] group-hover:text-white"
+                            )}>
                                 <feature.icon className="h-6 w-6" />
                             </div>
 

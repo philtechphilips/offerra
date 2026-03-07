@@ -24,6 +24,12 @@ interface CVData {
 }
 
 // Premium Light Theme Classes
+const GmailLogo = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 24 24" className={className} xmlns="http://www.w3.org/2000/svg">
+        <path d="M24 4.5v15c0 .85-.65 1.5-1.5 1.5H21V7.38l-9 6.75-9-6.75V21H1.5C.65 21 0 20.35 0 19.5v-15c0-.41.17-.8.47-1.09.3-.29.69-.41 1.03-.41h.5l10 7.5 10-7.5h.5c.34 0 .73.12 1.03.41.3.29.47.68.47 1.09z" fill="#EA4335" />
+    </svg>
+);
+
 const containerClasses = "rounded-3xl border border-zinc-200 bg-white transition-all duration-300";
 const cardHeaderClasses = "flex items-center justify-between border-b border-zinc-100 p-6 sm:px-8";
 
@@ -636,39 +642,58 @@ export default function ProfilePage() {
                         >
                             <div className="p-10">
                                 <div className="flex items-start justify-between mb-8">
-                                    <div className={cn("h-14 w-14 rounded-[1.5rem] flex items-center justify-center", user?.google_account ? "bg-emerald-50" : "bg-red-50")}>
-                                        <Mail className={cn("h-7 w-7", user?.google_account ? "text-emerald-500" : "text-red-500")} />
+                                    <div className="h-14 w-14 flex items-center justify-center p-2 rounded-2xl bg-white shadow-sm border border-zinc-50">
+                                        <GmailLogo className="h-full w-full" />
                                     </div>
-                                    <span className={cn("px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider", user?.google_account ? "bg-emerald-100 text-emerald-700" : "bg-zinc-100 text-zinc-500")}>
-                                        {user?.google_account ? "Connected" : "Beta"}
-                                    </span>
+                                    <div className="flex flex-col items-end gap-1">
+                                        <span className={cn("px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.15em]", user?.google_account ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600")}>
+                                            {user?.google_account ? "Sync Enabled" : "Disconnected"}
+                                        </span>
+                                        {user?.google_account && (
+                                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1">
+                                                {user.google_account.email}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
-                                <h3 className="text-2xl font-bold tracking-tight text-zinc-900 mb-3">
-                                    {user?.google_account ? "Gmail Synced" : "Sync with Gmail"}
-                                </h3>
+                                <h3 className="text-2xl font-black tracking-tight text-zinc-900 mb-3">Gmail Integration</h3>
                                 <p className="text-sm font-medium text-zinc-500 leading-relaxed mb-10">
-                                    {user?.google_account
-                                        ? `Logged in as ${user.google_account.email}. Your inbox is being monitored for job updates.`
-                                        : "Automatically pull job application updates and interview invites from your inbox."}
+                                    Allow Offerra to securely synchronize with your Gmail inbox to identify job applications, technical tests, and interview invitations automatically.
                                 </p>
-                                <button
-                                    onClick={user?.google_account ? handleSyncGmail : handleConnectGmail}
-                                    disabled={isConnectingGmail}
-                                    className={cn(
-                                        "group w-full h-14 rounded-2xl border text-sm font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-3",
-                                        user?.google_account
-                                            ? "border-emerald-200 bg-emerald-50 text-emerald-900 hover:border-emerald-500 hover:bg-emerald-100"
-                                            : "border-blue-200 bg-blue-50 text-blue-900 hover:border-blue-500 hover:bg-blue-100"
-                                    )}
-                                >
-                                    {isConnectingGmail ? (user?.google_account ? "Syncing..." : "Connecting...") : (user?.google_account ? "Sync Now" : "Connect Email")}
-                                    {user?.google_account ? <Zap className="h-4 w-4 text-emerald-400 group-hover:text-emerald-900" /> : <ExternalLink className="h-4 w-4 text-blue-400 group-hover:text-blue-900" />}
-                                </button>
-                                {user?.google_account && (
-                                    <p className="text-[10px] font-bold text-zinc-400 mt-4 text-center uppercase tracking-widest">
-                                        Last synced: {user.google_account.last_synced_at ? formatDate(user.google_account.last_synced_at) : 'Never'}
-                                    </p>
+
+                                {user?.google_account ? (
+                                    <div className="space-y-4">
+                                        <button
+                                            onClick={handleSyncGmail}
+                                            disabled={isConnectingGmail}
+                                            className="group w-full h-14 rounded-2xl bg-zinc-900 text-white text-sm font-bold transition-all hover:bg-black disabled:opacity-50 flex items-center justify-center gap-3 shadow-xl shadow-zinc-200"
+                                        >
+                                            {isConnectingGmail ? "Synchronizing..." : "Sync My Inbox"}
+                                            <Zap className="h-4 w-4 text-emerald-400 group-hover:animate-pulse" />
+                                        </button>
+                                        <p className="text-[10px] font-bold text-zinc-300 text-center uppercase tracking-widest">
+                                            Last scan: {user.google_account.last_synced_at ? formatDate(user.google_account.last_synced_at) : 'No recent sync'}
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={handleConnectGmail}
+                                        disabled={isConnectingGmail}
+                                        className="group w-full h-14 rounded-xl border border-zinc-200 bg-white text-sm font-bold text-zinc-700 transition-all hover:shadow-lg hover:border-zinc-300 disabled:opacity-50 flex items-center justify-center gap-4 py-4 px-6 relative overflow-hidden"
+                                    >
+                                        <div className="flex items-center justify-center w-5 h-5">
+                                            <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                                                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" /><path fill="#4285F4" d="M46.64 24.55c0-1.63-.15-3.2-.44-4.71H24v9.06h12.72c-.55 2.87-2.21 5.3-4.66 6.91l7.32 5.67c4.28-3.95 6.76-9.77 6.76-16.93z" /><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24s.92 7.54 2.56 10.78l7.97-6.19z" /><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.32-5.67c-2.11 1.41-4.8 2.25-7.57 2.25-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" /><path fill="none" d="M0 0h48v48H0z" />
+                                            </svg>
+                                        </div>
+                                        <span className="font-medium text-zinc-600 tracking-tight">Connect with Google</span>
+                                    </button>
                                 )}
+
+                                <div className="mt-8 pt-6 border-t border-zinc-50 flex items-center justify-center gap-2">
+                                    <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                                    <span className="text-[9px] font-black text-zinc-300 uppercase tracking-widest">Secure OAuth 2.0 Integration</span>
+                                </div>
                             </div>
                         </motion.section>
 

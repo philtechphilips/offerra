@@ -119,15 +119,21 @@ export default function Home() {
                 </div>
                 <ul className="space-y-6 mb-12 text-sm font-black text-black flex-grow">
                   {[
-                    'Unlimited tracking',
-                    'Deep Gmail/Outlook Sync',
-                    'AI Strategic Insights',
-                    'Prioritized support',
-                    'Advanced Analytics'
+                    { text: 'Unlimited tracking', icon: true },
+                    { text: 'Deep Gmail/Outlook Sync', gmail: true },
+                    { text: 'AI Strategic Insights', icon: true },
+                    { text: 'Prioritized support', icon: true },
+                    { text: 'Advanced Analytics', icon: true }
                   ].map((f) => (
-                    <li key={f} className="flex items-center gap-4">
-                      <div className="h-2 w-2 rounded-full bg-blue-600 shadow-[0_0_10px_rgba(28,78,216,0.4)]" />
-                      {f}
+                    <li key={f.text} className="flex items-center gap-4">
+                      {f.gmail ? (
+                        <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M24 4.5v15c0 .85-.65 1.5-1.5 1.5H21V7.38l-9 6.75-9-6.75V21H1.5C.65 21 0 20.35 0 19.5v-15c0-.41.17-.8.47-1.09.3-.29.69-.41 1.03-.41h.5l10 7.5 10-7.5h.5c.34 0 .73.12 1.03.41.3.29.47.68.47 1.09z" fill="#EA4335" />
+                        </svg>
+                      ) : (
+                        <div className="h-2 w-2 rounded-full bg-blue-600 shadow-[0_0_10px_rgba(28,78,216,0.4)]" />
+                      )}
+                      {f.text}
                     </li>
                   ))}
                 </ul>

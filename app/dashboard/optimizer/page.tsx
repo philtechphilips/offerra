@@ -982,7 +982,7 @@ export default function ResumeOptimizerPage() {
                 </p>
             </header>
 
-            <div className="rounded-[2.5rem] border border-zinc-100 bg-white p-12 shadow-2xl relative overflow-hidden group">
+            <div className="rounded-[2.5rem] border border-zinc-100 bg-white p-12 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none group-hover:scale-110 transition-transform">
                     <Layout className="h-40 w-40 text-blue-600" />
                 </div>
