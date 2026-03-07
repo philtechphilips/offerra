@@ -1,11 +1,17 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
-import { Upload, FileText, Trash2, CheckCircle2, Loader2, Sparkles, Briefcase, Eye, X, Copy, Zap, Linkedin, Twitter, Github, Mail } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+    Upload, FileText, Trash2, CheckCircle2, Loader2, Sparkles,
+    Briefcase, Eye, X, Copy, Zap, Linkedin, Twitter, Github,
+    Mail, Plus, ShieldCheck, Clock, ExternalLink, ChevronRight,
+    Search, Layout
+} from "lucide-react";
 import { toast } from "sonner";
 import api from "@/app/lib/api";
 import { useAuthStore } from "@/app/store/authStore";
+import { cn } from "@/app/lib/utils";
 
 interface CVData {
     id: number;
@@ -17,44 +23,43 @@ interface CVData {
     created_at: string;
 }
 
-const DynamicCVRenderer = ({ data }: { data: any }) => {
+// Premium Light Theme Classes
+const containerClasses = "rounded-3xl border border-zinc-200 bg-white transition-all duration-300";
+const cardHeaderClasses = "flex items-center justify-between border-b border-zinc-100 p-6 sm:px-8";
+
+const DynamicCVRenderer = ({ data, depth = 0 }: { data: any, depth?: number }) => {
     if (data === null || data === undefined) return null;
 
     if (typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean') {
         const strVal = data.toString();
-        // If it's a long string, display it as a paragraph card
         if (strVal.length > 80) {
             return (
-                <p className="text-sm font-medium leading-relaxed text-zinc-600 bg-white p-5 rounded-2xl border border-zinc-100 shadow-sm mt-1">
+                <p className="text-sm leading-relaxed text-zinc-600 bg-zinc-50 p-4 rounded-2xl border border-zinc-100 mt-1">
                     {strVal}
                 </p>
             );
         }
-        return <span className="text-sm font-medium text-black">{strVal}</span>;
+        return <span className="text-sm font-semibold text-zinc-900">{strVal}</span>;
     }
 
     if (Array.isArray(data)) {
         if (data.length === 0) return null;
-
-        // If it's an array of strings (e.g., skills, highlights)
         if (typeof data[0] === 'string' || typeof data[0] === 'number') {
             return (
                 <div className="flex flex-wrap gap-2 mt-2">
                     {data.map((item, idx) => (
-                        <span key={idx} className="px-3 py-1.5 bg-[#1C4ED8]/10 text-[#1C4ED8] rounded-lg text-xs font-medium border border-[#1C4ED8]/20">
+                        <span key={idx} className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold border border-blue-100">
                             {item}
                         </span>
                     ))}
                 </div>
             );
         }
-
-        // If it's an array of objects (e.g., work, education)
         return (
             <div className="space-y-4 mt-3">
                 {data.map((item, idx) => (
-                    <div key={idx} className="bg-zinc-50 border border-zinc-100 p-5 rounded-2xl">
-                        <DynamicCVRenderer data={item} />
+                    <div key={idx} className="bg-white border border-zinc-100 p-5 rounded-2xl">
+                        <DynamicCVRenderer data={item} depth={depth + 1} />
                     </div>
                 ))}
             </div>
@@ -63,26 +68,27 @@ const DynamicCVRenderer = ({ data }: { data: any }) => {
 
     if (typeof data === 'object') {
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6 mt-2">
+            <div className={cn(
+                "grid grid-cols-1 gap-x-8 gap-y-6 mt-2",
+                depth === 0 ? "md:grid-cols-2" : "md:grid-cols-1"
+            )}>
                 {Object.entries(data).map(([key, value]) => {
                     if (value === null || value === undefined || value === '') return null;
-
-                    const isFullWidthText = typeof value === 'string' && value.length > 80;
-                    const isObjectOrArray = typeof value === 'object';
-                    const colSpan = isFullWidthText || isObjectOrArray ? 'md:col-span-2' : '';
+                    const isFullWidthText = typeof value === 'string' && value.length > 150;
+                    const isComplex = typeof value === 'object';
+                    const colSpan = (isFullWidthText || isComplex) && depth === 0 ? 'md:col-span-2' : '';
                     const title = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
 
                     return (
-                        <div key={key} className={colSpan}>
-                            <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-400 mb-1">{title}</div>
-                            <DynamicCVRenderer data={value} />
+                        <div key={key} className={cn("space-y-1.5", colSpan)}>
+                            <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">{title}</div>
+                            <DynamicCVRenderer data={value} depth={depth + 1} />
                         </div>
                     );
                 })}
             </div>
         );
     }
-
     return null;
 };
 
@@ -105,7 +111,7 @@ export default function ProfilePage() {
             const res = await api.get('/cv');
             setCvs(res.data.cvs || []);
         } catch (err: any) {
-            toast.error("Failed to load CV data.");
+            toast.error("Failed to load your resumes.");
             setCvs([]);
         } finally {
             setIsLoading(false);
@@ -119,76 +125,68 @@ export default function ProfilePage() {
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-
-        // Reset input so the same file could be selected again if needed
         if (fileInputRef.current) fileInputRef.current.value = "";
-
         const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
         if (!allowedTypes.includes(file.type) && !file.name.endsWith('.md')) {
-            toast.error("Please upload a PDF, DOCX, or TXT file.");
+            toast.error("Please upload a PDF, Word, or TXT file.");
             return;
         }
-
         if (file.size > 5 * 1024 * 1024) {
             toast.error("File size must be less than 5MB.");
             return;
         }
-
         const formData = new FormData();
         formData.append("cv", file);
-
         setIsUploading(true);
-        toast.loading("Analyzing your CV. This might take a moment...", { id: "cv-upload" });
-
+        const loadingId = toast.loading("Analyzing your resume...");
         try {
             const res = await api.post('/cv/upload', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
-            toast.success("CV uploaded and analyzed successfully!", { id: "cv-upload" });
-            fetchCVs(); // Refresh the data
+            toast.success("Resume uploaded successfully!", { id: loadingId });
+            fetchCVs();
         } catch (err: any) {
-            toast.error("Failed to upload CV. Please try again.", { id: "cv-upload" });
+            toast.error("Failed to upload. Please try again.", { id: loadingId });
         } finally {
             setIsUploading(false);
         }
     };
 
     const handleDeleteCV = async (id: number) => {
-        if (!confirm("Are you sure you want to delete this CV?")) return;
-
+        if (!confirm("Are you sure you want to delete this resume?")) return;
         setIsDeleting(id);
         try {
             await api.delete(`/cv/${id}`);
-            toast.success("CV deleted successfully!");
+            toast.success("Resume deleted!");
             fetchCVs();
         } catch (err: any) {
-            toast.error("Failed to delete CV.");
+            toast.error("Failed to delete resume.");
         } finally {
             setIsDeleting(null);
         }
     };
 
     const handleActivateCV = async (id: number) => {
-        toast.loading("Activating CV...", { id: "cv-activate" });
+        const loadingId = toast.loading("Updating your active resume...");
         try {
             await api.put(`/cv/${id}/activate`);
-            toast.success("CV activated successfully!", { id: "cv-activate" });
+            toast.success("Resume activated!", { id: loadingId });
             fetchCVs();
         } catch (err: any) {
-            toast.error("Failed to activate CV.", { id: "cv-activate" });
+            toast.error("Failed to activate resume.", { id: loadingId });
         }
     };
 
     const handleGenerateBios = async () => {
         setIsGeneratingBios(true);
-        toast.loading("Engine analyzing CV and writing tailored bios...", { id: "bio-gen" });
+        const loadingId = toast.loading("Creating professional bios for you...");
         try {
             const res = await api.post('/cv/generate-bios');
             setBiosData(res.data);
             setIsBiosModalOpen(true);
-            toast.success("Social branding bios generated successfully!", { id: "bio-gen" });
+            toast.success("Bios generated!", { id: loadingId });
         } catch (err: any) {
-            toast.error(err.response?.data?.error || "Failed to generate bios. Ensure you have an active CV.", { id: "bio-gen" });
+            toast.error("Failed to generate bios. Make sure you have an active resume.", { id: loadingId });
         } finally {
             setIsGeneratingBios(false);
         }
@@ -196,10 +194,9 @@ export default function ProfilePage() {
 
     const handleConnectGmail = () => {
         setIsConnectingGmail(true);
-        // Integrate real auth flow later
         setTimeout(() => {
             setIsConnectingGmail(false);
-            toast.success("Gmail Auto-Sync initiated.");
+            toast.success("Sync started.");
         }, 1500);
     };
 
@@ -211,7 +208,7 @@ export default function ProfilePage() {
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
-            month: 'long',
+            month: 'short',
             day: 'numeric'
         });
     };
@@ -225,534 +222,618 @@ export default function ProfilePage() {
     const biosReadyCount = biosData ? Object.keys(biosData).length : 0;
 
     return (
-        <div className="w-full bg-[#fafaf8] pb-24 font-medium">
+        <div className="w-full pb-20 selection:bg-blue-100">
             <input type="file" className="hidden" ref={fileInputRef} onChange={handleFileChange} accept=".pdf,.doc,.docx,.txt" />
 
-            <div className="mx-auto max-w-6xl space-y-5">
+            {/* Main Wrapper with no max-width constraints for full width requirement */}
+            <div className="w-full px-4 sm:px-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+
+                {/* Profile Header Card */}
                 <motion.section
-                    initial={{ opacity: 0, y: 8 }}
+                    initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm md:p-8"
+                    className={cn(containerClasses, "relative overflow-hidden p-0 border-none bg-gradient-to-br from-white to-zinc-50")}
                 >
-                    <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-                        <div className="flex min-w-0 items-start gap-4 md:gap-5">
-                            <div className="flex h-15 w-15 shrink-0 items-center justify-center rounded-2xl bg-zinc-950 text-lg font-bold uppercase text-white">
-                                {getInitials(user?.name)}
+                    <div className="flex flex-col gap-8 p-8 sm:p-12 lg:flex-row lg:items-center">
+                        <div className="flex flex-1 items-start gap-8">
+                            <div className="relative">
+                                <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-[2.5rem] bg-blue-600 text-3xl font-bold text-white">
+                                    {getInitials(user?.name)}
+                                </div>
+                                <div className="absolute -bottom-1 -right-1 h-8 w-8 rounded-xl bg-white border border-zinc-200 flex items-center justify-center">
+                                    <ShieldCheck className="h-4 w-4 text-blue-500" />
+                                </div>
                             </div>
 
-                            <div className="min-w-0">
-                                <div className="mb-2 flex flex-wrap items-center gap-2">
-                                    <span className="text-sm font-medium text-[#1C4ED8]">
-                                        {user?.role || "Basic"} tier
+                            <div className="min-w-0 pt-2">
+                                <div className="flex flex-wrap items-center gap-2 mb-3">
+                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-600 border border-blue-100">
+                                        {user?.role || "Basic"} Member
                                     </span>
-                                    <span className="text-sm text-zinc-400">/</span>
-                                    <span className="text-sm text-zinc-500">
-                                        {cvs.length} resume{cvs.length === 1 ? "" : "s"}
+                                    <span className="text-xs font-medium text-zinc-400">
+                                        {cvs.length} Documents
                                     </span>
                                 </div>
-                                <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 md:text-4xl">
-                                    {user?.name || "Your profile"}
+                                <h1 className="text-4xl font-extrabold tracking-tight text-zinc-900">
+                                    {user?.name || "Your Profile"}
                                 </h1>
-                                <p className="mt-2 max-w-2xl text-[15px] leading-7 text-zinc-600">
-                                    Manage your active resume, generated bios, and profile insights from one clean workspace.
-                                </p>
-                                <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-zinc-500">
+                                <div className="mt-5 flex flex-wrap items-center gap-8 text-sm text-zinc-500 font-medium">
                                     <span className="inline-flex items-center gap-2">
-                                        <Mail className="h-4 w-4 text-[#1C4ED8]" />
+                                        <Mail className="h-4 w-4 text-zinc-400" />
                                         {user?.email}
                                     </span>
-                                    <span className="hidden text-zinc-300 sm:inline">•</span>
                                     <span className="inline-flex items-center gap-2">
-                                        <CheckCircle2 className="h-4 w-4 text-[#1C4ED8]" />
-                                        {activeCv ? "Active resume selected" : "No active resume yet"}
+                                        <CheckCircle2 className={cn("h-4 w-4", activeCv ? "text-emerald-500" : "text-zinc-300")} />
+                                        {activeCv ? "Resume Verified" : "No resume yet"}
                                     </span>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-3 sm:flex-row">
+                        <div className="flex flex-col gap-4 sm:flex-row lg:flex-row">
                             <button
                                 type="button"
                                 onClick={() => fileInputRef.current?.click()}
                                 disabled={isUploading}
-                            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1C4ED8] px-5 py-3 text-sm font-medium text-white transition-all hover:bg-[#1e40af] active:scale-[0.98] disabled:opacity-60"
+                                className="inline-flex items-center justify-center gap-2.5 h-14 rounded-2xl bg-blue-600 px-10 text-sm font-bold text-white transition-all hover:bg-blue-700 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
                             >
-                                {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                                Upload resume
+                                {isUploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
+                                Upload Resume
                             </button>
                             <button
                                 type="button"
                                 onClick={() => biosData ? setIsBiosModalOpen(true) : handleGenerateBios()}
                                 disabled={isGeneratingBios || cvs.length === 0}
-                            className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-5 py-3 text-sm font-medium text-zinc-800 transition-all hover:border-zinc-300 hover:text-zinc-950 active:scale-[0.98] disabled:opacity-50"
+                                className="inline-flex items-center justify-center gap-2.5 h-14 rounded-2xl bg-blue-600 px-10 text-sm font-bold text-white transition-all hover:bg-blue-700 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
                             >
-                                {isGeneratingBios ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                                {biosData ? "Open bios" : "Generate bios"}
+                                {isGeneratingBios ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5 text-white" />}
+                                {biosData ? "Open My Bios" : "Create Social Bios"}
                             </button>
                         </div>
                     </div>
                 </motion.section>
 
-                <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
-                    <div className="space-y-6 xl:col-span-8">
+                <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+                    <div className="space-y-8 lg:col-span-8">
+                        {/* Resume List Card */}
                         <motion.section
-                            initial={{ opacity: 0, y: 8 }}
+                            initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, delay: 0.05 }}
-                            className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm md:p-8"
+                            transition={{ delay: 0.1 }}
+                            className={containerClasses}
                         >
-                            <div className="mb-6 flex items-center justify-between gap-4">
-                                <div>
-                                    <h2 className="text-2xl font-semibold tracking-tight text-zinc-950">Resume library</h2>
-                                    <p className="mt-1 text-sm text-zinc-500">Keep one resume active and store tailored versions for different roles.</p>
+                            <div className={cardHeaderClasses}>
+                                <div className="flex items-center gap-4">
+                                    <div className="h-10 w-10 rounded-2xl bg-zinc-50 flex items-center justify-center">
+                                        <FileText className="h-5 w-5 text-zinc-500" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-xl font-bold tracking-tight text-zinc-900">My Resumes</h2>
+                                        <p className="text-sm text-zinc-500">Manage all versions of your CV</p>
+                                    </div>
                                 </div>
-                                <div className="rounded-xl bg-zinc-100 px-3 py-2 text-sm font-medium text-zinc-700">
-                                    {cvs.length} total
+                                <div className="px-3 py-1 bg-zinc-50 rounded-full text-xs font-bold text-zinc-500 border border-zinc-100">
+                                    {cvs.length} Total
                                 </div>
                             </div>
 
-                            {isLoading ? (
-                                <div className="rounded-2xl border border-dashed border-zinc-200 bg-zinc-50 px-6 py-16 text-center">
-                                    <Loader2 className="mx-auto h-8 w-8 animate-spin text-[#1C4ED8]" />
-                                    <p className="mt-4 text-sm font-medium text-zinc-600">Loading your resumes...</p>
-                                </div>
-                            ) : cvs.length === 0 ? (
-                                <div className="rounded-2xl border border-dashed border-zinc-200 bg-zinc-50 px-6 py-14 text-center">
-                                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#1C4ED8] shadow-sm">
-                                        <Upload className="h-6 w-6" />
+                            <div className="p-6 sm:p-8">
+                                {isLoading ? (
+                                    <div className="flex flex-col items-center justify-center py-20 text-zinc-300">
+                                        <Loader2 className="h-12 w-12 animate-spin mb-4" />
+                                        <p className="text-sm font-medium">Checking your files...</p>
                                     </div>
-                                    <h3 className="mt-5 text-xl font-semibold text-zinc-950">Upload your first resume</h3>
-                                    <p className="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-zinc-600">
-                                        Start by adding a resume. Once uploaded, you can activate it, preview parsed details, and generate profile bios from it.
-                                    </p>
-                                    <button
-                                        type="button"
-                                        onClick={() => fileInputRef.current?.click()}
-                                        disabled={isUploading}
-                                        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#1C4ED8] px-5 py-3 text-sm font-medium text-white transition-all hover:bg-[#1e40af]"
-                                    >
-                                        {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-                                        Upload resume
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    {activeCv && (
-                                        <div className="rounded-2xl border border-zinc-200 bg-white p-5 md:p-6">
-                                            <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
-                                                <div className="min-w-0">
-                                                    <div className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-[#1C4ED8]">
-                                                        <CheckCircle2 className="h-4 w-4" />
-                                                        Active resume
-                                                    </div>
-                                                    <h3 className="truncate text-2xl font-semibold tracking-tight text-zinc-950">
-                                                        {activeCv.profile_name || activeCv.filename}
-                                                    </h3>
-                                                    <p className="mt-2 text-sm text-zinc-600">
-                                                        This version is currently being used for AI analysis and social bio generation.
-                                                    </p>
-                                                    <div className="mt-4 flex flex-wrap gap-4 text-sm text-zinc-500">
-                                                        <span>Uploaded {formatDate(activeCv.created_at)}</span>
-                                                        <span className="text-zinc-300">•</span>
-                                                        <span>{currentTitle}</span>
-                                                    </div>
-                                                </div>
-
-                                                <button
-                                                    onClick={() => setPreviewCv(activeCv)}
-                                                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm font-medium text-zinc-800 transition-all hover:border-zinc-300 hover:text-zinc-950"
-                                                >
-                                                    <Eye className="h-4 w-4" />
-                                                    Preview
-                                                </button>
-                                            </div>
+                                ) : cvs.length === 0 ? (
+                                    <div className="text-center py-16 bg-zinc-50 rounded-[2.5rem] border border-dashed border-zinc-200 px-6">
+                                        <div className="mx-auto h-20 w-20 bg-white flex items-center justify-center rounded-3xl text-zinc-300">
+                                            <Upload className="h-8 w-8" />
                                         </div>
-                                    )}
-
-                                    <div className="overflow-hidden rounded-2xl border border-zinc-200">
-                                        <div className="border-b border-zinc-200 bg-zinc-50 px-5 py-4 text-sm font-semibold text-zinc-700">
-                                            Saved versions
-                                        </div>
-                                        <div className="divide-y divide-zinc-200 bg-white">
-                                            {cvs.filter((cv) => !cv.is_active).length > 0 ? (
-                                                cvs.filter((cv) => !cv.is_active).map((cvItem, index) => (
-                                                    <motion.div
-                                                        key={cvItem.id}
-                                                        initial={{ opacity: 0, y: 6 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        transition={{ duration: 0.2, delay: index * 0.03 }}
-                                                        className="flex flex-col gap-4 px-5 py-5 md:flex-row md:items-center md:justify-between"
-                                                    >
-                                                        <div className="min-w-0">
-                                                            <p className="truncate text-base font-medium text-zinc-900">
-                                                                {cvItem.profile_name || cvItem.filename}
-                                                            </p>
-                                                            <p className="mt-1 text-sm text-zinc-500">
-                                                                Uploaded on {formatDate(cvItem.created_at)}
-                                                            </p>
-                                                        </div>
-
-                                                        <div className="flex flex-wrap gap-2">
-                                                            <button
-                                                                onClick={() => setPreviewCv(cvItem)}
-                                                                className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition-all hover:border-zinc-300 hover:text-zinc-950"
-                                                            >
-                                                                Preview
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleActivateCV(cvItem.id)}
-                                                                className="rounded-lg bg-[#1C4ED8] px-3 py-2 text-sm font-medium text-white transition-all hover:bg-[#1e40af]"
-                                                            >
-                                                                Make active
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleDeleteCV(cvItem.id)}
-                                                                disabled={isDeleting === cvItem.id}
-                                                                className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-500 transition-all hover:border-red-200 hover:bg-red-50 hover:text-red-500 disabled:opacity-50"
-                                                            >
-                                                                {isDeleting === cvItem.id ? "Removing..." : "Delete"}
-                                                            </button>
-                                                        </div>
-                                                    </motion.div>
-                                                ))
-                                            ) : (
-                                                <div className="px-5 py-8 text-sm text-zinc-500">
-                                                    No alternate resume versions yet.
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => fileInputRef.current?.click()}
-                                        disabled={isUploading}
-                                    className="flex w-full items-center justify-between rounded-2xl border border-dashed border-zinc-200 bg-zinc-50 px-5 py-5 text-left transition-all hover:border-zinc-300 hover:bg-white disabled:opacity-60"
-                                    >
-                                        <div>
-                                            <p className="text-sm font-semibold text-zinc-900">Add another resume version</p>
-                                            <p className="mt-1 text-sm text-zinc-500">PDF, DOCX, or TXT up to 5MB.</p>
-                                        </div>
-                                        {isUploading ? <Loader2 className="h-5 w-5 animate-spin text-[#1C4ED8]" /> : <Plus className="h-5 w-5 text-zinc-400" />}
-                                    </button>
-                                </div>
-                            )}
-                        </motion.section>
-
-                        {cvs.length > 0 && (
-                            <motion.section
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.3, delay: 0.08 }}
-                            className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm md:p-8"
-                            >
-                                <div className="mb-6">
-                                    <h2 className="text-2xl font-semibold tracking-tight text-zinc-950">Resume insights</h2>
-                                    <p className="mt-1 text-sm text-zinc-500">A quick summary of what the currently active resume is communicating.</p>
-                                </div>
-
-                                {!parsed ? (
-                                    <div className="rounded-2xl border border-dashed border-zinc-200 bg-zinc-50 px-6 py-12 text-center">
-                                        <Loader2 className="mx-auto h-8 w-8 animate-spin text-[#1C4ED8]" />
-                                        <p className="mt-4 text-sm text-zinc-600">Parsing your active resume...</p>
+                                        <h3 className="mt-8 text-2xl font-bold text-zinc-900">Upload your first resume</h3>
+                                        <p className="mx-auto mt-3 max-w-sm text-sm text-zinc-500 leading-relaxed">
+                                            Start by adding a resume to unlock tailored job tips and social media bios.
+                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick={() => fileInputRef.current?.click()}
+                                            className="mt-10 inline-flex h-14 items-center gap-3 rounded-2xl bg-blue-600 px-10 text-sm font-bold text-white transition-all hover:bg-blue-700"
+                                        >
+                                            <Plus className="h-5 w-5" />
+                                            Select File
+                                        </button>
                                     </div>
                                 ) : (
                                     <div className="space-y-6">
-                                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                                            <div className="rounded-2xl bg-zinc-50 p-5">
-                                                <p className="text-sm text-zinc-500">Current focus</p>
-                                                <p className="mt-2 text-lg font-semibold text-zinc-950">{currentTitle}</p>
-                                            </div>
-                                            <div className="rounded-2xl bg-zinc-50 p-5">
-                                                <p className="text-sm text-zinc-500">Skills detected</p>
-                                                <p className="mt-2 text-lg font-semibold text-zinc-950">{skills.length}</p>
-                                            </div>
-                                            <div className="rounded-2xl bg-zinc-50 p-5">
-                                                <p className="text-sm text-zinc-500">Experience signal</p>
-                                                <p className="mt-2 text-lg font-semibold text-zinc-950">{yearsOfExperience}</p>
-                                            </div>
-                                        </div>
+                                        {activeCv && (
+                                            <div className="relative rounded-[2.5rem] border-2 border-blue-500/10 bg-blue-50/10 p-8 transition-all hover:bg-blue-50/20">
+                                                <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+                                                    <div className="min-w-0">
+                                                        <div className="flex items-center gap-2 mb-3">
+                                                            <div className="h-2 w-2 rounded-full bg-blue-600" />
+                                                            <span className="text-[10px] font-bold uppercase tracking-widest text-blue-600">Active Resume</span>
+                                                        </div>
+                                                        <h3 className="truncate text-2xl font-bold tracking-tight text-zinc-900">
+                                                            {activeCv.profile_name || activeCv.filename}
+                                                        </h3>
+                                                        <div className="mt-4 flex flex-wrap gap-x-8 gap-y-2 text-sm text-zinc-500">
+                                                            <span className="flex items-center gap-2">
+                                                                <Clock className="h-4 w-4" />
+                                                                Added {formatDate(activeCv.created_at)}
+                                                            </span>
+                                                            <span className="flex items-center gap-2">
+                                                                <Briefcase className="h-4 w-4" />
+                                                                {currentTitle}
+                                                            </span>
+                                                        </div>
+                                                    </div>
 
-                                        {parsed.summary && (
-                                            <div className="rounded-2xl border border-zinc-200 bg-zinc-50/70 p-5">
-                                                <p className="text-sm font-semibold text-zinc-900">Summary</p>
-                                                <p className="mt-2 text-sm leading-relaxed text-zinc-600">{parsed.summary}</p>
+                                                    <button
+                                                        onClick={() => setPreviewCv(activeCv)}
+                                                        className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-blue-600 text-sm font-bold text-white transition-all hover:bg-blue-700"
+                                                    >
+                                                        <Eye className="h-4 w-4" />
+                                                        Review Details
+                                                    </button>
+                                                </div>
                                             </div>
                                         )}
 
-                                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                                            <div className="rounded-2xl border border-zinc-200 p-5">
-                                                <p className="text-sm font-semibold text-zinc-900">Top skills</p>
-                                                <div className="mt-4 flex flex-wrap gap-2">
-                                                    {skills.length > 0 ? (
-                                                        skills.map((skill: string, idx: number) => (
-                                                            <span key={`${skill}-${idx}`} className="rounded-full bg-zinc-100 px-3 py-2 text-xs font-medium text-zinc-700">
-                                                                {skill}
-                                                            </span>
-                                                        ))
-                                                    ) : (
-                                                        <p className="text-sm text-zinc-500">No structured skills were detected yet.</p>
-                                                    )}
+                                        <div className="overflow-hidden rounded-[2.5rem] border border-zinc-100 bg-zinc-50">
+                                            <div className="p-5 px-10 border-b border-zinc-100 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+                                                <Layout className="h-4 w-4" />
+                                                Saved Versions
+                                            </div>
+                                            <div className="divide-y divide-zinc-100 bg-white">
+                                                {cvs.filter((cv) => !cv.is_active).length > 0 ? (
+                                                    cvs.filter((cv) => !cv.is_active).map((cvItem) => (
+                                                        <div
+                                                            key={cvItem.id}
+                                                            className="flex flex-col gap-6 p-6 sm:px-10 md:flex-row md:items-center md:justify-between transition-colors hover:bg-zinc-50"
+                                                        >
+                                                            <div className="min-w-0">
+                                                                <p className="truncate text-lg font-bold text-zinc-900">
+                                                                    {cvItem.profile_name || cvItem.filename}
+                                                                </p>
+                                                                <p className="mt-1 text-sm text-zinc-400">
+                                                                    Uploaded {formatDate(cvItem.created_at)}
+                                                                </p>
+                                                            </div>
+
+                                                            <div className="flex flex-wrap items-center gap-3">
+                                                                <button
+                                                                    onClick={() => setPreviewCv(cvItem)}
+                                                                    className="h-10 px-4 rounded-xl text-sm font-bold text-zinc-500 hover:text-zinc-900"
+                                                                >
+                                                                    Preview
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleActivateCV(cvItem.id)}
+                                                                    className="h-10 px-5 rounded-xl bg-blue-600 text-sm font-bold text-white hover:bg-blue-700"
+                                                                >
+                                                                    Set as Active
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDeleteCV(cvItem.id)}
+                                                                    disabled={isDeleting === cvItem.id}
+                                                                    className="h-10 w-10 flex items-center justify-center rounded-xl text-zinc-400 hover:text-red-500 hover:bg-red-50"
+                                                                >
+                                                                    <Trash2 className="h-4 w-4" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <div className="p-12 text-center">
+                                                        <p className="text-sm font-medium text-zinc-400 italic">No other versions uploaded yet.</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => fileInputRef.current?.click()}
+                                            disabled={isUploading}
+                                            className="group flex w-full items-center justify-between p-8 rounded-[2.5rem] border-2 border-dashed border-zinc-100 bg-zinc-50 transition-all hover:bg-white hover:border-blue-500/20 disabled:opacity-50"
+                                        >
+                                            <div className="text-left">
+                                                <p className="text-base font-bold text-zinc-900">Add another resume version</p>
+                                                <p className="mt-1 text-sm text-zinc-500">Upload variations to see different insights.</p>
+                                            </div>
+                                            <div className="h-12 w-12 rounded-2xl bg-white border border-zinc-100 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
+                                                {isUploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Plus className="h-5 w-5" />}
+                                            </div>
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </motion.section>
+
+                        {/* Insights Card */}
+                        {cvs.length > 0 && (
+                            <motion.section
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.15 }}
+                                className={containerClasses}
+                            >
+                                <div className={cardHeaderClasses}>
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-10 w-10 rounded-2xl bg-emerald-50 flex items-center justify-center">
+                                            <Zap className="h-5 w-5 text-emerald-500" />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-xl font-bold tracking-tight text-zinc-900">Resume Summary</h2>
+                                            <p className="text-sm text-zinc-500">A quick look at your profile strengths</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="p-6 sm:p-10 space-y-10">
+                                    {!parsed ? (
+                                        <div className="py-20 flex flex-col items-center justify-center text-zinc-300">
+                                            <Loader2 className="h-10 w-12 animate-spin mb-4" />
+                                            <p className="text-sm font-medium">Summarizing your skills...</p>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                                                <div className="p-6 rounded-[2rem] bg-zinc-50 border border-zinc-100">
+                                                    <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-3">Job Focus</p>
+                                                    <p className="text-base font-bold text-zinc-900 leading-tight">{currentTitle}</p>
+                                                </div>
+                                                <div className="p-6 rounded-[2rem] bg-zinc-50 border border-zinc-100">
+                                                    <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-3">Skills Found</p>
+                                                    <p className="text-3xl font-extrabold text-zinc-900">{skills.length}</p>
+                                                </div>
+                                                <div className="p-6 rounded-[2rem] bg-zinc-50 border border-zinc-100">
+                                                    <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-3">Experience</p>
+                                                    <p className="text-3xl font-extrabold text-zinc-900">{yearsOfExperience} <span className="text-xs font-bold text-zinc-400">years</span></p>
                                                 </div>
                                             </div>
 
-                                            <div className="rounded-2xl border border-zinc-200 p-5">
-                                                <p className="text-sm font-semibold text-zinc-900">Recent experience</p>
-                                                <div className="mt-4 space-y-3">
-                                                    {workExperience.length > 0 ? (
-                                                        workExperience.map((role: any, idx: number) => (
-                                                            <div key={idx} className="rounded-xl bg-zinc-50 px-4 py-4">
-                                                                <p className="font-medium text-zinc-900">{role.title || role.position || "Role"}</p>
-                                                                <p className="mt-1 text-sm text-zinc-500">{role.company || role.organization || "Company"}</p>
-                                                            </div>
-                                                        ))
-                                                    ) : (
-                                                        <p className="text-sm text-zinc-500">Work experience was not parsed into a structured list.</p>
-                                                    )}
+                                            {parsed.summary && (
+                                                <div className="space-y-4">
+                                                    <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 ml-4">About You</p>
+                                                    <div className="p-8 rounded-[2.5rem] bg-zinc-50 border border-zinc-100">
+                                                        <p className="text-sm font-medium leading-relaxed text-zinc-600">{parsed.summary}</p>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
+                                                <div className="space-y-6">
+                                                    <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 ml-2">Top Skills</p>
+                                                    <div className="flex flex-wrap gap-2.5">
+                                                        {skills.length > 0 ? (
+                                                            skills.map((skill: string, idx: number) => (
+                                                                <span key={idx} className="px-5 py-3 rounded-2xl bg-white border border-zinc-200 text-sm font-bold text-zinc-800">
+                                                                    {skill}
+                                                                </span>
+                                                            ))
+                                                        ) : (
+                                                            <p className="text-sm text-zinc-400">No specific skills listed.</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-6">
+                                                    <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 ml-2">Recent Experience</p>
+                                                    <div className="space-y-4">
+                                                        {workExperience.length > 0 ? (
+                                                            workExperience.map((role: any, idx: number) => (
+                                                                <div key={idx} className="flex items-center gap-5 p-5 rounded-[2rem] bg-white border border-zinc-200">
+                                                                    <div className="h-12 w-12 flex-shrink-0 flex items-center justify-center rounded-2xl bg-zinc-50 border border-zinc-100">
+                                                                        <Briefcase className="h-5 w-5 text-zinc-400" />
+                                                                    </div>
+                                                                    <div className="min-w-0">
+                                                                        <p className="text-sm font-bold text-zinc-900 truncate">{role.title || role.position || "Untitled Position"}</p>
+                                                                        <p className="text-xs font-medium text-zinc-500 mt-0.5">{role.company || role.organization || "Company"}</p>
+                                                                    </div>
+                                                                </div>
+                                                            ))
+                                                        ) : (
+                                                            <p className="text-sm text-zinc-400">No work history found.</p>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                )}
+                                        </>
+                                    )}
+                                </div>
                             </motion.section>
                         )}
                     </div>
 
-                    <div className="space-y-6 xl:col-span-4">
+                    {/* Sidebar components */}
+                    <div className="space-y-8 lg:col-span-4">
+                        {/* Profile Status Card - Removed Black Background */}
                         <motion.section
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, delay: 0.06 }}
-                            className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.12 }}
+                            className={cn(containerClasses, "overflow-hidden border-none bg-blue-600 text-white")}
                         >
-                            <div className="flex items-start justify-between gap-4">
-                                <div>
-                                    <h3 className="text-xl font-semibold tracking-tight text-zinc-950">Social bios</h3>
-                                    <p className="mt-1 text-sm text-zinc-500">Create profile bios that match your active resume.</p>
+                            <div className="p-10">
+                                <div className="flex items-center justify-between mb-10">
+                                    <div className="h-12 w-12 rounded-2xl bg-white/20 flex items-center justify-center">
+                                        <Zap className="h-6 w-6 text-white" />
+                                    </div>
+                                    <span className="text-[10px] font-bold uppercase tracking-widest bg-white/10 px-3 py-1 rounded-full">Pro Status</span>
                                 </div>
-                                <div className="rounded-xl bg-zinc-100 p-3 text-[#1C4ED8]">
-                                    <Zap className="h-5 w-5" />
+                                <h3 className="text-3xl font-extrabold tracking-tight leading-tight">Social Profile<br />Automation</h3>
+                                <div className="mt-10 grid grid-cols-2 gap-4">
+                                    <div className="bg-white/10 p-5 rounded-3xl">
+                                        <p className="text-[10px] font-bold uppercase text-white/50 tracking-wider mb-1">Documents</p>
+                                        <p className="text-3xl font-bold">{cvs.length}</p>
+                                    </div>
+                                    <div className="bg-white/10 p-5 rounded-3xl">
+                                        <p className="text-[10px] font-bold uppercase text-white/50 tracking-wider mb-1">Generated</p>
+                                        <p className="text-3xl font-bold">{biosReadyCount}</p>
+                                    </div>
                                 </div>
+                                <button
+                                    onClick={() => biosData ? setIsBiosModalOpen(true) : handleGenerateBios()}
+                                    disabled={isGeneratingBios || cvs.length === 0}
+                                    className="w-full h-14 mt-10 bg-white text-blue-600 rounded-2xl text-sm font-bold transition-all hover:bg-blue-50 flex items-center justify-center gap-3 disabled:opacity-50"
+                                >
+                                    {isGeneratingBios ? "Working..." : biosData ? "Open My Bios" : "Create Social Bios"}
+                                    {isGeneratingBios ? <Loader2 className="h-5 w-5 animate-spin" /> : <ChevronRight className="h-5 w-5" />}
+                                </button>
                             </div>
-
-                            <div className="mt-5 grid grid-cols-2 gap-3">
-                                <div className="rounded-xl bg-zinc-50 p-4">
-                                    <p className="text-sm text-zinc-500">Platforms</p>
-                                    <p className="mt-1 text-xl font-semibold text-zinc-950">4</p>
-                                </div>
-                                <div className="rounded-xl bg-zinc-50 p-4">
-                                    <p className="text-sm text-zinc-500">Ready</p>
-                                    <p className="mt-1 text-xl font-semibold text-zinc-950">{biosReadyCount}</p>
-                                </div>
-                            </div>
-
-                            <button
-                                onClick={() => biosData ? setIsBiosModalOpen(true) : handleGenerateBios()}
-                                disabled={isGeneratingBios || cvs.length === 0}
-                                className="mt-5 w-full rounded-xl bg-[#1C4ED8] px-4 py-3 text-sm font-medium text-white transition-all hover:bg-[#1e40af] disabled:opacity-50"
-                            >
-                                {isGeneratingBios ? "Generating..." : biosData ? "View bios" : "Generate bios"}
-                            </button>
                         </motion.section>
 
+                        {/* Integration Card */}
                         <motion.section
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, delay: 0.1 }}
-                            className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className={containerClasses}
                         >
-                            <div className="flex items-start justify-between gap-4">
-                                <div>
-                                    <h3 className="text-xl font-semibold tracking-tight text-zinc-950">Gmail auto-track</h3>
-                                    <p className="mt-1 text-sm text-zinc-500">Connect Gmail to pull job updates automatically.</p>
+                            <div className="p-10">
+                                <div className="flex items-start justify-between mb-8">
+                                    <div className="h-14 w-14 rounded-[1.5rem] bg-red-50 flex items-center justify-center">
+                                        <Mail className="h-7 w-7 text-red-500" />
+                                    </div>
+                                    <span className="px-3 py-1 rounded-full bg-zinc-100 text-[10px] font-bold uppercase tracking-wider text-zinc-500">Beta</span>
                                 </div>
-                                <span className="rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-medium text-red-500">Beta</span>
+                                <h3 className="text-2xl font-bold tracking-tight text-zinc-900 mb-3">Sync with Gmail</h3>
+                                <p className="text-sm font-medium text-zinc-500 leading-relaxed mb-10">
+                                    Automatically pull job application updates and interview invites from your inbox.
+                                </p>
+                                <button
+                                    onClick={handleConnectGmail}
+                                    disabled={isConnectingGmail}
+                                    className="group w-full h-14 rounded-2xl border border-blue-200 bg-blue-50 text-sm font-bold text-blue-900 transition-all hover:border-blue-500 hover:bg-blue-100 disabled:opacity-50 flex items-center justify-center gap-3"
+                                >
+                                    {isConnectingGmail ? "Connecting..." : "Connect Email"}
+                                    <ExternalLink className="h-4 w-4 text-blue-400 group-hover:text-blue-900" />
+                                </button>
                             </div>
-
-                            <div className="mt-5 rounded-xl bg-zinc-50 p-4 text-sm leading-relaxed text-zinc-600">
-                                Great for keeping interview invites and application replies synced without manual logging.
-                            </div>
-
-                            <button
-                                onClick={handleConnectGmail}
-                                disabled={isConnectingGmail}
-                                className="mt-5 w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm font-medium text-zinc-800 transition-all hover:border-zinc-300 hover:text-zinc-950 disabled:opacity-50"
-                            >
-                                {isConnectingGmail ? "Connecting..." : "Sign in with Google"}
-                            </button>
                         </motion.section>
 
+                        {/* Tips Card */}
                         <motion.section
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, delay: 0.14 }}
-                            className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.25 }}
+                            className={cn(containerClasses, "bg-zinc-50 border-none")}
                         >
-                            <h3 className="text-xl font-semibold tracking-tight text-zinc-950">Quick notes</h3>
-                            <div className="mt-4 space-y-3 text-sm leading-relaxed text-zinc-600">
-                                <p>Use one active resume for the roles you are applying to right now.</p>
-                                <p>Upload alternate versions when you want to test a different positioning.</p>
-                                <p>Generate bios after activating the resume you want reflected publicly.</p>
+                            <div className="p-10">
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-8">Quick Tips</h3>
+                                <ul className="space-y-6">
+                                    {[
+                                        "Keep one resume active for best AI results.",
+                                        "Refresh your social bios when you update your active resume.",
+                                        "Upload different versions for different types of jobs."
+                                    ].map((note, idx) => (
+                                        <li key={idx} className="flex items-start gap-4">
+                                            <CheckCircle2 className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
+                                            <p className="text-sm font-bold text-zinc-600 leading-relaxed">{note}</p>
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
                         </motion.section>
                     </div>
                 </div>
             </div>
 
-            {/* Premium Bios Modal */}
-            {isBiosModalOpen && biosData && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/70 p-4 backdrop-blur-sm">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.98, y: 10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        className="w-full max-w-6xl rounded-2xl bg-white shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-zinc-200"
-                    >
-                        <div className="flex items-center justify-between border-b border-zinc-200 p-8 bg-white shrink-0">
-                            <div className="flex items-center gap-6">
-                                <div className="h-12 w-12 flex items-center justify-center rounded-xl bg-zinc-100 text-[#1C4ED8]">
-                                    <Zap className="h-6 w-6" />
+            {/* Bios Modal - Premium Redesign */}
+            <AnimatePresence>
+                {isBiosModalOpen && biosData && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsBiosModalOpen(false)}
+                            className="absolute inset-0 bg-zinc-950/20 backdrop-blur-md"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="relative w-full max-w-7xl rounded-[3rem] bg-white overflow-hidden flex flex-col max-h-[90vh] border border-zinc-100"
+                        >
+                            {/* Modal Header */}
+                            <div className="flex items-center justify-between border-b border-zinc-100 p-8 sm:px-12 py-10 bg-white sticky top-0 z-10">
+                                <div className="flex items-center gap-6">
+                                    <div className="h-14 w-14 flex items-center justify-center rounded-2xl bg-blue-600 text-white">
+                                        <Sparkles className="h-7 w-7 text-white" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-3xl font-extrabold text-zinc-900 tracking-tight">Social Profile Bios</h2>
+                                        <p className="text-sm font-bold text-zinc-400 uppercase tracking-widest mt-1">Generated by AI based on your active resume</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h2 className="text-2xl font-semibold text-black tracking-tight">Social branding bios</h2>
-                                    <p className="text-sm text-zinc-500 mt-1">Generated from your active resume for each platform.</p>
+                                <div className="flex items-center gap-4">
+                                    <button
+                                        onClick={handleGenerateBios}
+                                        disabled={isGeneratingBios}
+                                        className="hidden sm:flex h-12 px-6 rounded-xl bg-blue-50 border border-blue-200 text-xs font-bold text-blue-600 transition-all hover:bg-blue-100 hover:text-blue-900 items-center gap-2"
+                                    >
+                                        {isGeneratingBios ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
+                                        Regenerate
+                                    </button>
+                                    <button
+                                        onClick={() => setIsBiosModalOpen(false)}
+                                        className="h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-400 hover:bg-blue-100 hover:text-blue-900 transition-all"
+                                    >
+                                        <X className="h-6 w-6" />
+                                    </button>
                                 </div>
                             </div>
-                            <button
-                                onClick={() => setIsBiosModalOpen(false)}
-                                className="rounded-xl p-3 text-zinc-400 hover:bg-zinc-100 hover:text-black transition-all bg-white border border-zinc-200 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1C4ED8]"
-                                aria-label="Close modal"
-                            >
-                                <X className="h-6 w-6" />
-                            </button>
-                        </div>
 
-                        <div className="p-8 overflow-y-auto w-full flex-1 bg-[#fafaf8]">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto pb-8">
-                                {['linkedin', 'upwork', 'twitter', 'github'].map((platformKey) => {
-                                    const data = biosData[platformKey];
-                                    if (!data) return null;
+                            {/* Modal Body */}
+                            <div className="p-8 sm:p-12 overflow-y-auto bg-zinc-50/20">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+                                    {['linkedin', 'upwork', 'twitter', 'github'].map((platformKey) => {
+                                        const data = biosData[platformKey];
+                                        if (!data) return null;
 
-                                    const platMeta: Record<string, any> = {
-                                        'linkedin': { icon: Linkedin, color: 'text-[#1C4ED8]', bg: 'bg-[#1C4ED8]/10', border: 'border-[#1C4ED8]/20', label: 'LinkedIn' },
-                                        'twitter': { icon: Twitter, color: 'text-zinc-900', bg: 'bg-zinc-100', border: 'border-zinc-200', label: 'X (Twitter)' },
-                                        'github': { icon: Github, color: 'text-zinc-800', bg: 'bg-zinc-100', border: 'border-zinc-200', label: 'GitHub' },
-                                        'upwork': { icon: Briefcase, color: 'text-[#1C4ED8]', bg: 'bg-[#1C4ED8]/10', border: 'border-[#1C4ED8]/20', label: 'Upwork' },
-                                    };
+                                        const platMeta: Record<string, any> = {
+                                            'linkedin': { icon: Linkedin, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100', label: 'LinkedIn', desc: 'Professional Headline & About' },
+                                            'twitter': { icon: Twitter, color: 'text-zinc-900', bg: 'bg-zinc-100', border: 'border-zinc-200', label: 'X / Twitter', desc: 'Short & Punchy Bio' },
+                                            'github': { icon: Github, color: 'text-zinc-900', bg: 'bg-zinc-100', border: 'border-zinc-200', label: 'GitHub', desc: 'Developer Profile Bio' },
+                                            'upwork': { icon: Briefcase, color: 'text-emerald-500', bg: 'bg-emerald-50', border: 'border-emerald-100', label: 'Upwork', desc: 'Freelancer Overview' },
+                                        };
+                                        const meta = platMeta[platformKey] || { icon: Zap, color: 'text-blue-600', bg: 'bg-blue-50', label: platformKey, desc: 'Profile Details' };
+                                        const IconInfo = meta.icon;
 
-                                    const meta = platMeta[platformKey] || { icon: Zap, color: 'text-[#1C4ED8]', bg: 'bg-[#1C4ED8]/10', border: 'border-[#1C4ED8]/20', label: platformKey };
-                                    const IconInfo = meta.icon;
-
-                                    return (
-                                        <div key={platformKey} className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm flex flex-col h-full">
-                                            <div className="flex items-center gap-4 mb-6">
-                                                <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${meta.bg} ${meta.color} border border-black/5`}>
-                                                    <IconInfo className="h-6 w-6" />
-                                                </div>
-                                                <h4 className="text-lg font-semibold text-zinc-800">{meta.label}</h4>
-                                            </div>
-
-                                            <div className="flex-1">
-                                                {typeof data === 'string' ? (
-                                                    <p className="text-sm font-medium text-zinc-600 leading-relaxed bg-zinc-50 p-6 rounded-2xl border border-zinc-200 italic">"{data}"</p>
-                                                ) : (
-                                                    <div className="space-y-4">
-                                                        {Object.entries(data).map(([key, val]: [string, any]) => (
-                                                            <div key={key} className="bg-zinc-50 p-5 rounded-xl border border-zinc-200">
-                                                                <span className="text-[11px] font-medium text-zinc-500 block mb-2 capitalize">{key}</span>
-                                                                <p className="text-sm font-medium text-zinc-700 leading-relaxed whitespace-pre-wrap">{val}</p>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            <button
-                                                onClick={() => {
-                                                    const text = typeof data === 'string' ? data : Object.entries(data).map(([k, v]) => `${k.toUpperCase()}:\n${v}`).join('\n\n');
-                                                    navigator.clipboard.writeText(text);
-                                                    toast.success(`${meta.label} assets copied!`);
-                                                }}
-                                                className="w-full mt-8 bg-[#1C4ED8] hover:bg-[#1e40af] text-white text-sm font-medium py-3 rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1C4ED8] focus-visible:ring-offset-2"
+                                        return (
+                                            <motion.div
+                                                key={platformKey}
+                                                whileHover={{ y: -4 }}
+                                                className="bg-white border border-zinc-100 rounded-[2.5rem] overflow-hidden transition-all"
                                             >
-                                                <Copy className="h-4 w-4" /> Copy to clipboard
-                                            </button>
-                                        </div>
-                                    );
-                                })}
+                                                {/* Card Header */}
+                                                <div className="p-8 border-b border-zinc-50 flex items-center justify-between bg-white">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className={cn("h-12 w-12 rounded-xl flex items-center justify-center", meta.bg, meta.color)}>
+                                                            <IconInfo className="h-6 w-6" />
+                                                        </div>
+                                                        <div>
+                                                            <h4 className="text-lg font-bold tracking-tight text-zinc-900">{meta.label}</h4>
+                                                            <p className="text-xs font-medium text-zinc-400">{meta.desc}</p>
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => {
+                                                            const text = typeof data === 'string' ? data : Object.entries(data).map(([k, v]) => `${k.toUpperCase()}:\n${v}`).join('\n\n');
+                                                            navigator.clipboard.writeText(text);
+                                                            toast.success(`${meta.label} bio copied!`);
+                                                        }}
+                                                        className="h-10 px-4 rounded-xl bg-blue-600 text-white text-[11px] font-bold uppercase tracking-wider transition-all hover:bg-blue-700 flex items-center gap-2"
+                                                    >
+                                                        <Copy className="h-3.5 w-3.5" />
+                                                        Copy All
+                                                    </button>
+                                                </div>
+
+                                                {/* Card Content */}
+                                                <div className="p-8 space-y-6">
+                                                    {typeof data === 'string' ? (
+                                                        <div className="p-6 rounded-2xl bg-zinc-50/50 border border-zinc-100 relative group">
+                                                            <p className="text-sm font-medium text-zinc-700 leading-relaxed italic">"{data}"</p>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="space-y-6">
+                                                            {Object.entries(data).map(([key, val]: [string, any]) => (
+                                                                <div key={key} className="space-y-2">
+                                                                    <div className="flex items-center justify-between px-1">
+                                                                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{key}</span>
+                                                                        <button
+                                                                            onClick={() => {
+                                                                                navigator.clipboard.writeText(val);
+                                                                                toast.success(`${key} copied!`);
+                                                                            }}
+                                                                            className="text-[9px] font-bold text-blue-500 uppercase tracking-wider hover:text-blue-700"
+                                                                        >
+                                                                            Copy only this
+                                                                        </button>
+                                                                    </div>
+                                                                    <div className="p-5 rounded-2xl bg-zinc-50/50 border border-zinc-100">
+                                                                        <p className="text-sm font-medium text-zinc-700 leading-relaxed whitespace-pre-wrap">{val}</p>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </motion.div>
+                                        );
+                                    })}
+                                </div>
+
+                                <div className="mt-16 text-center pb-8">
+                                    <p className="text-sm font-medium text-zinc-400 mb-6">Want to try a different tone? Update your resume or click regenerate.</p>
+                                    <button
+                                        onClick={handleGenerateBios}
+                                        disabled={isGeneratingBios}
+                                        className="h-14 px-10 rounded-2xl bg-blue-600 text-sm font-bold text-white transition-all hover:bg-blue-700 flex items-center gap-3 mx-auto"
+                                    >
+                                        {isGeneratingBios ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5 text-white" />}
+                                        Regenerate All Profiles
+                                    </button>
+                                </div>
                             </div>
-                            <div className="flex justify-center pt-4 pb-8">
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Review Modal */}
+            <AnimatePresence>
+                {previewCv && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setPreviewCv(null)}
+                            className="absolute inset-0 bg-zinc-950/20 backdrop-blur-md"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="relative w-full max-w-7xl rounded-[3rem] bg-white overflow-hidden flex flex-col max-h-[90vh] border border-zinc-100"
+                        >
+                            <div className="flex items-center justify-between border-b border-zinc-100 p-8 sm:px-12 py-10 bg-white sticky top-0 z-10">
+                                <div className="flex items-center gap-6">
+                                    <div className="h-14 w-14 flex items-center justify-center rounded-2xl bg-blue-600 text-white">
+                                        <Search className="h-7 w-7 text-white" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-3xl font-extrabold text-zinc-900 tracking-tight">Resume Review</h2>
+                                        <p className="text-sm font-bold text-zinc-400 uppercase tracking-widest mt-1">{previewCv.filename}</p>
+                                    </div>
+                                </div>
                                 <button
-                                    onClick={handleGenerateBios}
-                                    disabled={isGeneratingBios}
-                                    className="bg-white border border-zinc-200 text-zinc-800 hover:border-zinc-300 hover:text-zinc-950 text-sm font-medium py-3 px-8 rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-3 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1C4ED8]"
+                                    onClick={() => setPreviewCv(null)}
+                                    className="h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-400 hover:bg-blue-100 hover:text-blue-900 transition-all"
                                 >
-                                    {isGeneratingBios ? <Loader2 className="h-5 w-5 animate-spin text-[#1C4ED8]" /> : <Sparkles className="h-5 w-5 text-[#1C4ED8]" />}
-                                    {isGeneratingBios ? "Generating…" : "Regenerate bios"}
+                                    <X className="h-6 w-6" />
                                 </button>
                             </div>
-                        </div>
-                    </motion.div>
-                </div>
-            )}
 
-            {/* Neural Scan Modal */}
-            {previewCv && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/70 p-4 backdrop-blur-sm">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.98 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="w-full max-w-5xl rounded-2xl bg-white shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-zinc-200"
-                    >
-                        <div className="flex items-center justify-between border-b border-zinc-200 p-8 bg-white shrink-0">
-                            <div className="flex items-center gap-6">
-                                <div className="h-12 w-12 flex items-center justify-center rounded-xl bg-zinc-100 text-[#1C4ED8] border border-zinc-200">
-                                    <Sparkles className="h-6 w-6" />
-                                </div>
-                                <div>
-                                    <h2 className="text-2xl font-semibold text-black tracking-tight">Resume review</h2>
-                                    <p className="text-sm text-zinc-500 mt-1">{previewCv.profile_name || previewCv.filename}</p>
+                            <div className="p-8 sm:p-12 overflow-y-auto bg-zinc-50/20">
+                                <div className="max-w-6xl mx-auto">
+                                    <div className="bg-white p-10 sm:p-16 rounded-[2.5rem] border border-zinc-100 mb-12">
+                                        <div className="mb-10 flex items-center justify-between border-b border-zinc-100 pb-8">
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                                                <span className="text-xs font-bold tracking-widest uppercase text-zinc-400">Analysis Successful</span>
+                                            </div>
+                                        </div>
+                                        <DynamicCVRenderer data={previewCv.parsed_data} />
+                                    </div>
                                 </div>
                             </div>
-                            <button
-                                onClick={() => setPreviewCv(null)}
-                                className="rounded-xl p-3 text-zinc-400 hover:bg-zinc-100 hover:text-black transition-all bg-white border border-zinc-200 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1C4ED8]"
-                                aria-label="Close resume preview"
-                            >
-                                <X className="h-6 w-6" />
-                            </button>
-                        </div>
-
-                        <div className="p-8 overflow-y-auto w-full flex-1 bg-[#fafaf8]">
-                            <div className="max-w-4xl mx-auto pb-8">
-                                <div className="bg-white p-8 rounded-2xl border border-zinc-200 shadow-sm">
-                                    <DynamicCVRenderer data={previewCv.parsed_data} />
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-                </div>
-            )}
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
-}
-
-function Plus(props: any) {
-    return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M5 12h14" />
-            <path d="M12 5v14" />
-        </svg>
-    )
 }

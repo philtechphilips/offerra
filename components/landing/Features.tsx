@@ -1,77 +1,103 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MousePointer2, Mail, LayoutDashboard, Zap, Shield, Globe } from "lucide-react";
+import { LayoutDashboard, Zap, Sparkles, Briefcase } from "lucide-react";
 
 const features = [
     {
-        title: "Instant Capture",
-        description: "Our high-speed content script detects successful applications on 200+ job boards. No data entry required.",
-        icon: MousePointer2,
-    },
-    {
-        title: "Email Synchronization",
-        description: "Secure OAuth for Gmail & Outlook. We track every thread and update your application states automatically.",
-        icon: Mail,
-    },
-    {
-        title: "Strategic Pipeline",
-        description: "A centralized career command center. Manage every lead, interview, and offer in one polished interface.",
+        title: "No More Spreadsheets",
+        description: "Everything you apply for is in one easy place. No more messy lists.",
         icon: LayoutDashboard,
+        color: "blue"
     },
     {
-        title: "Performance AI",
-        description: "Weekly executive summaries on your response rates with actionable suggestions to increase conversion.",
+        title: "AI Smart Resume",
+        description: "Our AI helps you fix your resume to match exactly what jobs are looking for.",
+        icon: Sparkles,
+        color: "emerald"
+    },
+    {
+        title: "Ready for Interviews",
+        description: "We help you practice for your interviews with tips for exactly who you're meeting.",
         icon: Zap,
+        color: "amber"
     },
     {
-        title: "Encrypted Privacy",
-        description: "Your data is strictly yours. We use high-grade encryption and locally-hosted models for text processing.",
-        icon: Shield,
-    },
-    {
-        title: "Omni-Channel Sync",
-        description: "Your workspace stays in sync across all devices. Capture on desktop, monitor on mobile.",
-        icon: Globe,
-    },
+        title: "Track Everything",
+        description: "See exactly which version of your resume you sent where, so you're always organized.",
+        icon: Briefcase,
+        color: "blue"
+    }
 ];
 
 export function Features() {
     return (
-        <section id="features" className="py-32 lg:py-48 relative overflow-hidden bg-white">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div className="flex flex-col mb-24 max-w-2xl">
+        <section id="features" className="py-24 lg:py-32 relative bg-white overflow-hidden">
+            {/* Minimalist Top/Bottom Accents */}
+            <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-zinc-200/60 to-transparent" />
+            <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-zinc-200/60 to-transparent" />
+
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
+                <div className="flex flex-col items-start mb-32 max-w-3xl">
+                    <motion.div
+                        className="mb-8 flex items-center gap-3"
+                        initial={{ opacity: 0, x: -10 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                    >
+                        <div className="h-0.5 w-8 bg-blue-600 rounded-full" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.35em] text-blue-600">Why use us</span>
+                    </motion.div>
+
                     <motion.h2
-                        className="text-[clamp(2.5rem,5vw,4rem)] font-black leading-[0.9] tracking-tight mb-8 text-black"
+                        className="text-[clamp(2.5rem,7vw,5rem)] font-black leading-[0.9] tracking-tighter mb-10 text-black text-gradient"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
+                        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
                     >
-                        Engineered for <br /><span className="text-[#1C4ED8]">unmatched</span> clarity.
+                        Built to <br />
+                        <span className="italic">save you</span> time.
                     </motion.h2>
-                    <p className="text-lg font-medium text-zinc-400 leading-relaxed">
-                        We rebuilt the job tracking experience with a focus on speed and intelligence.
-                        Stop managing data and start managing your career.
-                    </p>
+
+                    <motion.p
+                        className="text-lg sm:text-xl font-medium text-zinc-400 leading-relaxed max-w-2xl"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                        We built this to make job hunting easy. No more manual data entry or messy spreadsheets. Just a clean, fast way to find your next role.
+                    </motion.p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-20 gap-x-16">
-                    {features.map((feature, index) => (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {features.map((feature, idx) => (
                         <motion.div
                             key={feature.title}
-                            className="group flex flex-col items-start"
+                            className="group relative flex flex-col p-10 rounded-[2rem] border border-zinc-100 bg-white hover:bg-zinc-50/50 transition-all duration-500 overflow-hidden"
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ duration: 0.5, delay: index * 0.1 }}
+                            transition={{ duration: 0.6, delay: idx * 0.1 }}
                         >
-                            <div className="mb-8 h-14 w-14 rounded-2xl border border-zinc-100 flex items-center justify-center transition-all group-hover:bg-[#1C4ED8] group-hover:text-white group-hover:scale-110 group-hover:shadow-[0_10px_30px_rgba(28,78,216,0.2)] shadow-sm">
+                            {/* Card Spotlight Background Glow */}
+                            <div className="absolute inset-x-0 -top-px h-px w-full bg-gradient-to-r from-transparent via-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                            <div className="mb-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-white border border-zinc-100 shadow-sm transition-all duration-500 group-hover:bg-[#1C4ED8] group-hover:text-white group-hover:scale-110 group-hover:shadow-[0_20px_40px_rgba(28,78,216,0.25)]">
                                 <feature.icon className="h-6 w-6" />
                             </div>
-                            <h3 className="text-xl font-bold mb-3 tracking-tight text-black">{feature.title}</h3>
-                            <p className="text-sm font-medium text-zinc-500 leading-relaxed">
+
+                            <h3 className="text-xl font-black mb-4 tracking-tight text-black group-hover:text-blue-600 transition-colors uppercase tracking-[0.05em]">{feature.title}</h3>
+                            <p className="text-sm font-medium text-zinc-500 leading-relaxed group-hover:text-zinc-600 transition-colors">
                                 {feature.description}
                             </p>
+
+                            {/* Subtle Indicator */}
+                            <div className="mt-8 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0">
+                                <div className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+                                <span className="text-[10px] font-black uppercase tracking-[0.15em] text-blue-600">Active Module</span>
+                            </div>
                         </motion.div>
                     ))}
                 </div>

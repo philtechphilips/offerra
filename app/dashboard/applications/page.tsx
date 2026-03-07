@@ -216,7 +216,7 @@ export default function ApplicationsPage() {
             {/* Page Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-black tracking-tight text-black">Applications</h1>
+                    <h1 className="text-3xl font-black tracking-tight text-brand-blue-black">Applications</h1>
                     <p className="mt-2 text-sm font-medium text-zinc-400">
                         {meta ? `Total of ${meta.total} tracked opportunities in your pipeline.` : 'Loading your pipeline...'}
                     </p>
@@ -251,7 +251,7 @@ export default function ApplicationsPage() {
                                 "flex-shrink-0 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
                                 statusFilter === status
                                     ? "bg-[#1C4ED8] text-white"
-                                    : "bg-zinc-50 text-zinc-400 hover:bg-zinc-100 hover:text-black hover:scale-105"
+                                    : "bg-zinc-50 text-zinc-400 hover:bg-zinc-100 hover:text-blue-600 hover:scale-105"
                             )}
                         >
                             {status}
@@ -299,7 +299,7 @@ export default function ApplicationsPage() {
                                                         <Building2 className="h-6 w-6 text-zinc-400 group-hover:text-blue-500 transition-colors" />
                                                     </div>
                                                     <div className="flex flex-col min-w-0">
-                                                        <span className="text-sm font-black text-black truncate group-hover:text-blue-600 transition-colors">{job.title}</span>
+                                                        <span className="text-sm font-black text-brand-blue-black truncate group-hover:text-brand-blue transition-colors">{job.title}</span>
                                                         <span className="text-xs font-bold text-zinc-400 mt-0.5">{job.company}</span>
                                                     </div>
                                                 </div>
@@ -333,7 +333,7 @@ export default function ApplicationsPage() {
                                                             {job.cv_match_score}%
                                                         </span>
                                                         {job.cv_match_details && (
-                                                            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-56 bg-white rounded-xl border border-zinc-100 shadow-xl shadow-zinc-200/50 p-3 opacity-0 invisible group-hover/match:opacity-100 group-hover/match:visible transition-all z-20 pointer-events-none">
+                                                            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-56 bg-white rounded-xl border border-zinc-100 p-3 opacity-0 invisible group-hover/match:opacity-100 group-hover/match:visible transition-all z-20 pointer-events-none">
                                                                 {(job.cv_match_details.strengths || []).slice(0, 2).map((s, i) => (
                                                                     <p key={`s-${i}`} className="text-[10px] text-emerald-600 font-semibold leading-relaxed">✓ {s}</p>
                                                                 ))}
@@ -361,7 +361,7 @@ export default function ApplicationsPage() {
                                                         href={job.job_url}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
-                                                        className="p-2.5 rounded-xl bg-white border border-zinc-100 text-zinc-400 hover:text-blue-600 hover:border-blue-100 hover:shadow-sm transition-all"
+                                                        className="p-2.5 rounded-xl bg-white border border-zinc-100 text-zinc-400 hover:text-blue-600 hover:border-blue-100 transition-all"
                                                     >
                                                         <ExternalLink className="h-4 w-4" />
                                                     </a>
@@ -377,7 +377,7 @@ export default function ApplicationsPage() {
                                                                 setOpenDropdownId(job.id);
                                                             }
                                                         }}
-                                                        className="p-2.5 rounded-xl bg-white border border-zinc-100 text-zinc-400 hover:text-black hover:border-zinc-300 hover:shadow-sm transition-all"
+                                                        className="p-2.5 rounded-xl bg-white border border-zinc-100 text-zinc-400 hover:text-blue-600 hover:border-blue-300 transition-all"
                                                     >
                                                         <MoreVertical className="h-4 w-4" />
                                                     </button>
@@ -436,7 +436,7 @@ export default function ApplicationsPage() {
                                 exit={{ opacity: 0, scale: 0.95, y: -5 }}
                                 transition={{ duration: 0.15 }}
                                 style={{ top: dropdownPos.top, left: dropdownPos.left }}
-                                className="fixed z-[70] w-44 bg-white rounded-2xl border border-zinc-100 shadow-xl shadow-zinc-200/50 overflow-hidden"
+                                className="fixed z-[70] w-44 bg-white rounded-2xl border border-zinc-100 overflow-hidden"
                             >
                                 <button
                                     onClick={() => openEditModal(targetJob)}
@@ -472,7 +472,7 @@ export default function ApplicationsPage() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                            className="absolute inset-0 bg-blue-950/40 backdrop-blur-sm"
                             onClick={() => { setShowModal(false); resetForm(); }}
                         />
                         <motion.div
@@ -484,7 +484,7 @@ export default function ApplicationsPage() {
                         >
                             <div className="flex items-center justify-between p-8 pb-0">
                                 <div>
-                                    <h2 className="text-xl font-black tracking-tight text-black">
+                                    <h2 className="text-xl font-black tracking-tight text-brand-blue-black">
                                         {editingJob ? "Edit Application" : "Add Application"}
                                     </h2>
                                     <p className="text-xs font-medium text-zinc-400 mt-1">
@@ -493,7 +493,7 @@ export default function ApplicationsPage() {
                                 </div>
                                 <button
                                     onClick={() => { setShowModal(false); resetForm(); }}
-                                    className="h-10 w-10 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-400 hover:bg-zinc-100 hover:text-black transition-all"
+                                    className="h-10 w-10 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-400 hover:bg-zinc-100 hover:text-blue-600 transition-all"
                                 >
                                     <X className="h-4 w-4" />
                                 </button>
@@ -634,7 +634,7 @@ export default function ApplicationsPage() {
                                         )}
                                     >
                                         <span className={cn(
-                                            "absolute top-1 left-1 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200",
+                                            "absolute top-1 left-1 h-5 w-5 rounded-full bg-white transition-transform duration-200",
                                             formData.is_remote && "translate-x-5"
                                         )} />
                                     </button>
@@ -646,14 +646,14 @@ export default function ApplicationsPage() {
                                     <button
                                         type="button"
                                         onClick={() => { setShowModal(false); resetForm(); }}
-                                        className="h-12 px-6 rounded-xl text-xs font-black uppercase tracking-widest text-zinc-400 hover:text-black hover:bg-zinc-50 transition-all"
+                                        className="h-12 px-6 rounded-xl text-xs font-black uppercase tracking-widest text-zinc-400 hover:text-blue-600 hover:bg-zinc-50 transition-all"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="h-12 px-8 bg-[#1C4ED8] text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-blue-600/20 hover:bg-[#1e40af] transition-all flex items-center gap-2 disabled:opacity-50 active:scale-[0.98]"
+                                        className="h-12 px-8 bg-[#1C4ED8] text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[#1e40af] transition-all flex items-center gap-2 disabled:opacity-50 active:scale-[0.98]"
                                     >
                                         {isSubmitting ? (
                                             <>
@@ -699,14 +699,14 @@ export default function ApplicationsPage() {
                             <div className="h-16 w-16 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-6">
                                 <Trash2 className="h-8 w-8 text-red-500" />
                             </div>
-                            <h3 className="text-lg font-black tracking-tight text-black mb-2">Delete Application?</h3>
+                            <h3 className="text-lg font-black tracking-tight text-brand-blue-black mb-2">Delete Application?</h3>
                             <p className="text-xs font-medium text-zinc-400 mb-8 leading-relaxed">
-                                This will permanently remove <span className="text-black font-bold">{deletingJob.company} — {deletingJob.title}</span> from your pipeline. This action cannot be undone.
+                                This will permanently remove <span className="text-brand-blue-black font-bold">{deletingJob.company} — {deletingJob.title}</span> from your pipeline. This action cannot be undone.
                             </p>
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => setDeletingJob(null)}
-                                    className="flex-1 h-12 rounded-xl text-xs font-black uppercase tracking-widest text-zinc-400 hover:text-black hover:bg-zinc-50 transition-all border border-zinc-100"
+                                    className="flex-1 h-12 rounded-xl text-xs font-black uppercase tracking-widest text-zinc-400 hover:text-blue-600 hover:bg-zinc-50 transition-all border border-zinc-100"
                                 >
                                     Cancel
                                 </button>

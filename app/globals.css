@@ -1,10 +1,16 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --color-primary: #1C4ED8;
-  --color-primary-hover: #1e40af;
-  --color-accent: #1C4ED8;
+  --font-sans: "Inter", "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --color-brand-blue: #1C4ED8;
+  --color-brand-blue-light: #F0F4FF;
+  --color-brand-blue-hover: #1e40af;
+  --color-brand-blue-dark: #1e3a8a;
+  --color-brand-blue-black: #0f172a;
+  
+  --color-primary: var(--color-brand-blue);
+  --color-primary-hover: var(--color-brand-blue-hover);
+  --color-accent: var(--color-brand-blue);
 }
 
 :root {
@@ -24,39 +30,95 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
+  overflow-x: hidden;
 }
 
-.clean-border {
-  border: 1px solid var(--border);
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-dark {
+  background: rgba(9, 9, 11, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .dot-pattern {
-  background-image: radial-gradient(circle at 1px 1px, #e5e7eb 1px, transparent 0);
-  background-size: 32px 32px;
+  background-image: radial-gradient(circle at 1px 1px, rgba(28, 78, 216, 0.05) 1px, transparent 0);
+  background-size: 40px 40px;
+}
+
+.mesh-gradient {
+  background-color: #ffffff;
+  background-image: 
+    radial-gradient(at 100% 0%, hsla(220, 100%, 95%, 1) 0, transparent 50%),
+    radial-gradient(at 0% 100%, hsla(220, 100%, 98%, 1) 0, transparent 50%),
+    radial-gradient(at 80% 50%, hsla(210, 100%, 97%, 1) 0, transparent 50%);
 }
 
 ::selection {
-  background-color: #1C4ED8;
-  color: #ffffff;
-}
-
-.btn-primary {
-  background-color: #1C4ED8;
-  color: white;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.btn-primary:hover {
-  background-color: #1e3a8a;
-  transform: translateY(-1px);
-  box-shadow: 0 10px 25px -5px rgba(28, 78, 216, 0.3);
-}
-
-.text-blue {
+  background-color: rgba(28, 78, 216, 0.1);
   color: #1C4ED8;
 }
 
-.bg-blue-subtle {
-  background-color: rgba(28, 78, 216, 0.05);
+.btn-premium {
+  @apply relative overflow-hidden rounded-2xl bg-[#1C4ED8] px-8 py-4 text-sm font-bold text-white transition-all duration-300;
 }
+
+.btn-premium:hover {
+  @apply -translate-y-0.5 scale-[1.02] bg-brand-blue/90;
+}
+
+.btn-primary {
+  @apply relative overflow-hidden rounded-2xl bg-brand-blue px-6 py-3 text-sm font-bold text-white transition-all duration-300 hover:bg-brand-blue/90 active:scale-95;
+}
+
+.btn-secondary {
+  @apply relative overflow-hidden rounded-2xl bg-brand-blue-light px-6 py-3 text-sm font-bold text-brand-blue transition-all duration-300 hover:bg-brand-blue/10 active:scale-95 border border-brand-blue/10;
+}
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-br from-brand-blue-black via-brand-blue-dark to-brand-blue;
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transform: rotate(45deg);
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) rotate(45deg); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+

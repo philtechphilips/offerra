@@ -60,47 +60,54 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     };
 
     const sidebarContent = (
-        <div className="flex h-full w-72 flex-col border-r border-zinc-100 bg-white">
+        <div className="flex h-full w-72 flex-col border-r border-zinc-100 bg-white relative overflow-hidden">
+            {/* Soft Sidebar Accent */}
+            <div className="absolute -top-20 -left-20 w-64 h-64 bg-blue-50/30 rounded-full blur-3xl -z-10" />
+
             <div className="flex h-20 items-center justify-between px-8">
-                <Link href="/" className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-xl overflow-hidden shrink-0">
-                        <img src="/logo.png" alt="Offerra Logo" className="h-full w-full object-contain" />
+                <Link href="/" className="flex items-center gap-3 group">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden shrink-0 bg-blue-50 group-hover:scale-110 transition-transform">
+                        <img src="/logo.png" alt="Offerra Logo" className="h-full w-full object-contain p-1.5" />
                     </div>
-                    <span className="text-base font-black tracking-tight text-black">Offerra</span>
+                    <span className="text-xl font-black tracking-tighter text-brand-blue-black uppercase tracking-[-0.05em]">Offerra<span className="text-brand-blue">.</span></span>
                 </Link>
-                {/* Close button only on mobile */}
                 {onClose && (
                     <button
                         onClick={onClose}
-                        className="lg:hidden h-8 w-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-black hover:bg-zinc-100 transition-all"
+                        className="lg:hidden h-10 w-10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-blue-600 hover:bg-zinc-50 border border-transparent hover:border-zinc-100 transition-all"
                     >
-                        <X className="h-4 w-4" />
+                        <X className="h-5 w-5" />
                     </button>
                 )}
             </div>
 
-            <div className="flex flex-1 flex-col gap-y-8 px-6 py-4 overflow-y-auto">
+            <div className="flex flex-1 flex-col gap-y-10 px-6 py-8 overflow-y-auto">
                 <div>
-                    <span className="px-2 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-300">Inventory</span>
-                    <nav className="mt-4 space-y-1">
+                    <span className="px-3 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-300">Your Jobs</span>
+                    <nav className="mt-6 space-y-1.5">
                         {navigation.map((item) => (
                             <Link
                                 key={item.name}
                                 href={item.href}
                                 className={cn(
-                                    "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-bold transition-all",
+                                    "group flex items-center gap-3.5 rounded-2xl px-4 py-3 text-[11px] font-black uppercase tracking-widest transition-all relative overflow-hidden",
                                     pathname === item.href
-                                        ? "bg-white text-[#1C4ED8] shadow-sm border border-zinc-100"
-                                        : "text-zinc-500 hover:bg-zinc-100/50 hover:text-black"
+                                        ? "bg-brand-blue text-white"
+                                        : "text-zinc-400 hover:bg-zinc-50 hover:text-brand-blue"
                                 )}
                             >
                                 <item.icon className={cn(
                                     "h-4 w-4 shrink-0 transition-colors",
-                                    pathname === item.href ? "text-[#1C4ED8]" : "text-zinc-400 group-hover:text-black"
+                                    pathname === item.href ? "text-white/70" : "text-zinc-300 group-hover:text-brand-blue"
                                 )} />
-                                {item.name}
-                                {item.name === 'Applications' && (
-                                    <span className="ml-auto rounded-full bg-blue-50 px-2 py-0.5 text-[9px] font-black text-[#1C4ED8]">{jobs.length}</span>
+                                {item.name === 'Overview' ? 'Summary' : item.name}
+                                {item.name === 'Applications' && jobs.length > 0 && (
+                                    <span className={cn(
+                                        "ml-auto h-5 min-w-[20px] px-1.5 rounded-full flex items-center justify-center text-[9px] font-black",
+                                        pathname === item.href ? "bg-white/10 text-white" : "bg-brand-blue-light text-brand-blue"
+                                    )}>
+                                        {jobs.length}
+                                    </span>
                                 )}
                             </Link>
                         ))}
@@ -108,55 +115,58 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </div>
 
                 <div>
-                    <span className="px-2 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-300">Strategy</span>
-                    <nav className="mt-4 space-y-1">
+                    <span className="px-3 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-300">Helpful Tools</span>
+                    <nav className="mt-6 space-y-1.5">
                         {strategy.map((item) => (
                             <Link
                                 key={item.name}
                                 href={item.href}
                                 className={cn(
-                                    "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-bold transition-all",
+                                    "group flex items-center gap-3.5 rounded-2xl px-4 py-3 text-[11px] font-black uppercase tracking-widest transition-all",
                                     pathname === item.href
-                                        ? "bg-white text-[#1C4ED8] shadow-sm border border-zinc-100"
-                                        : "text-zinc-500 hover:bg-zinc-100/50 hover:text-black"
+                                        ? "bg-brand-blue text-white"
+                                        : "text-zinc-400 hover:bg-zinc-50 hover:text-brand-blue"
                                 )}
                             >
                                 <item.icon className={cn(
                                     "h-4 w-4 shrink-0 transition-colors",
-                                    pathname === item.href ? "text-[#1C4ED8]" : "text-zinc-400 group-hover:text-black"
+                                    pathname === item.href ? "text-white/70" : "text-zinc-300 group-hover:text-brand-blue"
                                 )} />
-                                {item.name}
+                                {item.name === 'Market Insights' ? 'Job Market' :
+                                    item.name === 'Salary Engine' ? 'Salary Check' :
+                                        item.name === 'Profile & CV' ? 'My Resume' :
+                                            item.name === 'Interview Prep' ? 'Practice' : item.name}
                             </Link>
                         ))}
                     </nav>
                 </div>
             </div>
 
-            <div className="mt-auto border-t border-zinc-100 p-6 space-y-4">
-                <div className="flex items-center gap-3 px-2 mb-4">
-                    <div className="h-9 w-9 rounded-xl bg-[#1C4ED8] flex items-center justify-center font-black text-white text-[10px] uppercase shadow-lg shadow-blue-600/10 shrink-0">
+            <div className="mt-auto border-t border-zinc-100 p-6 space-y-6">
+                <div className="flex items-center gap-4 px-2">
+                    <div className="h-11 w-11 rounded-2xl bg-[#1C4ED8] flex items-center justify-center font-black text-white text-[11px] uppercase shrink-0 border-2 border-white">
                         {user?.name ? user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() : "PU"}
                     </div>
                     <div className="flex flex-col min-w-0">
-                        <span className="text-[11px] font-black tracking-tight text-black truncate">{user?.name || "Pro User"}</span>
-                        <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">{user?.role || "User"} Tier</span>
+                        <span className="text-[12px] font-black tracking-tight text-brand-blue-black truncate">{user?.name || "Pro User"}</span>
+                        <span className="text-[10px] font-black text-brand-blue uppercase tracking-[0.15em] leading-none mt-1">Premium Tier</span>
                     </div>
                 </div>
 
                 <div className="space-y-1">
                     <Link
                         href="/dashboard/settings"
-                        className="flex items-center gap-3 rounded-lg px-2 py-2 text-xs font-bold text-zinc-500 hover:bg-zinc-100/50 hover:text-black transition-all"
+                        className="flex items-center gap-3.5 rounded-xl px-3 py-2.5 text-[11px] font-black uppercase tracking-widest text-zinc-400 hover:bg-zinc-50 hover:text-blue-600 transition-all"
                     >
                         <Settings className="h-4 w-4" />
-                        Settings
+                        Account Settings
                     </Link>
                     <button
                         onClick={logout}
-                        className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-xs font-bold text-zinc-500 hover:bg-red-50 hover:text-red-600 transition-all"
+                        className="flex w-full items-center gap-3.5 rounded-xl px-3 py-2.5 text-[11px] font-black uppercase tracking-widest text-zinc-400 hover:bg-red-50 hover:text-red-500 transition-all"
                     >
                         <LogOut className="h-4 w-4" />
-                        Log Out
+                        Log Out System
                     </button>
                 </div>
             </div>
@@ -170,7 +180,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 {/* Backdrop */}
                 {isOpen && (
                     <div
-                        className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm lg:hidden"
+                        className="fixed inset-0 z-40 bg-brand-blue-black/30 backdrop-blur-sm lg:hidden"
                         onClick={onClose}
                     />
                 )}

@@ -2,8 +2,9 @@
 
 import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
-import { DashboardPreview } from "@/components/landing/DashboardPreview";
 import { Features } from "@/components/landing/Features";
+import { ResumeFeature } from "@/components/landing/ResumeFeature";
+import { PortfolioFeature } from "@/components/landing/PortfolioFeature";
 import { motion } from "framer-motion";
 
 export default function Home() {
@@ -12,41 +13,52 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
-        <DashboardPreview />
         <Features />
-
-        {/* Simple Process - Provolo Inspired */}
-        <section id="how-it-works" className="py-20 sm:py-32 lg:py-48 bg-[#F9FBFF] border-y border-blue-50">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
+        {/* How it Works - Refined Flow */}
+        <section id="how-it-works" className="py-24 lg:py-32 bg-[#F9FBFF]/50 border-y border-zinc-100 relative overflow-hidden">
+          <div className="absolute inset-0 dot-pattern opacity-40" />
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 lg:gap-32 items-center">
               <div>
-                <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-black tracking-tight leading-[0.85] mb-10 text-black">
-                  Engineered for <br /><span className="text-[#1C4ED8]">Simplicity.</span>
-                </h2>
-                <p className="text-xl font-medium text-zinc-400 leading-relaxed max-w-md">
-                  Offerra lives where you do. Install the extension, apply to a job, and watch
-                  your career dashboard grow automatically.
-                </p>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                >
+                  <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-black tracking-tighter leading-[0.85] mb-10 text-black text-gradient">
+                    Zero effort. <br />Better <span className="text-[#1C4ED8]">Results.</span>
+                  </h2>
+                  <p className="text-xl font-medium text-zinc-400 leading-relaxed max-w-md">
+                    We built Offerra to do the hard work for you. Our tools run in the background while you focus on getting hired.
+                  </p>
+                </motion.div>
               </div>
-              <div className="space-y-16">
+              <div className="space-y-12 relative">
+                {/* Connecting Line */}
+                <div className="absolute left-5 top-10 bottom-10 w-px bg-gradient-to-b from-blue-600/50 via-blue-200 to-transparent hidden sm:block" />
+
                 {[
-                  { step: "01", title: "Plug in the Bridge", desc: "Our high-speed browser extension connects your application flow to your dashboard." },
-                  { step: "02", title: "Automated Intelligence", desc: "Every 'Submit' triggers an instant metadata capture. No manual data entry ever required." },
-                  { step: "03", title: "Master Your Results", desc: "View real-time response rates, recruiter activity, and AI-suggested next steps." }
-                ].map((item) => (
+                  { step: "01", title: "Add the Extension", desc: "Install our simple browser tool to start tracking your applications automatically." },
+                  { step: "02", title: "Apply as Usual", desc: "Just hit 'Submit' on any job site. We'll capture all the details for you instantly." },
+                  { step: "03", title: "Get Hired Faster", desc: "Use our AI to fix your resume for every job and show off your best work with a custom portfolio." }
+                ].map((item, idx) => (
                   <motion.div
                     key={item.step}
-                    className="group flex gap-8 items-start"
+                    className="group flex gap-8 items-start relative z-10"
                     initial={{ opacity: 0, x: 20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
+                    transition={{ delay: idx * 0.15 }}
                   >
-                    <span className="text-sm font-black text-[#1C4ED8] bg-white border border-blue-100 h-10 w-10 rounded-xl flex items-center justify-center shrink-0 shadow-[0_4px_10px_rgba(28,78,216,0.05)]">
-                      {item.step}
-                    </span>
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-blue-400/20 blur-xl rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <span className="relative text-sm font-black text-[#1C4ED8] bg-white border border-blue-100 h-10 w-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110">
+                        {item.step}
+                      </span>
+                    </div>
                     <div>
-                      <h3 className="text-xl font-bold mb-3 tracking-tight text-black">{item.title}</h3>
-                      <p className="text-sm font-medium text-zinc-500 leading-relaxed max-w-xs">{item.desc}</p>
+                      <h3 className="text-2xl font-black mb-3 tracking-tight text-black group-hover:text-blue-600 transition-colors">{item.title}</h3>
+                      <p className="text-base font-medium text-zinc-500 leading-relaxed max-w-sm">{item.desc}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -55,90 +67,155 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Pricing - High Contrast Blue Tier */}
-        <section id="pricing" className="py-20 sm:py-32 lg:py-48">
+        <ResumeFeature />
+        <PortfolioFeature />
+
+        {/* Pricing - Premium Tiers */}
+        <section id="pricing" className="py-24 lg:py-32 relative bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-            <div className="max-w-2xl mx-auto mb-24 text-center">
-              <h2 className="text-[clamp(2rem,5vw,4.5rem)] font-black tracking-tight mb-6 sm:mb-8 text-black">Transparent Plans.</h2>
-              <p className="text-xl font-medium text-zinc-400 font-sans tracking-tight">Choose the tier that accelerates your next career move.</p>
+            <div className="max-w-2xl mx-auto mb-32 text-center">
+              <motion.h2
+                className="text-[clamp(2.5rem,6vw,5rem)] font-black tracking-tighter mb-8 text-black text-gradient"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+              >
+                Transparent Plans.
+              </motion.h2>
+              <p className="text-xl font-medium text-zinc-400 tracking-tight">Scale your career with the right tools.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto">
               {/* Free Plan */}
-              <div className="relative border border-zinc-100 bg-white p-8 sm:p-12 rounded-2xl text-left transition-all hover:border-blue-200">
-                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-8">Basic Access</div>
-                <div className="flex items-baseline gap-1 mb-10">
-                  <span className="text-6xl font-black text-black">$0</span>
-                  <span className="text-sm font-bold text-zinc-400">/mo</span>
+              <div className="group relative border border-zinc-100 bg-white p-10 rounded-[2rem] text-left transition-all hover:border-blue-200 hover:-translate-y-2 flex flex-col">
+                <div className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-400 mb-10">Essential</div>
+                <div className="flex items-baseline gap-1 mb-10 text-black">
+                  <span className="text-7xl font-black tracking-tighter">$0</span>
+                  <span className="text-sm font-black text-zinc-400 uppercase tracking-widest">/mo</span>
                 </div>
-                <ul className="space-y-5 mb-12 text-sm font-bold text-zinc-500 tracking-tight">
-                  <li className="flex items-center gap-4"><div className="h-1.5 w-1.5 rounded-full bg-blue-200" />5 tracks /mo</li>
-                  <li className="flex items-center gap-4"><div className="h-1.5 w-1.5 rounded-full bg-blue-200" />Automated detection</li>
-                  <li className="flex items-center gap-4"><div className="h-1.5 w-1.5 rounded-full bg-blue-200" />Standard dashboard</li>
-                  <li className="flex items-center gap-4 opacity-30"><div className="h-1.5 w-1.5 rounded-full bg-zinc-200" />AI Strategy</li>
-                  <li className="flex items-center gap-4 opacity-30"><div className="h-1.5 w-1.5 rounded-full bg-zinc-200" />Gmail Sync</li>
+                <ul className="space-y-6 mb-12 text-sm font-black text-zinc-500 flex-grow">
+                  {['5 tracks /mo', 'Automated detection', 'Standard dashboard'].map((f) => (
+                    <li key={f} className="flex items-center gap-4">
+                      <div className="h-1.5 w-1.5 rounded-full bg-blue-200" />
+                      {f}
+                    </li>
+                  ))}
+                  {['AI Strategy', 'Gmail Sync'].map((f) => (
+                    <li key={f} className="flex items-center gap-4 opacity-30 grayscale">
+                      <div className="h-1.5 w-1.5 rounded-full bg-zinc-200" />
+                      {f}
+                    </li>
+                  ))}
                 </ul>
                 <button className="w-full rounded-2xl border border-zinc-200 py-5 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-zinc-50 transition-colors text-black">Current Tier</button>
               </div>
 
               {/* Premium Plan */}
-              <div className="relative border-2 border-[#1C4ED8] bg-white p-8 sm:p-12 rounded-2xl text-left md:scale-105 z-10 transition-transform hover:scale-[1.02] md:hover:scale-[1.07]">
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#1C4ED8] text-white px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg">Recommended</div>
-                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1C4ED8] mb-8">Premium Pro</div>
+              <div className="relative border-2 border-[#1C4ED8] bg-white p-10 rounded-[2rem] text-left md:scale-110 z-10 transition-all hover:scale-[1.12] flex flex-col shadow-[0_40px_80px_-20px_rgba(28,78,216,0.15)] shimmer">
+                <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#1C4ED8] text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.3em] shadow-xl">Best Value</div>
+                <div className="text-[10px] font-black uppercase tracking-[0.25em] text-[#1C4ED8] mb-10">Pro Track</div>
                 <div className="flex items-baseline gap-1 mb-10 text-[#1C4ED8]">
-                  <span className="text-6xl font-black">$9</span>
-                  <span className="text-sm font-bold opacity-60">/mo</span>
+                  <span className="text-7xl font-black tracking-tighter">$9</span>
+                  <span className="text-sm font-black opacity-60 uppercase tracking-widest">/mo</span>
                 </div>
-                <ul className="space-y-5 mb-12 text-sm font-bold text-black tracking-tight">
-                  <li className="flex items-center gap-4"><div className="h-1.5 w-1.5 rounded-full bg-[#1C4ED8]" />Unlimited tracking</li>
-                  <li className="flex items-center gap-4"><div className="h-1.5 w-1.5 rounded-full bg-[#1C4ED8]" />Deep Gmail/Outlook Sync</li>
-                  <li className="flex items-center gap-4"><div className="h-1.5 w-1.5 rounded-full bg-[#1C4ED8]" />AI Strategic Insights</li>
-                  <li className="flex items-center gap-4"><div className="h-1.5 w-1.5 rounded-full bg-[#1C4ED8]" />Prioritized support</li>
-                  <li className="flex items-center gap-4"><div className="h-1.5 w-1.5 rounded-full bg-[#1C4ED8]" />Advanced Analytics</li>
+                <ul className="space-y-6 mb-12 text-sm font-black text-black flex-grow">
+                  {[
+                    'Unlimited tracking',
+                    'Deep Gmail/Outlook Sync',
+                    'AI Strategic Insights',
+                    'Prioritized support',
+                    'Advanced Analytics'
+                  ].map((f) => (
+                    <li key={f} className="flex items-center gap-4">
+                      <div className="h-2 w-2 rounded-full bg-blue-600 shadow-[0_0_10px_rgba(28,78,216,0.4)]" />
+                      {f}
+                    </li>
+                  ))}
                 </ul>
-                <button className="w-full rounded-xl bg-[#1C4ED8] py-4 sm:py-5 text-[11px] font-black uppercase tracking-[0.2em] text-white hover:bg-[#1e40af] transition-all">Select Premium</button>
+                <button className="w-full rounded-2xl bg-blue-600 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-white hover:bg-blue-700 transition-all shadow-xl shadow-blue-200">Join Pro Now</button>
               </div>
 
               {/* Platinum Plan */}
-              <div className="relative border border-zinc-100 bg-[#F9FBFF] p-8 sm:p-12 rounded-2xl text-left transition-all hover:border-blue-100">
-                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-8">Platinum Elite</div>
-                <div className="flex items-baseline gap-1 mb-10">
-                  <span className="text-6xl font-black text-black">$19</span>
-                  <span className="text-sm font-bold text-zinc-400">/mo</span>
+              <div className="group relative border border-zinc-100 bg-zinc-50/50 p-10 rounded-[2rem] text-left transition-all hover:border-blue-100 hover:-translate-y-2 flex flex-col">
+                <div className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-400 mb-10">Enterprise</div>
+                <div className="flex items-baseline gap-1 mb-10 text-black">
+                  <span className="text-7xl font-black tracking-tighter">$19</span>
+                  <span className="text-sm font-black text-zinc-400 uppercase tracking-widest">/mo</span>
                 </div>
-                <ul className="space-y-5 mb-12 text-sm font-bold text-zinc-500 tracking-tight">
-                  <li className="flex items-center gap-4"><div className="h-1.5 w-1.5 rounded-full bg-black" />Everything in Premium</li>
-                  <li className="flex items-center gap-4"><div className="h-1.5 w-1.5 rounded-full bg-black" />AI Interview Assistant</li>
-                  <li className="flex items-center gap-4"><div className="h-1.5 w-1.5 rounded-full bg-black" />Portfolio Scoring</li>
-                  <li className="flex items-center gap-4"><div className="h-1.5 w-1.5 rounded-full bg-black" />Executive Strategy</li>
-                  <li className="flex items-center gap-4"><div className="h-1.5 w-1.5 rounded-full bg-black" />Network Referrals</li>
+                <ul className="space-y-6 mb-12 text-sm font-black text-zinc-500 flex-grow">
+                  {[
+                    'Everything in Pro',
+                    'AI Interview Assistant',
+                    'Portfolio Scoring',
+                    'Executive Strategy',
+                    'Network Referrals'
+                  ].map((f) => (
+                    <li key={f} className="flex items-center gap-4">
+                      <div className="h-1.5 w-1.5 rounded-full bg-black/20" />
+                      {f}
+                    </li>
+                  ))}
                 </ul>
-                <button className="w-full rounded-2xl border border-zinc-200 py-5 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white transition-colors text-black">Maximize Output</button>
+                <button className="w-full rounded-2xl border border-zinc-200 py-5 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white transition-colors text-black">Contact Sales</button>
               </div>
             </div>
           </div>
         </section>
 
         {/* Footer */}
-        <footer className="py-12 sm:py-24 border-t border-zinc-100 bg-white">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 flex flex-col items-center justify-between gap-8 sm:gap-12 md:flex-row">
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-black tracking-tight text-black">Offerra AI</span>
-              <div className="h-1 w-1 rounded-full bg-blue-100" />
-              <span className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest leading-none">V1.4.2</span>
+        <footer className="py-24 lg:py-32 border-t border-zinc-100 bg-white relative overflow-hidden">
+          <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-600/10 to-transparent" />
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 flex flex-col items-center justify-between gap-12 md:flex-row">
+            <div className="flex flex-col gap-6">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                  <span className="text-blue-600 font-black text-lg">O</span>
+                </div>
+                <span className="text-xl font-black tracking-tighter text-black">Offerra<span className="text-blue-600">.</span></span>
+              </div>
+              <p className="text-sm font-medium text-zinc-400 max-w-xs">
+                The intelligent command center for modern career progression.
+              </p>
             </div>
-            <div className="flex flex-wrap justify-center gap-6 sm:gap-12">
-              {['Twitter', 'LinkedIn', 'Github', 'Privacy'].map((item) => (
-                <a key={item} href="#" className="text-[10px] font-bold text-zinc-400 hover:text-[#1C4ED8] uppercase tracking-[0.2em] transition-colors">
-                  {item}
-                </a>
-              ))}
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-16">
+              <div>
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-black mb-6">Product</h4>
+                <div className="flex flex-col gap-4">
+                  {['Features', 'Process', 'Pricing'].map((item) => (
+                    <a key={item} href="#" className="text-xs font-black text-zinc-400 hover:text-blue-600 transition-colors">{item}</a>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-black mb-6">Company</h4>
+                <div className="flex flex-col gap-4">
+                  {['Twitter', 'LinkedIn', 'Github'].map((item) => (
+                    <a key={item} href="#" className="text-xs font-black text-zinc-400 hover:text-blue-600 transition-colors">{item}</a>
+                  ))}
+                </div>
+              </div>
+              <div className="hidden sm:block">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-black mb-6">Legal</h4>
+                <div className="flex flex-col gap-4">
+                  {['Privacy', 'Terms'].map((item) => (
+                    <a key={item} href="#" className="text-xs font-black text-zinc-400 hover:text-blue-600 transition-colors">{item}</a>
+                  ))}
+                </div>
+              </div>
             </div>
-            <div className="text-[10px] font-bold text-zinc-300 uppercase tracking-[0.2em] text-center">
+          </div>
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 mt-20 pt-10 border-t border-zinc-50 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="text-[10px] font-black text-zinc-300 uppercase tracking-widest">
               © 2026 Offerra AI. All rights reserved.
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">All Systems Operational</span>
             </div>
           </div>
         </footer>
+
       </main>
     </div>
   );

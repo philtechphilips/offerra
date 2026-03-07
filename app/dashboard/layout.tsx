@@ -73,9 +73,10 @@ export default function DashboardLayout({
                     <div className="h-20 w-20 rounded-3xl bg-amber-50 flex items-center justify-center mx-auto mb-8">
                         <Mail className="h-10 w-10 text-amber-500" />
                     </div>
-                    <h2 className="text-2xl font-black text-black mb-4 tracking-tight">Verify your email</h2>
-                    <p className="text-zinc-500 font-medium text-sm mb-10 leading-relaxed">
-                        We've sent a magic link to <span className="text-black font-bold">{user.email}</span>.
+                    <h2 className="text-4xl font-black text-brand-blue-black tracking-tight mb-4">Verify your email</h2>
+                    <p className="text-zinc-500 mb-8 max-w-sm mx-auto font-medium">
+                        We've sent a verification link to <br />
+                        <span className="text-brand-blue-black font-bold">{user?.email}</span>
                         Please click it to get started.
                     </p>
 
@@ -94,7 +95,7 @@ export default function DashboardLayout({
                                 localStorage.removeItem('offerra-auth');
                                 window.location.href = '/login';
                             }}
-                            className="w-full h-14 bg-zinc-50 text-zinc-500 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-zinc-100 transition-all border border-zinc-100"
+                            className="w-full h-14 bg-zinc-50 text-blue-950 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-zinc-100 transition-all border border-zinc-100"
                         >
                             Return to Login
                         </button>
@@ -113,7 +114,7 @@ export default function DashboardLayout({
             <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
             <div className="flex flex-1 flex-col overflow-hidden">
                 <Header onMenuClick={() => setSidebarOpen(true)} />
-                <main className="flex-1 overflow-y-auto bg-zinc-50/20 p-4 sm:p-6 lg:p-10">
+                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-zinc-50/20 p-4 sm:p-6 lg:p-10">
                     {children}
                 </main>
             </div>

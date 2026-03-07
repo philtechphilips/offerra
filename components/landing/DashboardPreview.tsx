@@ -11,18 +11,19 @@ const recentApps = [
 
 export function DashboardPreview() {
     return (
-        <div className="mx-auto mt-16 sm:mt-24 max-w-6xl px-4 lg:px-8">
+        <div className="mx-auto mt-24 sm:mt-32 max-w-6xl px-4 lg:px-8 relative">
+            <div className="absolute -inset-4 bg-blue-100/30 blur-3xl -z-10 rounded-[3rem]" />
             <motion.div
-                className="relative overflow-hidden rounded-2xl lg:rounded-[2.5rem] border border-zinc-100 bg-zinc-50/50 p-1.5 sm:p-3"
-                initial={{ opacity: 0, scale: 0.98, y: 40 }}
+                className="relative overflow-hidden rounded-[2rem] lg:rounded-[3rem] border border-white/50 bg-white/20 p-2 sm:p-4 backdrop-blur-sm shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)]"
+                initial={{ opacity: 0, scale: 0.95, y: 60 }}
                 whileInView={{ opacity: 1, scale: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
             >
-                <div className="rounded-xl lg:rounded-[2rem] bg-white border border-zinc-200 overflow-hidden">
+                <div className="rounded-[1.5rem] lg:rounded-[2.5rem] bg-white border border-zinc-200/50 overflow-hidden shadow-2xl">
                     {/* Header */}
-                    <div className="flex flex-col border-b border-zinc-100">
-                        <div className="flex h-10 sm:h-12 items-center justify-between px-4 sm:px-6 bg-zinc-50/50">
+                    <div className="flex flex-col border-b border-zinc-100/80">
+                        <div className="flex h-12 sm:h-14 items-center justify-between px-6 sm:px-8 bg-zinc-50/30">
                             <div className="flex gap-1.5">
                                 <div className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-zinc-200" />
                                 <div className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-zinc-200" />
