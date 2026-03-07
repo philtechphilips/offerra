@@ -22,25 +22,21 @@ export default function DashboardLayout({
     useEffect(() => {
         if (!_hasHydrated || !isLoggedIn || !token || hasSynced) return;
 
-        // One-time sync on mount to confirm verification status with backend
-        if (user && !user.email_verified_at) {
-            const refreshUser = async () => {
-                try {
-                    const response = await api.get("/user");
-                    if (response.data && token) {
-                        setAuth(response.data, token);
-                    }
-                    setHasSynced(true);
-                } catch (err) {
-                    console.error("Failed to refresh user data:", err);
-                    setHasSynced(true); // Stop loop even on error
+        const syncUser = async () => {
+            try {
+                const response = await api.get("/user");
+                if (response.data && token) {
+                    setAuth(response.data, token);
                 }
-            };
-            refreshUser();
-        } else {
-            setHasSynced(true);
-        }
-    }, [_hasHydrated, isLoggedIn, token, user, hasSynced, setAuth]);
+                setHasSynced(true);
+            } catch (err) {
+                console.error("Failed to refresh user data:", err);
+                setHasSynced(true);
+            }
+        };
+
+        syncUser();
+    }, [_hasHydrated, isLoggedIn, token, hasSynced, setAuth]);
 
     const handleResendVerification = async () => {
         if (resending) return;

@@ -93,7 +93,7 @@ const DynamicCVRenderer = ({ data, depth = 0 }: { data: any, depth?: number }) =
 };
 
 export default function ProfilePage() {
-    const { user } = useAuthStore();
+    const { user, setUser } = useAuthStore();
     const [cvs, setCvs] = useState<CVData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isUploading, setIsUploading] = useState(false);
@@ -120,6 +120,7 @@ export default function ProfilePage() {
 
     useEffect(() => {
         fetchCVs();
+        refreshUser();
     }, []);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -192,13 +193,57 @@ export default function ProfilePage() {
         }
     };
 
-    const handleConnectGmail = () => {
+    const handleConnectGmail = async () => {
         setIsConnectingGmail(true);
-        setTimeout(() => {
+        try {
+            const res = await api.get('/auth/google/redirect');
+            if (res.data.url) {
+                window.location.href = res.data.url;
+            }
+        } catch (err) {
+            toast.error("Failed to initiate Google connection.");
             setIsConnectingGmail(false);
-            toast.success("Sync started.");
-        }, 1500);
+        }
     };
+
+    const refreshUser = async () => {
+        try {
+            const res = await api.get('/user');
+            if (res.data) {
+                setUser(res.data);
+            }
+        } catch (err) {
+            console.error("Failed to refresh user data", err);
+        }
+    };
+
+    const handleSyncGmail = async () => {
+        setIsConnectingGmail(true);
+        try {
+            await api.post('/auth/google/sync');
+            toast.success("Sync started in the background!");
+        } catch (err) {
+            toast.error("Sync failed to start.");
+        } finally {
+            setIsConnectingGmail(false);
+        }
+    };
+
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const success = urlParams.get('success');
+        const error = urlParams.get('error');
+
+        if (success === 'google_connected') {
+            toast.success("Gmail connected successfully!");
+            refreshUser();
+            // Clean up URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        } else if (error) {
+            toast.error(`Connection failed: ${error.replace(/_/g, ' ')}`);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }, []);
 
     const getInitials = (name?: string) => {
         if (!name) return "U";
@@ -591,23 +636,39 @@ export default function ProfilePage() {
                         >
                             <div className="p-10">
                                 <div className="flex items-start justify-between mb-8">
-                                    <div className="h-14 w-14 rounded-[1.5rem] bg-red-50 flex items-center justify-center">
-                                        <Mail className="h-7 w-7 text-red-500" />
+                                    <div className={cn("h-14 w-14 rounded-[1.5rem] flex items-center justify-center", user?.google_account ? "bg-emerald-50" : "bg-red-50")}>
+                                        <Mail className={cn("h-7 w-7", user?.google_account ? "text-emerald-500" : "text-red-500")} />
                                     </div>
-                                    <span className="px-3 py-1 rounded-full bg-zinc-100 text-[10px] font-bold uppercase tracking-wider text-zinc-500">Beta</span>
+                                    <span className={cn("px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider", user?.google_account ? "bg-emerald-100 text-emerald-700" : "bg-zinc-100 text-zinc-500")}>
+                                        {user?.google_account ? "Connected" : "Beta"}
+                                    </span>
                                 </div>
-                                <h3 className="text-2xl font-bold tracking-tight text-zinc-900 mb-3">Sync with Gmail</h3>
+                                <h3 className="text-2xl font-bold tracking-tight text-zinc-900 mb-3">
+                                    {user?.google_account ? "Gmail Synced" : "Sync with Gmail"}
+                                </h3>
                                 <p className="text-sm font-medium text-zinc-500 leading-relaxed mb-10">
-                                    Automatically pull job application updates and interview invites from your inbox.
+                                    {user?.google_account
+                                        ? `Logged in as ${user.google_account.email}. Your inbox is being monitored for job updates.`
+                                        : "Automatically pull job application updates and interview invites from your inbox."}
                                 </p>
                                 <button
-                                    onClick={handleConnectGmail}
+                                    onClick={user?.google_account ? handleSyncGmail : handleConnectGmail}
                                     disabled={isConnectingGmail}
-                                    className="group w-full h-14 rounded-2xl border border-blue-200 bg-blue-50 text-sm font-bold text-blue-900 transition-all hover:border-blue-500 hover:bg-blue-100 disabled:opacity-50 flex items-center justify-center gap-3"
+                                    className={cn(
+                                        "group w-full h-14 rounded-2xl border text-sm font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-3",
+                                        user?.google_account
+                                            ? "border-emerald-200 bg-emerald-50 text-emerald-900 hover:border-emerald-500 hover:bg-emerald-100"
+                                            : "border-blue-200 bg-blue-50 text-blue-900 hover:border-blue-500 hover:bg-blue-100"
+                                    )}
                                 >
-                                    {isConnectingGmail ? "Connecting..." : "Connect Email"}
-                                    <ExternalLink className="h-4 w-4 text-blue-400 group-hover:text-blue-900" />
+                                    {isConnectingGmail ? (user?.google_account ? "Syncing..." : "Connecting...") : (user?.google_account ? "Sync Now" : "Connect Email")}
+                                    {user?.google_account ? <Zap className="h-4 w-4 text-emerald-400 group-hover:text-emerald-900" /> : <ExternalLink className="h-4 w-4 text-blue-400 group-hover:text-blue-900" />}
                                 </button>
+                                {user?.google_account && (
+                                    <p className="text-[10px] font-bold text-zinc-400 mt-4 text-center uppercase tracking-widest">
+                                        Last synced: {user.google_account.last_synced_at ? formatDate(user.google_account.last_synced_at) : 'Never'}
+                                    </p>
+                                )}
                             </div>
                         </motion.section>
 

@@ -7,6 +7,10 @@ interface User {
     email: string;
     role: string;
     email_verified_at: string | null;
+    google_account?: {
+        email: string;
+        last_synced_at: string | null;
+    } | null;
 }
 
 interface AuthState {
@@ -15,6 +19,7 @@ interface AuthState {
     isLoggedIn: boolean;
     _hasHydrated: boolean;
     setAuth: (user: User, token: string) => void;
+    setUser: (user: User) => void;
     clearAuth: () => void;
     setHasHydrated: (state: boolean) => void;
 }
@@ -27,6 +32,7 @@ export const useAuthStore = create<AuthState>()(
             isLoggedIn: false,
             _hasHydrated: false,
             setAuth: (user: User, token: string) => set({ user, token, isLoggedIn: true }),
+            setUser: (user: User) => set({ user }),
             clearAuth: () => set({ user: null, token: null, isLoggedIn: false }),
             setHasHydrated: (state: boolean) => set({ _hasHydrated: state }),
         }),
