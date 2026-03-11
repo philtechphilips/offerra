@@ -10,7 +10,8 @@ import {
     LogOut,
     ShieldCheck,
     X,
-    Briefcase
+    Briefcase,
+    CreditCard
 } from "lucide-react";
 import { cn } from "@/app/lib/utils";
 import { useAuthStore } from "@/app/store/authStore";
@@ -19,6 +20,7 @@ const adminNavigation = [
     { name: 'Overview', href: '/admin', icon: LayoutDashboard },
     { name: 'User Management', href: '/admin/users', icon: Users },
     { name: 'Job Analytics', href: '/admin/jobs', icon: BarChart3 },
+    { name: 'Billing Management', href: '/admin/billing', icon: CreditCard },
 ];
 
 interface AdminSidebarProps {

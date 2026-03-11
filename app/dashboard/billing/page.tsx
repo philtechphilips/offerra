@@ -15,156 +15,72 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/app/lib/utils";
+import api from "@/app/lib/api";
+import { Loader2 } from "lucide-react";
 
-const plans = [
-    {
-        name: "Essential",
-        price: 0,
-        currency: "USD",
-        symbol: "$",
-        description: "Perfect for beginners starting their journey.",
-        features: [
-            "Track 5 jobs /mo",
-            "Basic Dashboard",
-            "Real-time status tracking",
-            "Email notifications"
-        ],
-        notIncluded: [
-            "AI CV Optimization",
-            "Interview Practice",
-            "Unlimited History",
-            "Advanced Analytics"
-        ],
-        btnText: "Current Plan",
-        popular: false,
-        color: "zinc"
-    },
-    {
-        name: "Pro Track",
-        price: 9,
-        currency: "USD",
-        symbol: "$",
-        description: "The sweet spot for active job seekers.",
-        features: [
-            "Unlimited Auto Tracking",
-            "AI CV Optimization",
-            "Proposal Generator",
-            "Momentum Analytics",
-            "Gmail Status Sync",
-            "Priority Support"
-        ],
-        btnText: "Upgrade to Pro",
-        popular: true,
-        color: "blue"
-    },
-    {
-        name: "Elite",
-        price: 19,
-        currency: "USD",
-        symbol: "$",
-        description: "For professionals who want the best edge.",
-        features: [
-            "Everything in Pro",
-            "AI Interview Coaching",
-            "Predicted Answers",
-            "Strategic Success Path",
-            "Dedicated Career Scout",
-            "Direct Referral Network"
-        ],
-        btnText: "Go Elite",
-        popular: false,
-        color: "indigo"
-    }
-];
-
-const ngnPlans = [
-    {
-        name: "Essential",
-        price: 0,
-        currency: "NGN",
-        symbol: "₦",
-        description: "Perfect for beginners starting their journey.",
-        features: [
-            "Track 5 jobs /mo",
-            "Basic Dashboard",
-            "Real-time status tracking",
-            "Email notifications"
-        ],
-        notIncluded: [
-            "AI CV Optimization",
-            "Interview Practice",
-            "Unlimited History",
-            "Advanced Analytics"
-        ],
-        btnText: "Current Plan",
-        popular: false,
-        color: "zinc"
-    },
-    {
-        name: "Pro Track",
-        price: 15000,
-        currency: "NGN",
-        symbol: "₦",
-        description: "The sweet spot for active job seekers.",
-        features: [
-            "Unlimited Auto Tracking",
-            "AI CV Optimization",
-            "Proposal Generator",
-            "Momentum Analytics",
-            "Gmail Status Sync",
-            "Priority Support"
-        ],
-        btnText: "Upgrade to Pro",
-        popular: true,
-        color: "blue"
-    },
-    {
-        name: "Elite",
-        price: 30000,
-        currency: "NGN",
-        symbol: "₦",
-        description: "For professionals who want the best edge.",
-        features: [
-            "Everything in Pro",
-            "AI Interview Coaching",
-            "Predicted Answers",
-            "Strategic Success Path",
-            "Dedicated Career Scout",
-            "Direct Referral Network"
-        ],
-        btnText: "Go Elite",
-        popular: false,
-        color: "indigo"
-    }
-];
+interface Plan {
+    id: number;
+    name: string;
+    description: string;
+    price_usd: number;
+    price_ngn: number;
+    features: string[];
+    not_included?: string[];
+    is_popular: boolean;
+    is_active: boolean;
+    btn_text: string;
+}
 
 export default function BillingPage() {
-    const [selectedPlan, setSelectedPlan] = useState("Pro Track");
+    const [plans, setPlans] = useState<Plan[]>([]);
+    const [selectedPlan, setSelectedPlan] = useState("");
     const [region, setRegion] = useState<"global" | "nigeria">("global");
+    const [isLoading, setIsLoading] = useState(true);
     const [isDetecting, setIsDetecting] = useState(true);
 
-    const currentPlans = region === "nigeria" ? ngnPlans : plans;
-    const activePlan = currentPlans.find(p => p.name === selectedPlan) || currentPlans[1];
+    const fetchPlans = async () => {
+        try {
+            const response = await api.get("/plans");
+            setPlans(response.data);
+            if (response.data.length > 0) {
+                const pro = response.data.find((p: Plan) => p.name.includes("Pro"));
+                setSelectedPlan(pro ? pro.name : response.data[0].name);
+            }
+        } catch (err) {
+            console.error("Failed to fetch plans", err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
+        fetchPlans();
+
         const detectLocation = async () => {
             try {
                 const res = await fetch('https://ipapi.co/json/');
                 const data = await res.json();
                 if (data.country_code === 'NG') {
                     setRegion("nigeria");
-                } else {
-                    setRegion("global");
                 }
             } catch (err) {
                 console.error("Location detection failed", err);
-                setRegion("global");
             } finally {
                 setIsDetecting(false);
             }
         };
         detectLocation();
     }, []);
+
+    const activePlan = plans.find(p => p.name === selectedPlan);
+    const getPrice = (plan: Plan) => region === "nigeria" ? plan.price_ngn : plan.price_usd;
+    const getSymbol = () => region === "nigeria" ? "₦" : "$";
+
+    if (isLoading) return (
+        <div className="flex items-center justify-center min-h-[60vh]">
+            <Loader2 className="h-10 w-10 text-blue-600 animate-spin" />
+        </div>
+    );
 
     return (
         <div className="space-y-10 pb-20">
@@ -210,7 +126,7 @@ export default function BillingPage() {
                 {/* Left: Plan Selection */}
                 <div className="lg:col-span-8 space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {currentPlans.map((plan) => (
+                        {plans.map((plan) => (
                             <motion.div
                                 key={plan.name}
                                 whileHover={{ y: -5 }}
@@ -222,7 +138,7 @@ export default function BillingPage() {
                                 )}
                                 onClick={() => setSelectedPlan(plan.name)}
                             >
-                                {plan.popular && (
+                                {plan.is_popular && (
                                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg">
                                         Best Value
                                     </div>
@@ -236,7 +152,7 @@ export default function BillingPage() {
                                         {plan.name}
                                     </p>
                                     <div className="flex items-baseline gap-1">
-                                        <span className="text-4xl font-black text-zinc-900">{plan.symbol}{plan.price.toLocaleString()}</span>
+                                        <span className="text-4xl font-black text-zinc-900">{getSymbol()}{Number(getPrice(plan)).toLocaleString()}</span>
                                         <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">/mo</span>
                                     </div>
                                 </div>
@@ -251,7 +167,7 @@ export default function BillingPage() {
                                             <span className="text-[11px] font-bold text-zinc-700 leading-tight">{feature}</span>
                                         </li>
                                     ))}
-                                    {plan.notIncluded?.map((feature) => (
+                                    {plan.not_included?.map((feature) => (
                                         <li key={feature} className="flex items-center gap-3 opacity-30">
                                             <div className="h-1 w-1 rounded-full bg-zinc-400 ml-1.5 mr-1" />
                                             <span className="text-[11px] font-bold text-zinc-400 leading-tight">{feature}</span>
@@ -267,7 +183,7 @@ export default function BillingPage() {
                                             : "bg-zinc-50 text-zinc-500 hover:bg-zinc-100 border border-zinc-100"
                                     )}
                                 >
-                                    {plan.btnText}
+                                    {plan.btn_text}
                                 </button>
                             </motion.div>
                         ))}
@@ -294,17 +210,17 @@ export default function BillingPage() {
                                             </div>
                                         </div>
                                         <span className="text-lg font-black text-zinc-900">
-                                            {activePlan.symbol}{activePlan.price.toLocaleString()}
+                                            {activePlan ? `${getSymbol()}${Number(getPrice(activePlan)).toLocaleString()}` : '...'}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between text-zinc-400">
                                         <span className="text-[11px] font-black uppercase tracking-widest">Processing Fee</span>
-                                        <span className="text-xs font-black">{activePlan.symbol}0.00</span>
+                                        <span className="text-xs font-black">{getSymbol()}0.00</span>
                                     </div>
                                     <div className="flex items-center justify-between pt-4 border-t border-zinc-100">
                                         <span className="text-base font-black text-zinc-900 uppercase tracking-widest">Total to Pay</span>
                                         <span className="text-3xl font-black text-blue-600">
-                                            {activePlan.symbol}{activePlan.price.toLocaleString()}
+                                            {activePlan ? `${getSymbol()}${Number(getPrice(activePlan)).toLocaleString()}` : '...'}
                                         </span>
                                     </div>
                                 </div>
