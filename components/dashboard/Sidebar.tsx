@@ -19,7 +19,8 @@ import {
     Sparkles,
     X,
     FileText,
-    PenTool
+    PenTool,
+    CreditCard
 } from "lucide-react";
 import { cn } from "@/app/lib/utils";
 
@@ -34,6 +35,7 @@ const strategy = [
     { name: 'Optimize CV', href: '/dashboard/optimizer', icon: Sparkles },
     { name: 'Proposals', href: '/dashboard/proposals', icon: PenTool },
     { name: 'Practice', href: '/dashboard/prep', icon: Zap },
+    { name: 'Billing', href: '/dashboard/billing', icon: CreditCard },
 ];
 
 interface SidebarProps {
@@ -145,10 +147,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     <div className="h-11 w-11 rounded-2xl bg-[#1C4ED8] flex items-center justify-center font-black text-white text-[11px] uppercase shrink-0 border-2 border-white">
                         {user?.name ? user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() : "PU"}
                     </div>
-                    <div className="flex flex-col min-w-0">
+                    <Link href="/dashboard/billing" className="flex flex-col min-w-0 group/plan">
                         <span className="text-[12px] font-black tracking-tight text-brand-blue-black truncate">{user?.name || "Pro User"}</span>
-                        <span className="text-[10px] font-black text-brand-blue uppercase tracking-[0.15em] leading-none mt-1">Pro Plan</span>
-                    </div>
+                        <span className="text-[10px] font-black text-brand-blue uppercase tracking-[0.15em] leading-none mt-1 group-hover/plan:text-blue-700 transition-colors underline decoration-blue-100 underline-offset-4">Pro Plan</span>
+                    </Link>
                 </div>
 
                 <div className="space-y-1">

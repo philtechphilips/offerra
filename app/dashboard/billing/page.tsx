@@ -1,0 +1,407 @@
+"use client";
+
+import { motion } from "framer-motion";
+import {
+    CheckCircle2,
+    CreditCard,
+    ShieldCheck,
+    Zap,
+    Sparkles,
+    Clock,
+    ChevronRight,
+    Lock,
+    ArrowRight,
+    Star
+} from "lucide-react";
+import { useState, useEffect } from "react";
+import { cn } from "@/app/lib/utils";
+
+const plans = [
+    {
+        name: "Essential",
+        price: 0,
+        currency: "USD",
+        symbol: "$",
+        description: "Perfect for beginners starting their journey.",
+        features: [
+            "Track 5 jobs /mo",
+            "Basic Dashboard",
+            "Real-time status tracking",
+            "Email notifications"
+        ],
+        notIncluded: [
+            "AI CV Optimization",
+            "Interview Practice",
+            "Unlimited History",
+            "Advanced Analytics"
+        ],
+        btnText: "Current Plan",
+        popular: false,
+        color: "zinc"
+    },
+    {
+        name: "Pro Track",
+        price: 9,
+        currency: "USD",
+        symbol: "$",
+        description: "The sweet spot for active job seekers.",
+        features: [
+            "Unlimited Auto Tracking",
+            "AI CV Optimization",
+            "Proposal Generator",
+            "Momentum Analytics",
+            "Gmail Status Sync",
+            "Priority Support"
+        ],
+        btnText: "Upgrade to Pro",
+        popular: true,
+        color: "blue"
+    },
+    {
+        name: "Elite",
+        price: 19,
+        currency: "USD",
+        symbol: "$",
+        description: "For professionals who want the best edge.",
+        features: [
+            "Everything in Pro",
+            "AI Interview Coaching",
+            "Predicted Answers",
+            "Strategic Success Path",
+            "Dedicated Career Scout",
+            "Direct Referral Network"
+        ],
+        btnText: "Go Elite",
+        popular: false,
+        color: "indigo"
+    }
+];
+
+const ngnPlans = [
+    {
+        name: "Essential",
+        price: 0,
+        currency: "NGN",
+        symbol: "₦",
+        description: "Perfect for beginners starting their journey.",
+        features: [
+            "Track 5 jobs /mo",
+            "Basic Dashboard",
+            "Real-time status tracking",
+            "Email notifications"
+        ],
+        notIncluded: [
+            "AI CV Optimization",
+            "Interview Practice",
+            "Unlimited History",
+            "Advanced Analytics"
+        ],
+        btnText: "Current Plan",
+        popular: false,
+        color: "zinc"
+    },
+    {
+        name: "Pro Track",
+        price: 15000,
+        currency: "NGN",
+        symbol: "₦",
+        description: "The sweet spot for active job seekers.",
+        features: [
+            "Unlimited Auto Tracking",
+            "AI CV Optimization",
+            "Proposal Generator",
+            "Momentum Analytics",
+            "Gmail Status Sync",
+            "Priority Support"
+        ],
+        btnText: "Upgrade to Pro",
+        popular: true,
+        color: "blue"
+    },
+    {
+        name: "Elite",
+        price: 30000,
+        currency: "NGN",
+        symbol: "₦",
+        description: "For professionals who want the best edge.",
+        features: [
+            "Everything in Pro",
+            "AI Interview Coaching",
+            "Predicted Answers",
+            "Strategic Success Path",
+            "Dedicated Career Scout",
+            "Direct Referral Network"
+        ],
+        btnText: "Go Elite",
+        popular: false,
+        color: "indigo"
+    }
+];
+
+export default function BillingPage() {
+    const [selectedPlan, setSelectedPlan] = useState("Pro Track");
+    const [region, setRegion] = useState<"global" | "nigeria">("global");
+    const [isDetecting, setIsDetecting] = useState(true);
+
+    const currentPlans = region === "nigeria" ? ngnPlans : plans;
+    const activePlan = currentPlans.find(p => p.name === selectedPlan) || currentPlans[1];
+
+    useEffect(() => {
+        const detectLocation = async () => {
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                const data = await res.json();
+                if (data.country_code === 'NG') {
+                    setRegion("nigeria");
+                } else {
+                    setRegion("global");
+                }
+            } catch (err) {
+                console.error("Location detection failed", err);
+                setRegion("global");
+            } finally {
+                setIsDetecting(false);
+            }
+        };
+        detectLocation();
+    }, []);
+
+    return (
+        <div className="space-y-10 pb-20">
+            {/* Header */}
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <h1 className="text-3xl font-black tracking-tight text-brand-blue-black uppercase">
+                        Subscription <span className="text-blue-600">Plans.</span>
+                    </h1>
+                    <p className="mt-2 text-sm font-medium text-zinc-400">
+                        Select the plan that fits your career goals and scale your search.
+                    </p>
+                </div>
+
+                {/* Region Switcher Tabs */}
+                <div className="flex bg-zinc-100 p-1 rounded-2xl border border-zinc-200 shadow-inner">
+                    <button
+                        onClick={() => setRegion("nigeria")}
+                        className={cn(
+                            "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                            region === "nigeria"
+                                ? "bg-white text-blue-600 shadow-sm border border-zinc-200/50"
+                                : "text-zinc-400 hover:text-zinc-600"
+                        )}
+                    >
+                        🇳🇬 Nigeria
+                    </button>
+                    <button
+                        onClick={() => setRegion("global")}
+                        className={cn(
+                            "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                            region === "global"
+                                ? "bg-white text-blue-600 shadow-sm border border-zinc-200/50"
+                                : "text-zinc-400 hover:text-zinc-600"
+                        )}
+                    >
+                        🌐 Global
+                    </button>
+                </div>
+            </header>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                {/* Left: Plan Selection */}
+                <div className="lg:col-span-8 space-y-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {currentPlans.map((plan) => (
+                            <motion.div
+                                key={plan.name}
+                                whileHover={{ y: -5 }}
+                                className={cn(
+                                    "relative rounded-[2.5rem] border p-8 flex flex-col transition-all cursor-pointer",
+                                    selectedPlan === plan.name
+                                        ? "border-blue-600 bg-white ring-4 ring-blue-50/50 shadow-2xl shadow-blue-100"
+                                        : "border-zinc-100 bg-white hover:border-blue-200"
+                                )}
+                                onClick={() => setSelectedPlan(plan.name)}
+                            >
+                                {plan.popular && (
+                                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg">
+                                        Best Value
+                                    </div>
+                                )}
+
+                                <div className="mb-8">
+                                    <p className={cn(
+                                        "text-[10px] font-black uppercase tracking-[0.2em] mb-4",
+                                        selectedPlan === plan.name ? "text-blue-600" : "text-zinc-400"
+                                    )}>
+                                        {plan.name}
+                                    </p>
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="text-4xl font-black text-zinc-900">{plan.symbol}{plan.price.toLocaleString()}</span>
+                                        <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">/mo</span>
+                                    </div>
+                                </div>
+
+                                <ul className="space-y-4 mb-10 flex-grow">
+                                    {plan.features.map((feature) => (
+                                        <li key={feature} className="flex items-center gap-3">
+                                            <CheckCircle2 className={cn(
+                                                "h-4 w-4 shrink-0",
+                                                selectedPlan === plan.name ? "text-blue-600" : "text-emerald-500"
+                                            )} />
+                                            <span className="text-[11px] font-bold text-zinc-700 leading-tight">{feature}</span>
+                                        </li>
+                                    ))}
+                                    {plan.notIncluded?.map((feature) => (
+                                        <li key={feature} className="flex items-center gap-3 opacity-30">
+                                            <div className="h-1 w-1 rounded-full bg-zinc-400 ml-1.5 mr-1" />
+                                            <span className="text-[11px] font-bold text-zinc-400 leading-tight">{feature}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+
+                                <button
+                                    className={cn(
+                                        "w-full h-14 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all",
+                                        selectedPlan === plan.name
+                                            ? "bg-blue-600 text-white shadow-xl shadow-blue-200 hover:bg-blue-700"
+                                            : "bg-zinc-50 text-zinc-500 hover:bg-zinc-100 border border-zinc-100"
+                                    )}
+                                >
+                                    {plan.btnText}
+                                </button>
+                            </motion.div>
+                        ))}
+                    </div>
+
+                    {/* Summary / Order Review */}
+                    <div className="rounded-[2.5rem] border border-zinc-100 bg-white p-10 overflow-hidden relative">
+                        <div className="absolute top-0 right-0 p-10 opacity-5 -z-10 rotate-12">
+                            <CreditCard size={200} />
+                        </div>
+
+                        <div className="flex flex-col md:flex-row gap-12">
+                            <div className="flex-grow">
+                                <h3 className="text-2xl font-black text-zinc-900 mb-6">Order Summary</h3>
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between pb-4 border-b border-zinc-50">
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                                                <Sparkles className="h-5 w-5 text-blue-600" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-black text-zinc-900">{selectedPlan} Plan</p>
+                                                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{region === "nigeria" ? "Paystack NGN" : "Global USD"}</p>
+                                            </div>
+                                        </div>
+                                        <span className="text-lg font-black text-zinc-900">
+                                            {activePlan.symbol}{activePlan.price.toLocaleString()}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center justify-between text-zinc-400">
+                                        <span className="text-[11px] font-black uppercase tracking-widest">Processing Fee</span>
+                                        <span className="text-xs font-black">{activePlan.symbol}0.00</span>
+                                    </div>
+                                    <div className="flex items-center justify-between pt-4 border-t border-zinc-100">
+                                        <span className="text-base font-black text-zinc-900 uppercase tracking-widest">Total to Pay</span>
+                                        <span className="text-3xl font-black text-blue-600">
+                                            {activePlan.symbol}{activePlan.price.toLocaleString()}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="w-full md:w-80 shrink-0 bg-zinc-50 p-8 rounded-[2rem]">
+                                <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-6">Security Check</h4>
+                                <div className="space-y-6">
+                                    <div className="flex items-start gap-3">
+                                        <ShieldCheck className="h-5 w-5 text-emerald-500 shrink-0" />
+                                        <p className="text-[11px] font-bold text-zinc-500 leading-relaxed">
+                                            Encrypted payments via {region === 'nigeria' ? 'Paystack' : 'Stripe'}. Your details are never stored on our servers.
+                                        </p>
+                                    </div>
+                                    <div className="flex items-start gap-3">
+                                        <Clock className="h-5 w-5 text-zinc-400 shrink-0" />
+                                        <p className="text-[11px] font-bold text-zinc-500 leading-relaxed">
+                                            Cancel anytime. No lock-in contracts or hidden cancellation fees.
+                                        </p>
+                                    </div>
+                                    <button className="w-full h-14 bg-zinc-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-black shadow-xl shadow-zinc-200 flex items-center justify-center gap-3">
+                                        Complete Payment
+                                        <ArrowRight className="h-4 w-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Right: Sidebar / Info */}
+                <div className="lg:col-span-4 space-y-8">
+                    {/* Active Plan Mini Card */}
+                    <div className="rounded-[2.5rem] bg-zinc-900 p-10 text-white relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-8 opacity-10">
+                            <Star size={80} className="fill-current" />
+                        </div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-white/50 mb-2">Authenticated Account</p>
+                        <h4 className="text-2xl font-black tracking-tight mb-8">Current: Essential</h4>
+                        <div className="space-y-4 mb-10">
+                            <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-bold text-white/40 uppercase tracking-tighter">Usage</span>
+                                <span className="text-[10px] font-bold text-white/80 uppercase">5 / 5 tracks used</span>
+                            </div>
+                            <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                                <div className="h-full w-full bg-blue-500" />
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3 text-emerald-400">
+                            <Lock className="h-4 w-4" />
+                            <span className="text-[10px] font-black uppercase tracking-widest">Upgrade to unlock more</span>
+                        </div>
+                    </div>
+
+                    {/* Payment methods */}
+                    <div className="rounded-[2.5rem] border border-zinc-100 bg-white p-10">
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-8">Supported Methods</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="h-16 rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center justify-center p-4 group hover:border-blue-200 transition-colors">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" className="h-5 opacity-40 group-hover:opacity-100 grayscale hover:grayscale-0 transition-all" />
+                            </div>
+                            <div className="h-16 rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center justify-center p-4 group hover:border-blue-200 transition-colors">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/Mastercard-logo.svg" alt="Mastercard" className="h-8 opacity-40 group-hover:opacity-100 grayscale hover:grayscale-0 transition-all" />
+                            </div>
+                            <div className="h-16 rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center justify-center p-4 group hover:border-blue-200 transition-colors">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Stripe_logo%2C_revised_2016.svg" alt="Stripe" className="h-6 opacity-40 group-hover:opacity-100 grayscale hover:grayscale-0 transition-all" />
+                            </div>
+                            <div className="h-16 rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center justify-center p-4 group hover:border-blue-200 transition-colors">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa" className="h-4 opacity-40 group-hover:opacity-100 grayscale hover:grayscale-0 transition-all" />
+                            </div>
+                        </div>
+                        <div className="mt-10 flex items-center gap-3">
+                            <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                                <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                            </div>
+                            <p className="text-[11px] font-bold text-zinc-500">Verified Secure Checkout</p>
+                        </div>
+                    </div>
+
+                    {/* FAQ Mini */}
+                    <div className="rounded-[2.5rem] border border-zinc-100 bg-zinc-50/50 p-10">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-6">Need Help?</p>
+                        <div className="space-y-6">
+                            {[
+                                "Can I switch plans later?",
+                                "What is the refund policy?",
+                                "Can I pay annually?"
+                            ].map((q) => (
+                                <div key={q} className="flex items-center justify-between cursor-pointer group">
+                                    <span className="text-xs font-bold text-zinc-600 group-hover:text-blue-600 transition-colors">{q}</span>
+                                    <ChevronRight className="h-4 w-4 text-zinc-300 group-hover:text-blue-600 transition-all" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
