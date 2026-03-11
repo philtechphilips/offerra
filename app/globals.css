@@ -75,11 +75,11 @@ body {
 }
 
 .btn-primary {
-  @apply relative overflow-hidden rounded-2xl bg-brand-blue px-6 py-3 text-sm font-bold text-white transition-all duration-300 hover:bg-brand-blue/90 active:scale-95;
+  @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-2xl bg-brand-blue px-6 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-all duration-300 hover:bg-brand-blue-hover active:scale-95 shadow-lg shadow-brand-blue/20 whitespace-nowrap leading-none;
 }
 
 .btn-secondary {
-  @apply relative overflow-hidden rounded-2xl bg-brand-blue-light px-6 py-3 text-sm font-bold text-brand-blue transition-all duration-300 hover:bg-brand-blue/10 active:scale-95 border border-brand-blue/10;
+  @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-2xl bg-transparent border border-brand-blue/20 px-6 py-3 text-[11px] font-black uppercase tracking-widest text-brand-blue transition-all duration-300 hover:bg-brand-blue/5 hover:border-brand-blue/40 active:scale-95 whitespace-nowrap leading-none;
 }
 
 .text-gradient {

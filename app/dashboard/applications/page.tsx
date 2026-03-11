@@ -37,6 +37,7 @@ interface JobApplication {
     cv_match_score: number | null;
     cv_match_details: { strengths?: string[]; gaps?: string[]; tip?: string } | null;
     created_at: string;
+    description: string | null;
 }
 
 const statusColors: Record<JobApplication['status'], string> = {
@@ -232,10 +233,10 @@ export default function ApplicationsPage() {
                     </p>
                 </div>
                 <button
-                    className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[#1C4ED8] px-6 text-xs font-black uppercase tracking-widest text-white hover:bg-[#1e40af] transition-all active:scale-[0.98]"
+                    className="btn-primary h-12 px-6"
                     onClick={openAddModal}
                 >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-4 w-4 shrink-0" />
                     New Application
                 </button>
             </div>
@@ -656,23 +657,23 @@ export default function ApplicationsPage() {
                                     <button
                                         type="button"
                                         onClick={() => { setShowModal(false); resetForm(); }}
-                                        className="h-12 px-6 rounded-xl text-xs font-black uppercase tracking-widest text-zinc-400 hover:text-blue-600 hover:bg-zinc-50 transition-all"
+                                        className="btn-secondary h-12 px-6 border-none hover:bg-zinc-50 text-zinc-400"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="h-12 px-8 bg-[#1C4ED8] text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[#1e40af] transition-all flex items-center gap-2 disabled:opacity-50 active:scale-[0.98]"
+                                        className="btn-primary h-12 px-8"
                                     >
                                         {isSubmitting ? (
                                             <>
-                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                                <Loader2 className="h-4 w-4 animate-spin shrink-0" />
                                                 {editingJob ? "Saving..." : "Adding..."}
                                             </>
                                         ) : (
                                             <>
-                                                {editingJob ? <Pencil className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                                                {editingJob ? <Pencil className="h-4 w-4 shrink-0" /> : <Plus className="h-4 w-4 shrink-0" />}
                                                 {editingJob ? "Save Changes" : "Add Application"}
                                             </>
                                         )}
@@ -716,7 +717,7 @@ export default function ApplicationsPage() {
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => setDeletingJob(null)}
-                                    className="flex-1 h-12 rounded-xl text-xs font-black uppercase tracking-widest text-zinc-400 hover:text-blue-600 hover:bg-zinc-50 transition-all border border-zinc-100"
+                                    className="btn-secondary flex-1 h-12 text-zinc-400 border-zinc-100 hover:bg-zinc-50"
                                 >
                                     Cancel
                                 </button>

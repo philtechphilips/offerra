@@ -83,16 +83,16 @@ export default function InterviewsPage() {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => router.push('/dashboard/prep')}
-                        className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-white border border-zinc-100 px-6 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-brand-blue hover:border-blue-100 transition-all"
+                        className="btn-secondary h-12 px-6"
                     >
-                        <Zap className="h-4 w-4" />
+                        <Zap className="h-4 w-4 shrink-0" />
                         Practice Mode
                     </button>
                     <button
                         onClick={() => router.push('/dashboard/applications')}
-                        className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand-blue px-6 text-[10px] font-black uppercase tracking-widest text-white hover:bg-brand-blue-dark transition-all shadow-xl shadow-blue-600/10"
+                        className="btn-primary h-12 px-6"
                     >
-                        <Briefcase className="h-4 w-4" />
+                        <Briefcase className="h-4 w-4 shrink-0" />
                         View All Jobs
                     </button>
                 </div>
@@ -147,7 +147,7 @@ export default function InterviewsPage() {
                             <div className="flex flex-wrap gap-4 pt-4">
                                 <button
                                     onClick={handleGeneratePrep}
-                                    className="h-11 px-6 bg-white text-brand-blue-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-50 transition-colors"
+                                    className="btn-secondary h-11 px-6 bg-white border-none hover:bg-blue-50 text-brand-blue-black"
                                 >
                                     Generate Prep Sheet
                                 </button>
@@ -189,7 +189,7 @@ export default function InterviewsPage() {
                     </div>
                     <button
                         onClick={() => router.push('/dashboard/prep')}
-                        className="w-full py-4 text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 rounded-2xl hover:bg-blue-100 transition-colors"
+                        className="btn-secondary w-full py-4 text-zinc-500"
                     >
                         Boost My Score
                     </button>
@@ -269,17 +269,17 @@ export default function InterviewsPage() {
                                     <div className="mt-auto grid grid-cols-2 gap-3">
                                         <button
                                             onClick={() => router.push(`/dashboard/prep?job=${job.id}`)}
-                                            className="h-12 rounded-xl bg-brand-blue text-white text-[10px] font-black uppercase tracking-widest hover:bg-brand-blue-dark transition-all flex items-center justify-center gap-2"
+                                            className="btn-primary h-12"
                                         >
-                                            <Zap className="h-3.5 w-3.5" />
+                                            <Zap className="h-3.5 w-3.5 shrink-0" />
                                             Prep Now
                                         </button>
                                         <button
                                             onClick={() => router.push(`/dashboard/applications`)}
-                                            className="h-12 rounded-xl bg-zinc-50 border border-zinc-100 text-zinc-500 text-[10px] font-black uppercase tracking-widest hover:bg-zinc-100 transition-all flex items-center justify-center gap-2"
+                                            className="btn-secondary h-12"
                                         >
                                             Details
-                                            <ChevronRight className="h-3.5 w-3.5" />
+                                            <ChevronRight className="h-3.5 w-3.5 shrink-0" />
                                         </button>
                                     </div>
                                 </div>
@@ -296,7 +296,7 @@ export default function InterviewsPage() {
                             </p>
                             <button
                                 onClick={() => router.push('/dashboard/applications')}
-                                className="h-12 px-8 bg-brand-blue text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-brand-blue-dark transition-all shadow-xl shadow-blue-600/20"
+                                className="btn-primary h-12 px-8"
                             >
                                 Manage Applications
                             </button>

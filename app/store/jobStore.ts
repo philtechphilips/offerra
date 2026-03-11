@@ -15,6 +15,7 @@ interface JobApplication {
     cv_match_score: number | null;
     cv_match_details: { strengths?: string[]; gaps?: string[]; tip?: string } | null;
     created_at: string;
+    description: string | null;
 }
 
 interface PaginationMeta {

@@ -24,10 +24,9 @@ import {
 import { cn } from "@/app/lib/utils";
 
 const navigation = [
-    { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Summary', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Applications', href: '/dashboard/applications', icon: Briefcase },
     { name: 'Interviews', href: '/dashboard/interviews', icon: Clock },
-    { name: 'Analytics', href: '/dashboard/analytics', icon: LineChart },
 ];
 
 const strategy = [

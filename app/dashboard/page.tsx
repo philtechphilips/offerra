@@ -126,12 +126,12 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <button onClick={() => router.push('/dashboard/applications')} className="px-5 py-2.5 text-xs font-bold text-zinc-500 hover:text-brand-blue transition-colors rounded-xl bg-zinc-50 border border-zinc-100 hover:border-blue-100">
+                    <button onClick={() => router.push('/dashboard/applications')} className="btn-secondary px-5 py-2.5">
                         View Pipeline
                     </button>
-                    <button onClick={() => router.push('/dashboard/applications?new=true')} className="btn-primary py-2.5 px-6 flex items-center gap-2 text-xs">
+                    <button onClick={() => router.push('/dashboard/applications?new=true')} className="btn-primary py-2.5 px-6">
                         Add New Job
-                        <Briefcase className="h-3.5 w-3.5" />
+                        <Briefcase className="h-3.5 w-3.5 shrink-0" />
                     </button>
                 </div>
             </div>
@@ -253,7 +253,7 @@ export default function DashboardPage() {
                                     </p>
                                 </div>
                             </div>
-                            <button onClick={() => router.push('/dashboard/applications')} className="bg-white text-brand-blue-black px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-50 transition-colors shrink-0">
+                            <button onClick={() => router.push('/dashboard/applications')} className="btn-secondary border-none bg-white text-brand-blue-black px-6 hover:bg-blue-50">
                                 Upgrade Strategy
                             </button>
                         </div>

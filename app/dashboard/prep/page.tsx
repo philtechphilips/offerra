@@ -94,13 +94,13 @@ function PrepContent() {
         <div className="max-w-7xl mx-auto space-y-12 pb-32">
             <header className="space-y-4">
                 <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-2xl bg-amber-50 flex items-center justify-center border border-amber-100">
-                        <Zap className="h-5 w-5 text-amber-500" />
+                    <div className="h-10 w-10 rounded-2xl bg-brand-blue/10 flex items-center justify-center border border-brand-blue/20">
+                        <Zap className="h-5 w-5 text-brand-blue" />
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-amber-600">Interview Coach</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-blue">Interview Coach</span>
                 </div>
                 <h1 className="text-4xl md:text-5xl font-black tracking-tight text-zinc-900 uppercase">
-                    Ace the <span className="text-blue-600">Interview.</span>
+                    Ace the <span className="text-brand-blue">Interview.</span>
                 </h1>
                 <p className="text-sm font-medium text-zinc-400 max-w-2xl leading-relaxed">
                     Personalized interview preparation. AI analyzes your CV against the job description to predict questions and craft winning STAR-method responses.
@@ -113,7 +113,7 @@ function PrepContent() {
                     <section className="rounded-[2.5rem] border border-zinc-100 bg-white p-8 space-y-8">
                         <div className="space-y-4">
                             <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
-                                <UserCheck className="h-4 w-4 text-amber-500" />
+                                <UserCheck className="h-4 w-4 text-brand-blue" />
                                 Source Profile
                             </h3>
                             <div className="space-y-2">
@@ -124,7 +124,7 @@ function PrepContent() {
                                         className={cn(
                                             "w-full text-left p-4 rounded-2xl text-[11px] font-bold transition-all border",
                                             selectedCvId === cv.id
-                                                ? "bg-amber-500 text-white border-amber-500 shadow-lg shadow-amber-200"
+                                                ? "bg-brand-blue text-white border-brand-blue shadow-lg shadow-brand-blue/20"
                                                 : "bg-zinc-50 text-zinc-500 border-zinc-100 hover:bg-zinc-100"
                                         )}
                                     >
@@ -136,23 +136,23 @@ function PrepContent() {
 
                         <div className="space-y-4">
                             <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
-                                <Briefcase className="h-4 w-4 text-amber-500" />
+                                <Briefcase className="h-4 w-4 text-brand-blue" />
                                 Job Context
                             </h3>
                             <textarea
                                 value={jobDescription}
                                 onChange={(e) => setJobDescription(e.target.value)}
                                 placeholder="Paste job description or title here..."
-                                className="w-full h-40 p-5 rounded-2xl bg-zinc-50 border border-zinc-100 focus:bg-white focus:border-amber-500 transition-all outline-none font-medium text-[13px] text-zinc-600 leading-relaxed resize-none"
+                                className="w-full h-40 p-5 rounded-2xl bg-zinc-50 border border-zinc-100 focus:bg-white focus:border-brand-blue transition-all outline-none font-medium text-[13px] text-zinc-600 leading-relaxed resize-none"
                             />
                         </div>
 
                         <button
                             onClick={handleGenerate}
                             disabled={isGenerating || !jobDescription.trim()}
-                            className="w-full h-16 rounded-2xl bg-zinc-900 text-white text-[12px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-4 transition-all hover:bg-black hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 shadow-xl shadow-zinc-200"
+                            className="btn-primary w-full h-16"
                         >
-                            {isGenerating ? <Loader2 className="h-5 w-5 animate-spin" /> : <Play className="h-5 w-5" />}
+                            {isGenerating ? <Loader2 className="h-5 w-5 animate-spin shrink-0" /> : <Play className="h-5 w-5 shrink-0" />}
                             Start Preparation
                         </button>
                     </section>
@@ -208,7 +208,7 @@ function PrepContent() {
                                                     <MessageSquare className="h-5 w-5" />
                                                 </div>
                                                 <div>
-                                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-blue-600 mb-1 block">
+                                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-brand-blue mb-1 block">
                                                         {item.category}
                                                     </span>
                                                     <h3 className="text-lg font-black text-zinc-900 tracking-tight">{item.question}</h3>
@@ -236,13 +236,13 @@ function PrepContent() {
                                                             </p>
                                                         </div>
 
-                                                        <div className="p-6 rounded-2xl bg-emerald-50 border border-emerald-100 flex gap-4">
-                                                            <div className="h-10 w-10 rounded-xl bg-white border border-emerald-100 flex items-center justify-center shrink-0">
-                                                                <ShieldCheck className="h-5 w-5 text-emerald-500" />
+                                                        <div className="p-6 rounded-2xl bg-brand-blue-light border border-brand-blue/10 flex gap-4">
+                                                            <div className="h-10 w-10 rounded-xl bg-white border border-brand-blue/10 flex items-center justify-center shrink-0">
+                                                                <ShieldCheck className="h-5 w-5 text-brand-blue" />
                                                             </div>
                                                             <div>
-                                                                <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Coach's Analysis</p>
-                                                                <p className="text-[11px] font-bold text-emerald-900/70 leading-relaxed">
+                                                                <p className="text-[10px] font-black text-brand-blue-dark uppercase tracking-widest mb-1">Coach's Analysis</p>
+                                                                <p className="text-[11px] font-bold text-brand-blue-black/70 leading-relaxed">
                                                                     {item.why_this_works}
                                                                 </p>
                                                             </div>
@@ -274,7 +274,7 @@ function PrepContent() {
 
 export default function InterviewPrepPage() {
     return (
-        <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-blue-600" /></div>}>
+        <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-brand-blue" /></div>}>
             <PrepContent />
         </Suspense>
     );
