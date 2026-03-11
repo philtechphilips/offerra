@@ -29,7 +29,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                     <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-300 group-focus-within:text-blue-600 transition-colors" />
                     <input
                         type="text"
-                        placeholder="Search roles, companies, or tasks..."
+                        placeholder="Search..."
                         className="h-12 w-full rounded-2xl bg-zinc-50/50 pl-11 pr-4 text-xs font-bold border border-transparent focus:border-blue-100 focus:bg-white focus:ring-4 focus:ring-blue-50/50 focus:outline-none transition-all placeholder:text-zinc-300"
                     />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-20 group-hover:opacity-100 transition-opacity">
@@ -46,7 +46,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                     className="hidden sm:flex items-center gap-2.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2.5 transition-all group"
                 >
                     <Sparkles className="h-3.5 w-3.5 text-white animate-pulse" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Elite Active</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Pro Mode</span>
                 </motion.button>
 
                 <div className="hidden sm:block h-6 w-px bg-zinc-100" />
@@ -62,7 +62,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                     </div>
                     <div className="text-left hidden sm:block">
                         <div className="text-[11px] font-black tracking-tight text-brand-blue-black group-hover:text-brand-blue transition-colors">{displayName}</div>
-                        <div className="text-[9px] font-bold text-zinc-300 uppercase tracking-widest leading-none mt-0.5">Premium Plan</div>
+                        <div className="text-[9px] font-bold text-zinc-300 uppercase tracking-widest leading-none mt-0.5">Pro Plan</div>
                     </div>
                     <ChevronDown className="ml-1 sm:ml-2 h-3 w-3 text-zinc-300 group-hover:text-blue-600 transition-colors" />
                 </button>

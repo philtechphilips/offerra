@@ -97,13 +97,13 @@ function PrepContent() {
                     <div className="h-10 w-10 rounded-2xl bg-brand-blue/10 flex items-center justify-center border border-brand-blue/20">
                         <Zap className="h-5 w-5 text-brand-blue" />
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-blue">Interview Coach</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-blue">Practice</span>
                 </div>
                 <h1 className="text-4xl md:text-5xl font-black tracking-tight text-zinc-900 uppercase">
-                    Ace the <span className="text-brand-blue">Interview.</span>
+                    Practice.
                 </h1>
                 <p className="text-sm font-medium text-zinc-400 max-w-2xl leading-relaxed">
-                    Personalized interview preparation. AI analyzes your CV against the job description to predict questions and craft winning STAR-method responses.
+                    Get ready for your interviews. Our AI analyzes your resume against the job to find the best questions and help you craft great answers.
                 </p>
             </header>
 
@@ -153,7 +153,7 @@ function PrepContent() {
                             className="btn-primary w-full h-16"
                         >
                             {isGenerating ? <Loader2 className="h-5 w-5 animate-spin shrink-0" /> : <Play className="h-5 w-5 shrink-0" />}
-                            Start Preparation
+                            Start Practice
                         </button>
                     </section>
 

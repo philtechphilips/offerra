@@ -74,10 +74,10 @@ export default function InterviewsPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
                     <h1 className="text-3xl font-black tracking-tight text-brand-blue-black uppercase">
-                        Interview <span className="text-blue-600">Command Center.</span>
+                        Interviews.
                     </h1>
                     <p className="mt-2 text-sm font-medium text-zinc-400">
-                        Manage your active rounds, prep for upcoming calls, and track your success rate.
+                        Manage your interviews, get ready for calls, and track your success.
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -86,7 +86,7 @@ export default function InterviewsPage() {
                         className="btn-secondary h-12 px-6"
                     >
                         <Zap className="h-4 w-4 shrink-0" />
-                        Practice Mode
+                        Practice
                     </button>
                     <button
                         onClick={() => router.push('/dashboard/applications')}

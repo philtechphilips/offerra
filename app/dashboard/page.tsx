@@ -59,17 +59,42 @@ export default function DashboardPage() {
     }, [jobs]);
 
     // Stats calculation
+    // Stats calculation
     const totalApplied = jobs.length;
     const interviews = jobs.filter(j => j.status === 'interview').length;
     const offers = jobs.filter(j => j.status === 'offer').length;
     const offerRate = totalApplied > 0 ? ((offers / totalApplied) * 100).toFixed(0) : "0";
     const activePipeline = jobs.filter(j => j.status !== 'rejected').length;
 
+    // Momentum Calculation (Last 7 days vs previous 7 days)
+    const momentum = useMemo(() => {
+        const now = new Date();
+        const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const prev7Days = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+
+        const currentPeriodCount = jobs.filter(j => new Date(j.created_at) >= last7Days).length;
+        const previousPeriodCount = jobs.filter(j => {
+            const date = new Date(j.created_at);
+            return date >= prev7Days && date < last7Days;
+        }).length;
+
+        if (previousPeriodCount === 0) return { val: currentPeriodCount > 0 ? "+100%" : "0%", trend: "Stable", color: "text-zinc-400", bg: "bg-zinc-50" };
+
+        const diff = ((currentPeriodCount - previousPeriodCount) / previousPeriodCount) * 100;
+        const prefix = diff >= 0 ? "+" : "";
+        return {
+            val: `${prefix}${diff.toFixed(0)}%`,
+            trend: diff >= 0 ? "Trending Up" : "Trending Down",
+            color: diff >= 0 ? "text-emerald-500" : "text-amber-500",
+            bg: diff >= 0 ? "bg-emerald-50" : "bg-amber-50"
+        };
+    }, [jobs]);
+
     const dynamicStats = [
-        { label: 'Total Tracked', val: totalApplied.toString(), icon: Briefcase, color: "text-blue-600", bg: "bg-blue-50", path: '/dashboard/applications' },
+        { label: 'Total Jobs', val: totalApplied.toString(), icon: Briefcase, color: "text-blue-600", bg: "bg-blue-50", path: '/dashboard/applications' },
         { label: 'Interviews', val: interviews.toString(), icon: Clock, color: "text-amber-500", bg: "bg-amber-50", path: '/dashboard/interviews' },
-        { label: 'Offer Rate', val: `${offerRate}%`, icon: TrendingUp, color: "text-emerald-500", bg: "bg-emerald-50", path: '/dashboard/applications?status=offer' },
-        { label: 'Active Pipeline', val: activePipeline.toString(), icon: Zap, color: "text-indigo-600", bg: "bg-indigo-50", path: '/dashboard/applications' },
+        { label: 'Success Rate', val: `${offerRate}%`, icon: TrendingUp, color: "text-emerald-500", bg: "bg-emerald-50", path: '/dashboard/applications?status=offer' },
+        { label: 'Active Jobs', val: activePipeline.toString(), icon: Zap, color: "text-indigo-600", bg: "bg-indigo-50", path: '/dashboard/applications' },
     ];
 
     const pipelineStages = [
@@ -82,23 +107,23 @@ export default function DashboardPage() {
     const aiTips = [
         {
             condition: interviews > 0,
-            text: `You have ${interviews} interviews coming up. We recommend practicing common STAR method questions today.`,
-            tag: "Preparation"
+            text: `You have ${interviews} active interview rounds. Focus on preparing specific STAR-method examples for your next conversation.`,
+            tag: "Interview Prep"
+        },
+        {
+            condition: totalApplied > 0 && interviews === 0,
+            text: "Your applications are active, but we haven't secured an interview yet. Consider a quick CV refactor to boost visibility.",
+            tag: "Conversion Guide"
         },
         {
             condition: totalApplied < 5,
-            text: "Your pipeline is looking a bit thin. Try to aim for 3 more applications this week to stay competitive.",
-            tag: "Strategy"
-        },
-        {
-            condition: offerRate === "0" && totalApplied > 10,
-            text: "Based on your application volume, we suggest refining your CV match for higher engagement.",
-            tag: "CV Audit"
+            text: "Volume is the key to search momentum. We suggest adding at least 3 more roles to your pipeline this week.",
+            tag: "Network Strategy"
         },
         {
             condition: true, // Default
-            text: "OpenAI and Anthropic just posted new roles in your industry. Applying early increases response rates by 40%.",
-            tag: "Market Alert"
+            text: "Your current search trajectory is stable. Stay consistent and keep tracking every opportunity to unlock deeper AI insights.",
+            tag: "Search Hygiene"
         }
     ];
     const currentTip = aiTips.find(t => t.condition) || aiTips[aiTips.length - 1];
@@ -118,16 +143,16 @@ export default function DashboardPage() {
                         animate={{ opacity: 1, y: 0 }}
                         className="text-4xl font-black tracking-tight text-brand-blue-black"
                     >
-                        Success <span className="text-blue-600">Overview.</span>
+                        Your <span className="text-blue-600">Dashboard.</span>
                     </motion.h1>
                     <p className="mt-2 text-sm font-medium text-zinc-400">
-                        Welcome back, <span className="text-brand-blue font-bold">{userName}</span>. You've secured <span className="text-brand-blue-dark font-bold">{interviews} interviews</span> in your active pipeline.
+                        Welcome back, <span className="text-brand-blue font-bold">{userName}</span>. You've got <span className="text-brand-blue-dark font-bold">{interviews} interviews</span> lined up for your current jobs.
                     </p>
                 </div>
 
                 <div className="flex items-center gap-3">
                     <button onClick={() => router.push('/dashboard/applications')} className="btn-secondary px-5 py-2.5">
-                        View Pipeline
+                        View All Jobs
                     </button>
                     <button onClick={() => router.push('/dashboard/applications?new=true')} className="btn-primary py-2.5 px-6">
                         Add New Job
@@ -171,7 +196,7 @@ export default function DashboardPage() {
                     <div className="space-y-6">
                         <div className="flex items-center justify-between px-1">
                             <div className="flex items-center gap-3">
-                                <h2 className="text-lg font-black tracking-tight text-brand-blue-black uppercase text-[12px] tracking-widest text-zinc-400">Recent Pipeline</h2>
+                                <h2 className="text-lg font-black tracking-tight text-brand-blue-black uppercase text-[12px] tracking-widest text-zinc-400">Latest Applications</h2>
                                 <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                             </div>
                             <button
@@ -246,7 +271,7 @@ export default function DashboardPage() {
                                 </div>
                                 <div>
                                     <span className="px-2 py-0.5 rounded-md bg-white/5 text-[8px] font-black uppercase tracking-widest text-blue-400 border border-white/5 mb-2 inline-block">
-                                        AI {currentTip.tag}
+                                        Smart AI Tip
                                     </span>
                                     <p className="text-lg font-black leading-tight tracking-tight max-w-lg">
                                         "{currentTip.text}"
@@ -254,7 +279,7 @@ export default function DashboardPage() {
                                 </div>
                             </div>
                             <button onClick={() => router.push('/dashboard/applications')} className="btn-secondary border-none bg-white text-brand-blue-black px-6 hover:bg-blue-50">
-                                Upgrade Strategy
+                                Get More Stats
                             </button>
                         </div>
                     </motion.div>
@@ -264,7 +289,7 @@ export default function DashboardPage() {
                 <div className="lg:col-span-4 space-y-10">
                     {/* Pipeline Strength Pulse */}
                     <section className="bg-white border border-zinc-100 rounded-3xl p-6">
-                        <h2 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-6 px-1">Pipeline Strength</h2>
+                        <h2 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-6 px-1">Where you stand</h2>
                         <div className="space-y-5">
                             <div className="h-2.5 w-full bg-zinc-50 rounded-full overflow-hidden flex p-0.5 border border-zinc-50">
                                 {pipelineStages.map((stage, i) => (
@@ -295,8 +320,8 @@ export default function DashboardPage() {
                             {[
                                 { label: 'New Job', icon: Briefcase, color: "text-blue-600", bg: "bg-blue-50", path: '/dashboard/applications?new=true' },
                                 { label: 'Refactor CV', icon: Sparkles, color: "text-amber-500", bg: "bg-amber-50", path: '/dashboard/optimizer' },
-                                { label: 'Calendar', icon: Calendar, color: "text-emerald-500", bg: "bg-emerald-50", path: '#' },
-                                { label: 'Analyze', icon: TrendingUp, color: "text-indigo-600", bg: "bg-indigo-50", path: '#' },
+                                { label: 'Calendar', icon: Calendar, color: "text-emerald-500", bg: "bg-emerald-50", path: '/dashboard/interviews' },
+                                { label: 'Analyze', icon: TrendingUp, color: "text-indigo-600", bg: "bg-indigo-50", path: '/dashboard/prep' },
                             ].map((item) => (
                                 <button
                                     key={item.label}
@@ -319,14 +344,16 @@ export default function DashboardPage() {
                         </div>
                         <div className="flex items-center gap-2 mb-4">
                             <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-blue-500">Search Momentum</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-blue-500">Your Progress</span>
                         </div>
                         <div className="flex items-end justify-between px-1">
-                            <span className="text-3xl font-black text-brand-blue-black tracking-tight">+24%</span>
-                            <span className="text-[10px] font-black text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Trending Up</span>
+                            <span className="text-3xl font-black text-brand-blue-black tracking-tight">{momentum.val}</span>
+                            <span className={cn("text-[10px] font-black px-2 py-0.5 rounded-full border", momentum.color, momentum.bg, momentum.color.replace('text', 'border').replace('500', '100'))}>
+                                {momentum.trend}
+                            </span>
                         </div>
                         <p className="text-[11px] font-medium text-zinc-400 mt-3 px-1 leading-relaxed">
-                            Your application frequency is currently <span className="text-brand-blue font-bold">higher than average</span> for your skill bracket.
+                            Your application frequency is currently <span className="text-brand-blue font-bold">{momentum.trend === 'Trending Up' ? 'higher than' : momentum.trend === 'Trending Down' ? 'lower than' : 'consistent with'}</span> your previous activity.
                         </p>
                     </div>
                 </div>

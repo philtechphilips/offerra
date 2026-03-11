@@ -227,9 +227,9 @@ export default function ApplicationsPage() {
             {/* Page Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-black tracking-tight text-brand-blue-black">Applications</h1>
+                    <h1 className="text-3xl font-black tracking-tight text-brand-blue-black uppercase">My Jobs</h1>
                     <p className="mt-2 text-sm font-medium text-zinc-400">
-                        {meta ? `Total of ${meta.total} tracked opportunities in your pipeline.` : 'Loading your pipeline...'}
+                        {meta ? `You have ${meta.total} jobs you are currently tracking.` : 'Loading your jobs...'}
                     </p>
                 </div>
                 <button
@@ -237,7 +237,7 @@ export default function ApplicationsPage() {
                     onClick={openAddModal}
                 >
                     <Plus className="h-4 w-4 shrink-0" />
-                    New Application
+                    Add Job
                 </button>
             </div>
 

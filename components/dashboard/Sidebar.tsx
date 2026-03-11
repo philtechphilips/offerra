@@ -24,16 +24,16 @@ import {
 import { cn } from "@/app/lib/utils";
 
 const navigation = [
-    { name: 'Summary', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Applications', href: '/dashboard/applications', icon: Briefcase },
     { name: 'Interviews', href: '/dashboard/interviews', icon: Clock },
 ];
 
 const strategy = [
-    { name: 'Profile & CV', href: '/dashboard/profile', icon: FileText },
-    { name: 'Resume Refactor', href: '/dashboard/optimizer', icon: Sparkles },
-    { name: 'Proposal Writer', href: '/dashboard/proposals', icon: PenTool },
-    { name: 'Interview Prep', href: '/dashboard/prep', icon: Zap },
+    { name: 'Profile', href: '/dashboard/profile', icon: FileText },
+    { name: 'Optimize CV', href: '/dashboard/optimizer', icon: Sparkles },
+    { name: 'Proposals', href: '/dashboard/proposals', icon: PenTool },
+    { name: 'Practice', href: '/dashboard/prep', icon: Zap },
 ];
 
 interface SidebarProps {
@@ -116,7 +116,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </div>
 
                 <div>
-                    <span className="px-3 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-300">Helpful Tools</span>
+                    <span className="px-3 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-300">Tools</span>
                     <nav className="mt-6 space-y-1.5">
                         {strategy.map((item) => (
                             <Link
@@ -133,11 +133,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                                     "h-4 w-4 shrink-0 transition-colors",
                                     pathname === item.href ? "text-white/70" : "text-zinc-300 group-hover:text-brand-blue"
                                 )} />
-                                {item.name === 'Market Insights' ? 'Job Market' :
-                                    item.name === 'Salary Engine' ? 'Salary Check' :
-                                        item.name === 'Profile & CV' ? 'My Resume' :
-                                            item.name === 'Resume Refactor' ? 'Optimize' :
-                                                item.name === 'Interview Prep' ? 'Practice' : item.name}
+                                {item.name}
                             </Link>
                         ))}
                     </nav>
@@ -151,7 +147,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     </div>
                     <div className="flex flex-col min-w-0">
                         <span className="text-[12px] font-black tracking-tight text-brand-blue-black truncate">{user?.name || "Pro User"}</span>
-                        <span className="text-[10px] font-black text-brand-blue uppercase tracking-[0.15em] leading-none mt-1">Premium Tier</span>
+                        <span className="text-[10px] font-black text-brand-blue uppercase tracking-[0.15em] leading-none mt-1">Pro Plan</span>
                     </div>
                 </div>
 
@@ -161,14 +157,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                         className="flex items-center gap-3.5 rounded-xl px-3 py-2.5 text-[11px] font-black uppercase tracking-widest text-zinc-400 hover:bg-zinc-50 hover:text-blue-600 transition-all"
                     >
                         <Settings className="h-4 w-4" />
-                        Account Settings
+                        Settings
                     </Link>
                     <button
                         onClick={logout}
                         className="flex w-full items-center gap-3.5 rounded-xl px-3 py-2.5 text-[11px] font-black uppercase tracking-widest text-zinc-400 hover:bg-red-50 hover:text-red-500 transition-all"
                     >
                         <LogOut className="h-4 w-4" />
-                        Log Out System
+                        Sign Out
                     </button>
                 </div>
             </div>
