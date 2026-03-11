@@ -13,10 +13,13 @@ import {
     ArrowRight,
     Star
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { cn } from "@/app/lib/utils";
 import api from "@/app/lib/api";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { useAuthStore } from "@/app/store/authStore";
+import { useSearchParams } from "next/navigation";
 
 interface Plan {
     id: number;
@@ -32,11 +35,71 @@ interface Plan {
 }
 
 export default function BillingPage() {
+    return (
+        <Suspense fallback={<div className="flex items-center justify-center min-h-[60vh]"><Loader2 className="h-10 w-10 text-blue-600 animate-spin" /></div>}>
+            <BillingContent />
+        </Suspense>
+    );
+}
+
+function BillingContent() {
+    const { user, setUser } = useAuthStore();
+    const searchParams = useSearchParams();
     const [plans, setPlans] = useState<Plan[]>([]);
     const [selectedPlan, setSelectedPlan] = useState("");
     const [region, setRegion] = useState<"global" | "nigeria">("global");
     const [isLoading, setIsLoading] = useState(true);
     const [isDetecting, setIsDetecting] = useState(true);
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    const refreshUser = async () => {
+        try {
+            const response = await api.get("/user");
+            setUser(response.data);
+        } catch (err) {
+            console.error("Failed to refresh user", err);
+        }
+    };
+
+    useEffect(() => {
+        const status = searchParams.get('status') || searchParams.get('success');
+        if (status === 'success' || status === 'true') {
+            toast.success("Payment successful! Your plan has been updated.");
+            refreshUser();
+            window.history.replaceState({}, '', window.location.pathname);
+        }
+    }, [searchParams]);
+
+    // ... (rest of the logic)
+
+    // Find the current plan in the card
+    const userCurrentPlan = user?.plan?.name || "Essential";
+
+    const handlePayment = async () => {
+        if (!activePlan) return;
+
+        setIsProcessing(true);
+        try {
+            const response = await api.post("/payments/initiate", {
+                plan_id: activePlan.id,
+                region: region
+            });
+
+            if (response.data.authorization_url) {
+                window.location.href = response.data.authorization_url;
+            } else if (response.data.status === 'success') {
+                toast.success("Plan updated!");
+                refreshUser();
+            } else {
+                toast.error("Failed to get checkout URL");
+            }
+        } catch (err: any) {
+            console.error("Payment failed", err);
+            toast.error(err.response?.data?.error || "Payment initialization failed");
+        } finally {
+            setIsProcessing(false);
+        }
+    };
 
     const fetchPlans = async () => {
         try {
@@ -241,9 +304,17 @@ export default function BillingPage() {
                                             Cancel anytime. No lock-in contracts or hidden cancellation fees.
                                         </p>
                                     </div>
-                                    <button className="w-full h-14 bg-zinc-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-black shadow-xl shadow-zinc-200 flex items-center justify-center gap-3">
-                                        Complete Payment
-                                        <ArrowRight className="h-4 w-4" />
+                                    <button
+                                        onClick={handlePayment}
+                                        disabled={isProcessing || !activePlan}
+                                        className="w-full h-14 bg-zinc-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-black shadow-xl shadow-zinc-200 flex items-center justify-center gap-3 disabled:opacity-50"
+                                    >
+                                        {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : (
+                                            <>
+                                                Complete Payment
+                                                <ArrowRight className="h-4 w-4" />
+                                            </>
+                                        )}
                                     </button>
                                 </div>
                             </div>
@@ -259,14 +330,19 @@ export default function BillingPage() {
                             <Star size={80} className="fill-current" />
                         </div>
                         <p className="text-[10px] font-black uppercase tracking-widest text-white/50 mb-2">Authenticated Account</p>
-                        <h4 className="text-2xl font-black tracking-tight mb-8">Current: Essential</h4>
+                        <h4 className="text-2xl font-black tracking-tight mb-8">Current: {userCurrentPlan}</h4>
                         <div className="space-y-4 mb-10">
                             <div className="flex items-center justify-between">
                                 <span className="text-[10px] font-bold text-white/40 uppercase tracking-tighter">Usage</span>
-                                <span className="text-[10px] font-bold text-white/80 uppercase">5 / 5 tracks used</span>
+                                <span className="text-[10px] font-bold text-white/80 uppercase">
+                                    {user?.plan?.slug === 'essential' ? '5 / 5 tracks used' : 'Unlimited tracks'}
+                                </span>
                             </div>
                             <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                                <div className="h-full w-full bg-blue-500" />
+                                <div className={cn(
+                                    "h-full bg-blue-500",
+                                    user?.plan?.slug === 'essential' ? "w-full" : "w-1/3"
+                                )} />
                             </div>
                         </div>
                         <div className="flex items-center gap-3 text-emerald-400">

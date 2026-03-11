@@ -7,6 +7,10 @@ interface User {
     email: string;
     role: string;
     email_verified_at: string | null;
+    plan?: {
+        name: string;
+        slug: string;
+    } | null;
     google_account?: {
         email: string;
         last_synced_at: string | null;

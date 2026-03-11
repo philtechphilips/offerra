@@ -30,6 +30,8 @@ interface Plan {
     is_popular: boolean;
     is_active: boolean;
     btn_text: string;
+    polar_product_id?: string;
+    paystack_plan_id?: string;
 }
 
 export default function AdminBilling() {
@@ -121,7 +123,9 @@ export default function AdminBilling() {
                         features: [],
                         is_popular: false,
                         is_active: true,
-                        btn_text: "Subscribe"
+                        btn_text: "Subscribe",
+                        polar_product_id: "",
+                        paystack_plan_id: ""
                     })}
                     className="h-14 px-8 bg-indigo-600 text-white rounded-[1.5rem] font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100"
                 >
@@ -294,6 +298,31 @@ export default function AdminBilling() {
                                                     value={editingPlan.price_ngn}
                                                     onChange={e => setEditingPlan({ ...editingPlan, price_ngn: Number(e.target.value) })}
                                                     className="w-full h-14 bg-zinc-50 border border-zinc-100 rounded-2xl px-6 text-sm font-bold text-zinc-900"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 px-2 flex items-center gap-2">
+                                                    Polar Product ID (USD)
+                                                </label>
+                                                <input
+                                                    value={editingPlan.polar_product_id || ""}
+                                                    onChange={e => setEditingPlan({ ...editingPlan, polar_product_id: e.target.value })}
+                                                    className="w-full h-14 bg-zinc-50 border border-zinc-100 rounded-2xl px-6 text-sm font-bold text-zinc-900 focus:outline-none focus:border-indigo-600 transition-all"
+                                                    placeholder="e.g. prod_..."
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 px-2 flex items-center gap-2">
+                                                    Paystack Plan ID (NGN)
+                                                </label>
+                                                <input
+                                                    value={editingPlan.paystack_plan_id || ""}
+                                                    onChange={e => setEditingPlan({ ...editingPlan, paystack_plan_id: e.target.value })}
+                                                    className="w-full h-14 bg-zinc-50 border border-zinc-100 rounded-2xl px-6 text-sm font-bold text-zinc-900 focus:outline-none focus:border-indigo-600 transition-all"
+                                                    placeholder="e.g. PLN_..."
                                                 />
                                             </div>
                                         </div>
