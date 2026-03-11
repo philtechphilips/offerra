@@ -20,7 +20,8 @@ import {
     X,
     FileText,
     PenTool,
-    CreditCard
+    CreditCard,
+    ShieldCheck
 } from "lucide-react";
 import { cn } from "@/app/lib/utils";
 
@@ -140,6 +141,20 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                         ))}
                     </nav>
                 </div>
+                {user?.role === 'admin' && (
+                    <div>
+                        <span className="px-3 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-300">Management</span>
+                        <nav className="mt-6 space-y-1.5">
+                            <Link
+                                href="/admin"
+                                className="group flex items-center gap-3.5 rounded-2xl px-4 py-3 text-[11px] font-black uppercase tracking-widest transition-all bg-indigo-50/50 text-indigo-600 hover:bg-indigo-600 hover:text-white"
+                            >
+                                <ShieldCheck className="h-4 w-4 shrink-0" />
+                                Admin Portal
+                            </Link>
+                        </nav>
+                    </div>
+                )}
             </div>
 
             <div className="mt-auto border-t border-zinc-100 p-6 space-y-6">
