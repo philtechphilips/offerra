@@ -38,7 +38,7 @@ export function DashboardPreview() {
 
                         <div className="flex h-12 sm:h-16 items-center justify-between px-4 sm:px-8">
                             <div className="flex items-center gap-3 sm:gap-6">
-                                <h3 className="text-xs sm:text-sm font-black tracking-tight text-black">Applications</h3>
+                                <h3 className="text-xs sm:text-sm font-black tracking-tight text-black">My Jobs</h3>
                                 <div className="h-4 w-px bg-zinc-100 hidden sm:block" />
                                 <div className="hidden sm:flex gap-3 items-center">
                                     <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">All (142)</span>
@@ -70,7 +70,7 @@ export function DashboardPreview() {
                                 <div>
                                     <span className="text-[9px] font-black text-zinc-300 uppercase tracking-[0.2em]">Inventory</span>
                                     <div className="mt-6 space-y-2">
-                                        {['Overview', 'Applications', 'Interview Prep', 'Analytics'].map((item, i) => (
+                                        {['Home', 'My Jobs', 'Practice', 'Analytics'].map((item, i) => (
                                             <div key={item} className={`flex items-center justify-between py-2 px-4 rounded-xl text-xs font-black tracking-tight ${i === 1 ? 'bg-zinc-100 text-[#1C4ED8]' : 'text-zinc-400 cursor-pointer hover:bg-zinc-50 transition-colors'}`}>
                                                 {item}
                                                 {i === 1 && <span className="text-[9px] bg-red-500 h-2 w-2 rounded-full ring-4 ring-red-50" />}
@@ -154,7 +154,7 @@ export function DashboardPreview() {
                                         <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
                                     </div>
                                     <div className="max-w-md min-w-0">
-                                        <div className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] mb-1 sm:mb-2 opacity-80">AI Strategic Insight</div>
+                                        <div className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] mb-1 sm:mb-2 opacity-80">Smart AI Tip</div>
                                         <p className="text-xs sm:text-base font-bold leading-relaxed tracking-tight">
                                             &quot;Scale AI has a high response rate for your background. Send a follow-up
                                             note to the hiring manager to increase your interview success by 24%.&quot;

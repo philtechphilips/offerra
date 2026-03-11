@@ -104,7 +104,7 @@ export function Hero() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                     >
-                        Find your next job in half the time. We track your applications for you, help you fix your resume with AI, and build your portfolio in seconds.
+                        Find your next job in half the time. We track your applications automatically, optimize your resume with AI, and help you master your interviews with elite coaching.
                     </motion.p>
 
                     <motion.div

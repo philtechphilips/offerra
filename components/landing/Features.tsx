@@ -1,43 +1,49 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { LayoutDashboard, Zap, Sparkles, Briefcase } from "lucide-react";
+import { LayoutDashboard, Zap, Sparkles, Briefcase, PenTool, TrendingUp } from "lucide-react";
 import { cn } from "@/app/lib/utils";
 
 const features = [
     {
-        title: "No More Spreadsheets",
-        description: "Everything you apply for is in one easy place. No more messy lists.",
+        title: "Automated Tracking",
+        description: "Focus on your search while we automatically capture every role you apply for across the web.",
         icon: LayoutDashboard,
         color: "blue"
     },
     {
-        title: "AI Smart Resume",
-        description: "Our AI helps you fix your resume to match exactly what jobs are looking for.",
+        title: "AI CV Optimization",
+        description: "Our AI re-tailors your resume for every specific job description to maximize your match score.",
         icon: Sparkles,
         color: "emerald"
     },
     {
-        title: "Ready for Interviews",
-        description: "We help you practice for your interviews with tips for exactly who you're meeting.",
+        title: "Interview Coaching",
+        description: "Get predicted questions and winning STAR-method answers designed for your specific match.",
         icon: Zap,
         color: "amber"
     },
     {
-        title: "Track Everything",
-        description: "See exactly which version of your resume you sent where, so you're always organized.",
-        icon: Briefcase,
+        title: "Proposal Writer",
+        description: "Generate high-impact cover letters and proposals in seconds that align with recruiter expectations.",
+        icon: PenTool,
         color: "blue"
     },
     {
         title: "Smart Gmail Sync",
-        description: "Automatically track application status directly from your official Gmail inbox.",
+        description: "Stay updated on your status. We detect interview invites and follow-ups directly from your inbox.",
         icon: () => (
             <svg viewBox="0 0 24 24" className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
                 <path d="M24 4.5v15c0 .85-.65 1.5-1.5 1.5H21V7.38l-9 6.75-9-6.75V21H1.5C.65 21 0 20.35 0 19.5v-15c0-.41.17-.8.47-1.09.3-.29.69-.41 1.03-.41h.5l10 7.5 10-7.5h.5c.34 0 .73.12 1.03.41.3.29.47.68.47 1.09z" fill="currentColor" />
             </svg>
         ),
         color: "red"
+    },
+    {
+        title: "Search Analytics",
+        description: "Track your momentum and success rates with dense insights into your application performance.",
+        icon: TrendingUp,
+        color: "blue"
     }
 ];
 

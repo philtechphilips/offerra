@@ -4,6 +4,7 @@ import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
 import { Features } from "@/components/landing/Features";
 import { ResumeFeature } from "@/components/landing/ResumeFeature";
+import { InterviewFeature } from "@/components/landing/InterviewFeature";
 import { motion } from "framer-motion";
 
 export default function Home() {
@@ -24,7 +25,7 @@ export default function Home() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                 >
-                  <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-black tracking-tighter leading-[0.85] mb-10 text-black text-gradient">
+                  <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-black tracking-tighter leading-[0.85] mb-10 text-black text-gradient uppercase">
                     Zero effort. <br />Better <span className="text-[#1C4ED8]">Results.</span>
                   </h2>
                   <p className="text-xl font-medium text-zinc-400 leading-relaxed max-w-md">
@@ -37,9 +38,9 @@ export default function Home() {
                 <div className="absolute left-5 top-10 bottom-10 w-px bg-gradient-to-b from-blue-600/50 via-blue-200 to-transparent hidden sm:block" />
 
                 {[
-                  { step: "01", title: "Add the Extension", desc: "Install our simple browser tool to start tracking your applications automatically." },
-                  { step: "02", title: "Apply as Usual", desc: "Just hit 'Submit' on any job site. We'll capture all the details for you instantly." },
-                  { step: "03", title: "Get Hired Faster", desc: "Use our AI to fix your resume for every job and stay ahead of the competition." }
+                  { step: "01", title: "Automated Tracking", desc: "Our browser companion captures job details instantly. No manual entry required." },
+                  { step: "02", title: "AI Optimization", desc: "One click to refactor your CV and generate a winning proposal for every role." },
+                  { step: "03", title: "Coach to Win", desc: "Master your upcoming interviews with predicted questions and expert STAR responses." }
                 ].map((item, idx) => (
                   <motion.div
                     key={item.step}
@@ -56,7 +57,7 @@ export default function Home() {
                       </span>
                     </div>
                     <div>
-                      <h3 className="text-2xl font-black mb-3 tracking-tight text-black group-hover:text-blue-600 transition-colors">{item.title}</h3>
+                      <h3 className="text-2xl font-black mb-3 tracking-tight text-black group-hover:text-blue-600 transition-colors uppercase tracking-[0.05em]">{item.title}</h3>
                       <p className="text-base font-medium text-zinc-500 leading-relaxed max-w-sm">{item.desc}</p>
                     </div>
                   </motion.div>
@@ -67,6 +68,7 @@ export default function Home() {
         </section>
 
         <ResumeFeature />
+        <InterviewFeature />
 
 
         {/* Pricing - Premium Tiers */}
@@ -74,7 +76,7 @@ export default function Home() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
             <div className="max-w-2xl mx-auto mb-32 text-center">
               <motion.h2
-                className="text-[clamp(2.5rem,6vw,5rem)] font-black tracking-tighter mb-8 text-black text-gradient"
+                className="text-[clamp(2.5rem,6vw,5rem)] font-black tracking-tighter mb-8 text-black text-gradient uppercase"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -93,13 +95,13 @@ export default function Home() {
                   <span className="text-sm font-black text-zinc-400 uppercase tracking-widest">/mo</span>
                 </div>
                 <ul className="space-y-6 mb-12 text-sm font-black text-zinc-500 flex-grow">
-                  {['5 tracks /mo', 'Automated detection', 'Standard dashboard'].map((f) => (
+                  {['Manually track 5 jobs', 'Real-time status detection', 'Basic dashboard'].map((f) => (
                     <li key={f} className="flex items-center gap-4">
                       <div className="h-1.5 w-1.5 rounded-full bg-blue-200" />
                       {f}
                     </li>
                   ))}
-                  {['AI Strategy', 'Gmail Sync'].map((f) => (
+                  {['AI CV Optimization', 'Interview Practice'].map((f) => (
                     <li key={f} className="flex items-center gap-4 opacity-30 grayscale">
                       <div className="h-1.5 w-1.5 rounded-full bg-zinc-200" />
                       {f}
@@ -119,11 +121,11 @@ export default function Home() {
                 </div>
                 <ul className="space-y-6 mb-12 text-sm font-black text-black flex-grow">
                   {[
-                    { text: 'Unlimited tracking', icon: true },
-                    { text: 'Deep Gmail/Outlook Sync', gmail: true },
-                    { text: 'AI Strategic Insights', icon: true },
-                    { text: 'Prioritized support', icon: true },
-                    { text: 'Advanced Analytics', icon: true }
+                    { text: 'Unlimited Auto Tracking', icon: true },
+                    { text: 'AI CV Optimization', gmail: false },
+                    { text: 'Proposal & Letter Generator', icon: true },
+                    { text: 'Momentum Analytics', icon: true },
+                    { text: 'Gmail Status Sync', gmail: true }
                   ].map((f) => (
                     <li key={f.text} className="flex items-center gap-4">
                       {f.gmail ? (
@@ -142,7 +144,7 @@ export default function Home() {
 
               {/* Platinum Plan */}
               <div className="group relative border border-zinc-100 bg-zinc-50/50 p-10 rounded-[2rem] text-left transition-all hover:border-blue-100 hover:-translate-y-2 flex flex-col">
-                <div className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-400 mb-10">Enterprise</div>
+                <div className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-400 mb-10">Elite</div>
                 <div className="flex items-baseline gap-1 mb-10 text-black">
                   <span className="text-7xl font-black tracking-tighter">$19</span>
                   <span className="text-sm font-black text-zinc-400 uppercase tracking-widest">/mo</span>
@@ -150,10 +152,10 @@ export default function Home() {
                 <ul className="space-y-6 mb-12 text-sm font-black text-zinc-500 flex-grow">
                   {[
                     'Everything in Pro',
-                    'AI Interview Assistant',
-                    'Strategic Coaching',
-                    'Executive Strategy',
-                    'Network Referrals'
+                    'AI Interview Coaching',
+                    'Predicted Answers',
+                    'Strategic Success Path',
+                    'Priority AI Training'
                   ].map((f) => (
                     <li key={f} className="flex items-center gap-4">
                       <div className="h-1.5 w-1.5 rounded-full bg-black/20" />
