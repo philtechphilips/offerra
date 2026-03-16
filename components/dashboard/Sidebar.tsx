@@ -157,18 +157,35 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 )}
             </div>
 
-            <div className="mt-auto border-t border-zinc-100 p-6 space-y-6">
-                <div className="flex items-center gap-4 px-2">
-                    <div className="h-11 w-11 rounded-2xl bg-[#1C4ED8] flex items-center justify-center font-black text-white text-[11px] uppercase shrink-0 border-2 border-white">
-                        {user?.name ? user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() : "PU"}
+            <div className="mt-auto border-t border-zinc-100 p-4">
+                <div className="rounded-3xl bg-zinc-50/50 border border-zinc-100 p-4 space-y-4">
+                    <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-2xl bg-brand-blue flex items-center justify-center font-black text-white text-[10px] uppercase shrink-0 shadow-sm">
+                            {user?.name ? user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() : "PU"}
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                            <span className="text-[11px] font-black tracking-tight text-brand-blue-black truncate uppercase">{user?.name || "User Account"}</span>
+                            <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest truncate">{user?.plan?.name || "Starter Pack"}</span>
+                        </div>
                     </div>
-                    <Link href="/dashboard/billing" className="flex flex-col min-w-0 group/plan">
-                        <span className="text-[12px] font-black tracking-tight text-brand-blue-black truncate">{user?.name || "Pro User"}</span>
-                        <span className="text-[10px] font-black text-brand-blue uppercase tracking-[0.15em] leading-none mt-1 group-hover/plan:text-blue-700 transition-colors underline decoration-blue-100 underline-offset-4">Pro Plan</span>
+
+                    <Link
+                        href="/dashboard/billing"
+                        className="flex items-center justify-between gap-2 p-3 rounded-2xl bg-white border border-zinc-100 hover:border-blue-200 transition-all group/credit"
+                    >
+                        <div className="flex items-center gap-2">
+                            <div className="h-6 w-6 rounded-lg bg-emerald-50 flex items-center justify-center">
+                                <Zap className="h-3 w-3 text-emerald-600 fill-emerald-600" />
+                            </div>
+                            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest group-hover/credit:text-emerald-600 transition-colors">Balance</span>
+                        </div>
+                        <span className="text-[11px] font-black text-emerald-600 uppercase">
+                            {user?.credits || 0} <span className="text-[8px] opacity-70">Cr</span>
+                        </span>
                     </Link>
                 </div>
 
-                <div className="space-y-1">
+                <div className="mt-4 px-2 space-y-0.5">
                     <Link
                         href="/dashboard/settings"
                         className="flex items-center gap-3.5 rounded-xl px-3 py-2.5 text-[11px] font-black uppercase tracking-widest text-zinc-400 hover:bg-zinc-50 hover:text-blue-600 transition-all"

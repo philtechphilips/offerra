@@ -43,10 +43,13 @@ export function Header({ onMenuClick }: HeaderProps) {
                 {/* Pro Mode badge */}
                 <motion.button
                     whileHover={{ scale: 1.02 }}
-                    className="hidden sm:flex items-center gap-2.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2.5 transition-all group"
+                    className="hidden sm:flex items-center gap-2.5 rounded-2xl bg-zinc-50 border border-zinc-100 px-5 py-2.5 transition-all group"
+                    onClick={() => window.location.href = "/dashboard/billing"}
                 >
-                    <Sparkles className="h-3.5 w-3.5 text-white animate-pulse" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Pro Mode</span>
+                    <Sparkles className="h-3.5 w-3.5 text-blue-600 animate-pulse" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-900">
+                        {user?.credits || 0} AI Credits
+                    </span>
                 </motion.button>
 
                 <div className="hidden sm:block h-6 w-px bg-zinc-100" />
@@ -56,13 +59,16 @@ export function Header({ onMenuClick }: HeaderProps) {
                     <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full border-2 border-white bg-red-500" />
                 </button>
 
-                <button className="flex items-center gap-3 rounded-2xl border border-zinc-100 p-1.5 pr-2 sm:pr-4 transition-all hover:bg-white hover:border-blue-200 group">
+                <button
+                    onClick={() => window.location.href = "/dashboard/profile"}
+                    className="flex items-center gap-3 rounded-2xl border border-zinc-100 p-1.5 pr-2 sm:pr-4 transition-all hover:bg-white hover:border-blue-200 group"
+                >
                     <div className="h-9 w-9 rounded-xl bg-[#1C4ED8] flex items-center justify-center font-black text-white text-[10px] uppercase">
                         {initials}
                     </div>
                     <div className="text-left hidden sm:block">
                         <div className="text-[11px] font-black tracking-tight text-brand-blue-black group-hover:text-brand-blue transition-colors">{displayName}</div>
-                        <div className="text-[9px] font-bold text-zinc-300 uppercase tracking-widest leading-none mt-0.5">Pro Plan</div>
+                        <div className="text-[9px] font-bold text-zinc-300 uppercase tracking-widest leading-none mt-0.5">{user?.plan?.name || "Starter Pack"}</div>
                     </div>
                     <ChevronDown className="ml-1 sm:ml-2 h-3 w-3 text-zinc-300 group-hover:text-blue-600 transition-colors" />
                 </button>

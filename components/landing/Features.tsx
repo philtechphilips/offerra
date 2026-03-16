@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { LayoutDashboard, Zap, Sparkles, Briefcase, PenTool, TrendingUp } from "lucide-react";
+import { LayoutDashboard, Zap, Sparkles, Briefcase, PenTool, TrendingUp, Mail } from "lucide-react";
 import { cn } from "@/app/lib/utils";
 
 const features = [
@@ -32,11 +32,7 @@ const features = [
     {
         title: "Smart Gmail Sync",
         description: "Stay updated on your status. We detect interview invites and follow-ups directly from your inbox.",
-        icon: () => (
-            <svg viewBox="0 0 24 24" className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
-                <path d="M24 4.5v15c0 .85-.65 1.5-1.5 1.5H21V7.38l-9 6.75-9-6.75V21H1.5C.65 21 0 20.35 0 19.5v-15c0-.41.17-.8.47-1.09.3-.29.69-.41 1.03-.41h.5l10 7.5 10-7.5h.5c.34 0 .73.12 1.03.41.3.29.47.68.47 1.09z" fill="currentColor" />
-            </svg>
-        ),
+        icon: Mail,
         color: "red"
     },
     {

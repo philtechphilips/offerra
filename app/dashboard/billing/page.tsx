@@ -27,6 +27,7 @@ interface Plan {
     description: string;
     price_usd: number;
     price_ngn: number;
+    credits: number;
     features: string[];
     not_included?: string[];
     is_popular: boolean;
@@ -46,7 +47,7 @@ function BillingContent() {
     const { user, setUser } = useAuthStore();
     const searchParams = useSearchParams();
     const [plans, setPlans] = useState<Plan[]>([]);
-    const [selectedPlan, setSelectedPlan] = useState("");
+    const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
     const [region, setRegion] = useState<"global" | "nigeria">("global");
     const [isLoading, setIsLoading] = useState(true);
     const [isDetecting, setIsDetecting] = useState(true);
@@ -73,7 +74,7 @@ function BillingContent() {
     // ... (rest of the logic)
 
     // Find the current plan in the card
-    const userCurrentPlan = user?.plan?.name || "Essential";
+    const userCurrentPlan = user?.plan?.name || "Starter Pack";
 
     const handlePayment = async () => {
         if (!activePlan) return;
@@ -106,8 +107,8 @@ function BillingContent() {
             const response = await api.get("/plans");
             setPlans(response.data);
             if (response.data.length > 0) {
-                const pro = response.data.find((p: Plan) => p.name.includes("Pro"));
-                setSelectedPlan(pro ? pro.name : response.data[0].name);
+                const pro = response.data.find((p: Plan) => p.name.includes("Pro") || p.is_popular);
+                setSelectedPlanId(pro ? pro.id : response.data[0].id);
             }
         } catch (err) {
             console.error("Failed to fetch plans", err);
@@ -135,7 +136,7 @@ function BillingContent() {
         detectLocation();
     }, []);
 
-    const activePlan = plans.find(p => p.name === selectedPlan);
+    const activePlan = plans.find(p => p.id === selectedPlanId);
     const getPrice = (plan: Plan) => region === "nigeria" ? plan.price_ngn : plan.price_usd;
     const getSymbol = () => region === "nigeria" ? "₦" : "$";
 
@@ -151,10 +152,10 @@ function BillingContent() {
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
                     <h1 className="text-3xl font-black tracking-tight text-brand-blue-black uppercase">
-                        Subscription <span className="text-blue-600">Plans.</span>
+                        AI Credits <span className="text-blue-600">& Top-ups.</span>
                     </h1>
                     <p className="mt-2 text-sm font-medium text-zinc-400">
-                        Select the plan that fits your career goals and scale your search.
+                        Purchase credits to power your job search. Use credits for AI status detection and CV optimizations.
                     </p>
                 </div>
 
@@ -195,11 +196,11 @@ function BillingContent() {
                                 whileHover={{ y: -5 }}
                                 className={cn(
                                     "relative rounded-[2.5rem] border p-8 flex flex-col transition-all cursor-pointer",
-                                    selectedPlan === plan.name
+                                    selectedPlanId === plan.id
                                         ? "border-blue-600 bg-white ring-4 ring-blue-50/50 shadow-2xl shadow-blue-100"
                                         : "border-zinc-100 bg-white hover:border-blue-200"
                                 )}
-                                onClick={() => setSelectedPlan(plan.name)}
+                                onClick={() => setSelectedPlanId(plan.id)}
                             >
                                 {plan.is_popular && (
                                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg">
@@ -210,13 +211,13 @@ function BillingContent() {
                                 <div className="mb-8">
                                     <p className={cn(
                                         "text-[10px] font-black uppercase tracking-[0.2em] mb-4",
-                                        selectedPlan === plan.name ? "text-blue-600" : "text-zinc-400"
+                                        selectedPlanId === plan.id ? "text-blue-600" : "text-zinc-400"
                                     )}>
                                         {plan.name}
                                     </p>
                                     <div className="flex items-baseline gap-1">
                                         <span className="text-4xl font-black text-zinc-900">{getSymbol()}{Number(getPrice(plan)).toLocaleString()}</span>
-                                        <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">/mo</span>
+                                        <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{plan.credits} Credits</span>
                                     </div>
                                 </div>
 
@@ -225,7 +226,7 @@ function BillingContent() {
                                         <li key={feature} className="flex items-center gap-3">
                                             <CheckCircle2 className={cn(
                                                 "h-4 w-4 shrink-0",
-                                                selectedPlan === plan.name ? "text-blue-600" : "text-emerald-500"
+                                                selectedPlanId === plan.id ? "text-blue-600" : "text-emerald-500"
                                             )} />
                                             <span className="text-[11px] font-bold text-zinc-700 leading-tight">{feature}</span>
                                         </li>
@@ -238,16 +239,6 @@ function BillingContent() {
                                     ))}
                                 </ul>
 
-                                <button
-                                    className={cn(
-                                        "w-full h-14 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all",
-                                        selectedPlan === plan.name
-                                            ? "bg-blue-600 text-white shadow-xl shadow-blue-200 hover:bg-blue-700"
-                                            : "bg-zinc-50 text-zinc-500 hover:bg-zinc-100 border border-zinc-100"
-                                    )}
-                                >
-                                    {plan.btn_text}
-                                </button>
                             </motion.div>
                         ))}
                     </div>
@@ -268,8 +259,8 @@ function BillingContent() {
                                                 <Sparkles className="h-5 w-5 text-blue-600" />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-black text-zinc-900">{selectedPlan} Plan</p>
-                                                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{region === "nigeria" ? "Paystack NGN" : "Global USD"}</p>
+                                                <p className="text-sm font-black text-zinc-900">{activePlan?.name || "Selected"} Pack</p>
+                                                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{activePlan?.credits || 0} Credits Included</p>
                                             </div>
                                         </div>
                                         <span className="text-lg font-black text-zinc-900">
@@ -301,7 +292,7 @@ function BillingContent() {
                                     <div className="flex items-start gap-3">
                                         <Clock className="h-5 w-5 text-zinc-400 shrink-0" />
                                         <p className="text-[11px] font-bold text-zinc-500 leading-relaxed">
-                                            Cancel anytime. No lock-in contracts or hidden cancellation fees.
+                                            Credits never expire. Use them whenever you need an edge in your job hunt.
                                         </p>
                                     </div>
                                     <button
@@ -330,24 +321,24 @@ function BillingContent() {
                             <Star size={80} className="fill-current" />
                         </div>
                         <p className="text-[10px] font-black uppercase tracking-widest text-white/50 mb-2">Authenticated Account</p>
-                        <h4 className="text-2xl font-black tracking-tight mb-8">Current: {userCurrentPlan}</h4>
+                        <h4 className="text-2xl font-black tracking-tight mb-8">Balance: {user?.credits || 0}</h4>
                         <div className="space-y-4 mb-10">
                             <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-bold text-white/40 uppercase tracking-tighter">Usage</span>
+                                <span className="text-[10px] font-bold text-white/40 uppercase tracking-tighter">AI Usage</span>
                                 <span className="text-[10px] font-bold text-white/80 uppercase">
-                                    {user?.plan?.slug === 'essential' ? '5 / 5 tracks used' : 'Unlimited tracks'}
+                                    {user?.credits || 0} Credits Left
                                 </span>
                             </div>
                             <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
                                 <div className={cn(
-                                    "h-full bg-blue-500",
-                                    user?.plan?.slug === 'essential' ? "w-full" : "w-1/3"
+                                    "h-full bg-blue-500 transition-all duration-1000",
+                                    (user?.credits || 0) > 0 ? "w-full" : "w-0"
                                 )} />
                             </div>
                         </div>
                         <div className="flex items-center gap-3 text-emerald-400">
-                            <Lock className="h-4 w-4" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">Upgrade to unlock more</span>
+                            <Sparkles className="h-4 w-4" />
+                            <span className="text-[10px] font-black uppercase tracking-widest">Powering your search</span>
                         </div>
                     </div>
 

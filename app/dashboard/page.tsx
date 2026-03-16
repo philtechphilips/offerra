@@ -94,7 +94,7 @@ export default function DashboardPage() {
         { label: 'Total Jobs', val: totalApplied.toString(), icon: Briefcase, color: "text-blue-600", bg: "bg-blue-50", path: '/dashboard/applications' },
         { label: 'Interviews', val: interviews.toString(), icon: Clock, color: "text-amber-500", bg: "bg-amber-50", path: '/dashboard/interviews' },
         { label: 'Success Rate', val: `${offerRate}%`, icon: TrendingUp, color: "text-emerald-500", bg: "bg-emerald-50", path: '/dashboard/applications?status=offer' },
-        { label: 'Active Jobs', val: activePipeline.toString(), icon: Zap, color: "text-indigo-600", bg: "bg-indigo-50", path: '/dashboard/applications' },
+        { label: 'AI Credits', val: (user?.credits || 0).toString(), icon: Sparkles, color: "text-indigo-600", bg: "bg-indigo-50", path: '/dashboard/billing' },
     ];
 
     const pipelineStages = [
@@ -146,7 +146,7 @@ export default function DashboardPage() {
                         Your <span className="text-blue-600">Dashboard.</span>
                     </motion.h1>
                     <p className="mt-2 text-sm font-medium text-zinc-400">
-                        Welcome back, <span className="text-brand-blue font-bold">{userName}</span>. You've got <span className="text-brand-blue-dark font-bold">{interviews} interviews</span> lined up for your current jobs.
+                        Welcome back, <span className="text-brand-blue font-bold">{userName}</span>. You've got <span className="text-brand-blue-dark font-bold font-black">{user?.credits || 0} AI Credits</span> remaining.
                     </p>
                 </div>
 

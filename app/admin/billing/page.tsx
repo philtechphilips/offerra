@@ -30,6 +30,7 @@ interface Plan {
     is_popular: boolean;
     is_active: boolean;
     btn_text: string;
+    credits: number;
     polar_product_id?: string;
     paystack_plan_id?: string;
 }
@@ -123,7 +124,8 @@ export default function AdminBilling() {
                         features: [],
                         is_popular: false,
                         is_active: true,
-                        btn_text: "Subscribe",
+                        btn_text: "Buy Credits",
+                        credits: 0,
                         polar_product_id: "",
                         paystack_plan_id: ""
                     })}
@@ -160,16 +162,19 @@ export default function AdminBilling() {
                                         <p className="text-sm text-zinc-400 font-medium leading-relaxed">{plan.description}</p>
                                     </div>
 
-                                    <div className="flex items-center gap-8">
-                                        <div>
-                                            <p className="text-[10px] font-black text-zinc-300 uppercase tracking-widest mb-1">Global Cost</p>
-                                            <p className="text-2xl font-black text-zinc-900">${plan.price_usd}<span className="text-xs text-zinc-400 font-bold">/mo</span></p>
-                                        </div>
-                                        <div className="h-8 w-px bg-zinc-100" />
-                                        <div>
-                                            <p className="text-[10px] font-black text-zinc-300 uppercase tracking-widest mb-1">Nigeria Cost</p>
-                                            <p className="text-2xl font-black text-zinc-900">₦{Number(plan.price_ngn).toLocaleString()}<span className="text-xs text-zinc-400 font-bold">/mo</span></p>
-                                        </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-zinc-300 uppercase tracking-widest mb-1">Global Cost</p>
+                                        <p className="text-2xl font-black text-zinc-900">${plan.price_usd}</p>
+                                    </div>
+                                    <div className="h-8 w-px bg-zinc-100" />
+                                    <div>
+                                        <p className="text-[10px] font-black text-zinc-300 uppercase tracking-widest mb-1">Nigeria Cost</p>
+                                        <p className="text-2xl font-black text-zinc-900">₦{Number(plan.price_ngn).toLocaleString()}</p>
+                                    </div>
+                                    <div className="h-8 w-px bg-zinc-100" />
+                                    <div>
+                                        <p className="text-[10px] font-black text-zinc-300 uppercase tracking-widest mb-1">AI Credits</p>
+                                        <p className="text-2xl font-black text-indigo-600">{plan.credits}</p>
                                     </div>
                                 </div>
 
@@ -275,6 +280,20 @@ export default function AdminBilling() {
                                             />
                                         </div>
 
+                                        <div className="grid grid-cols-1 gap-6">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 px-2">AI Credits Allocated</label>
+                                                <input
+                                                    type="number"
+                                                    required
+                                                    value={editingPlan.credits}
+                                                    onChange={e => setEditingPlan({ ...editingPlan, credits: Number(e.target.value) })}
+                                                    className="w-full h-14 bg-zinc-50 border border-zinc-100 rounded-2xl px-6 text-sm font-bold text-zinc-900 focus:outline-none focus:border-indigo-600 transition-all"
+                                                    placeholder="e.g. 50"
+                                                />
+                                            </div>
+                                        </div>
+
                                         <div className="grid grid-cols-2 gap-6">
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 px-2 flex items-center gap-2">
@@ -302,30 +321,6 @@ export default function AdminBilling() {
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-6">
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 px-2 flex items-center gap-2">
-                                                    Polar Product ID (USD)
-                                                </label>
-                                                <input
-                                                    value={editingPlan.polar_product_id || ""}
-                                                    onChange={e => setEditingPlan({ ...editingPlan, polar_product_id: e.target.value })}
-                                                    className="w-full h-14 bg-zinc-50 border border-zinc-100 rounded-2xl px-6 text-sm font-bold text-zinc-900 focus:outline-none focus:border-indigo-600 transition-all"
-                                                    placeholder="e.g. prod_..."
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 px-2 flex items-center gap-2">
-                                                    Paystack Plan ID (NGN)
-                                                </label>
-                                                <input
-                                                    value={editingPlan.paystack_plan_id || ""}
-                                                    onChange={e => setEditingPlan({ ...editingPlan, paystack_plan_id: e.target.value })}
-                                                    className="w-full h-14 bg-zinc-50 border border-zinc-100 rounded-2xl px-6 text-sm font-bold text-zinc-900 focus:outline-none focus:border-indigo-600 transition-all"
-                                                    placeholder="e.g. PLN_..."
-                                                />
-                                            </div>
-                                        </div>
 
                                         <div className="space-y-4">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 px-2">Key Features (One per line)</label>

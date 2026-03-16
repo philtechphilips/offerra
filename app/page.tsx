@@ -1,13 +1,47 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import api from "@/app/lib/api";
 import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
 import { Features } from "@/components/landing/Features";
 import { ResumeFeature } from "@/components/landing/ResumeFeature";
 import { InterviewFeature } from "@/components/landing/InterviewFeature";
 import { motion } from "framer-motion";
+import { Mail } from "lucide-react";
+import { cn } from "@/app/lib/utils";
+
+interface Plan {
+  id: number;
+  name: string;
+  description: string;
+  price_usd: number;
+  price_ngn: number;
+  credits: number;
+  features: string[];
+  is_popular: boolean;
+  is_active: boolean;
+  btn_text: string;
+}
 
 export default function Home() {
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const response = await api.get("/plans");
+        setPlans(response.data);
+      } catch (err) {
+        console.error("Failed to fetch plans", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPlans();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
@@ -87,84 +121,66 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto">
-              {/* Free Plan */}
-              <div className="group relative border border-zinc-100 bg-white p-10 rounded-[2rem] text-left transition-all hover:border-blue-200 hover:-translate-y-2 flex flex-col">
-                <div className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-400 mb-10">Essential</div>
-                <div className="flex items-baseline gap-1 mb-10 text-black">
-                  <span className="text-7xl font-black tracking-tighter">$0</span>
-                  <span className="text-sm font-black text-zinc-400 uppercase tracking-widest">/mo</span>
+              {!isLoading && plans.map((plan) => (
+                <div
+                  key={plan.id}
+                  className={cn(
+                    "group relative border p-10 rounded-[2rem] text-left transition-all flex flex-col",
+                    plan.is_popular
+                      ? "border-2 border-[#1C4ED8] md:scale-110 z-10 hover:scale-[1.12] shadow-[0_40px_80px_-20px_rgba(28,78,216,0.15)] shimmer"
+                      : "border-zinc-100 bg-white hover:border-blue-200 hover:-translate-y-2"
+                  )}
+                >
+                  {plan.is_popular && (
+                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#1C4ED8] text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.3em] shadow-xl">Most Popular</div>
+                  )}
+                  <div className={cn(
+                    "text-[10px] font-black uppercase tracking-[0.25em] mb-10",
+                    plan.is_popular ? "text-[#1C4ED8]" : "text-zinc-400"
+                  )}>
+                    {plan.name}
+                  </div>
+                  <div className={cn(
+                    "flex items-baseline gap-1 mb-10",
+                    plan.is_popular ? "text-[#1C4ED8]" : "text-black"
+                  )}>
+                    <span className="text-7xl font-black tracking-tighter">${Math.round(plan.price_usd)}</span>
+                    <span className={cn(
+                      "text-sm font-black uppercase tracking-widest",
+                      plan.is_popular ? "opacity-60" : "text-zinc-400"
+                    )}>{plan.credits} Credits</span>
+                  </div>
+                  <ul className={cn(
+                    "space-y-6 mb-12 text-sm font-black flex-grow",
+                    plan.is_popular ? "text-black" : "text-zinc-500"
+                  )}>
+                    {plan.features.map((f, i) => (
+                      <li key={i} className="flex items-center gap-4">
+                        {f.toLowerCase().includes('gmail') ? (
+                          <Mail className="h-4 w-4 shrink-0 text-red-500" />
+                        ) : (
+                          <div className={cn(
+                            "h-2 w-2 rounded-full shadow-[0_0_10px_rgba(28,78,216,0.2)]",
+                            plan.is_popular ? "bg-[#1C4ED8]" : "bg-blue-200"
+                          )} />
+                        )}
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => window.location.href = '/login'}
+                    className={cn(
+                      "w-full rounded-2xl py-5 text-[10px] font-black uppercase tracking-[0.2em] transition-all",
+                      plan.is_popular
+                        ? "bg-blue-600 text-white hover:bg-blue-700 shadow-xl shadow-blue-200"
+                        : "border border-zinc-200 hover:bg-zinc-50 text-black"
+                    )}
+                  >
+                    {plan.btn_text || (plan.price_usd === 0 ? "Get Started" : "Buy Credits")}
+                  </button>
                 </div>
-                <ul className="space-y-6 mb-12 text-sm font-black text-zinc-500 flex-grow">
-                  {['Manually track 5 jobs', 'Real-time status detection', 'Basic dashboard'].map((f) => (
-                    <li key={f} className="flex items-center gap-4">
-                      <div className="h-1.5 w-1.5 rounded-full bg-blue-200" />
-                      {f}
-                    </li>
-                  ))}
-                  {['AI CV Optimization', 'Interview Practice'].map((f) => (
-                    <li key={f} className="flex items-center gap-4 opacity-30 grayscale">
-                      <div className="h-1.5 w-1.5 rounded-full bg-zinc-200" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <button className="w-full rounded-2xl border border-zinc-200 py-5 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-zinc-50 transition-colors text-black">Current Tier</button>
-              </div>
-
-              {/* Premium Plan */}
-              <div className="relative border-2 border-[#1C4ED8] bg-white p-10 rounded-[2rem] text-left md:scale-110 z-10 transition-all hover:scale-[1.12] flex flex-col shadow-[0_40px_80px_-20px_rgba(28,78,216,0.15)] shimmer">
-                <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#1C4ED8] text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.3em] shadow-xl">Best Value</div>
-                <div className="text-[10px] font-black uppercase tracking-[0.25em] text-[#1C4ED8] mb-10">Pro Track</div>
-                <div className="flex items-baseline gap-1 mb-10 text-[#1C4ED8]">
-                  <span className="text-7xl font-black tracking-tighter">$9</span>
-                  <span className="text-sm font-black opacity-60 uppercase tracking-widest">/mo</span>
-                </div>
-                <ul className="space-y-6 mb-12 text-sm font-black text-black flex-grow">
-                  {[
-                    { text: 'Unlimited Auto Tracking', icon: true },
-                    { text: 'AI CV Optimization', gmail: false },
-                    { text: 'Proposal & Letter Generator', icon: true },
-                    { text: 'Momentum Analytics', icon: true },
-                    { text: 'Gmail Status Sync', gmail: true }
-                  ].map((f) => (
-                    <li key={f.text} className="flex items-center gap-4">
-                      {f.gmail ? (
-                        <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M24 4.5v15c0 .85-.65 1.5-1.5 1.5H21V7.38l-9 6.75-9-6.75V21H1.5C.65 21 0 20.35 0 19.5v-15c0-.41.17-.8.47-1.09.3-.29.69-.41 1.03-.41h.5l10 7.5 10-7.5h.5c.34 0 .73.12 1.03.41.3.29.47.68.47 1.09z" fill="#EA4335" />
-                        </svg>
-                      ) : (
-                        <div className="h-2 w-2 rounded-full bg-blue-600 shadow-[0_0_10px_rgba(28,78,216,0.4)]" />
-                      )}
-                      {f.text}
-                    </li>
-                  ))}
-                </ul>
-                <button className="w-full rounded-2xl bg-blue-600 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-white hover:bg-blue-700 transition-all shadow-xl shadow-blue-200">Join Pro Now</button>
-              </div>
-
-              {/* Platinum Plan */}
-              <div className="group relative border border-zinc-100 bg-zinc-50/50 p-10 rounded-[2rem] text-left transition-all hover:border-blue-100 hover:-translate-y-2 flex flex-col">
-                <div className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-400 mb-10">Elite</div>
-                <div className="flex items-baseline gap-1 mb-10 text-black">
-                  <span className="text-7xl font-black tracking-tighter">$19</span>
-                  <span className="text-sm font-black text-zinc-400 uppercase tracking-widest">/mo</span>
-                </div>
-                <ul className="space-y-6 mb-12 text-sm font-black text-zinc-500 flex-grow">
-                  {[
-                    'Everything in Pro',
-                    'AI Interview Coaching',
-                    'Predicted Answers',
-                    'Strategic Success Path',
-                    'Priority AI Training'
-                  ].map((f) => (
-                    <li key={f} className="flex items-center gap-4">
-                      <div className="h-1.5 w-1.5 rounded-full bg-black/20" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <button className="w-full rounded-2xl border border-zinc-200 py-5 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white transition-colors text-black">Contact Sales</button>
-              </div>
+              ))}
             </div>
           </div>
         </section>
@@ -175,8 +191,8 @@ export default function Home() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 flex flex-col items-center justify-between gap-12 md:flex-row">
             <div className="flex flex-col gap-6">
               <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                  <span className="text-blue-600 font-black text-lg">O</span>
+                <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center overflow-hidden">
+                  <img src="/logo.png" alt="Offerra Logo" className="h-full w-full object-contain p-1" />
                 </div>
                 <span className="text-xl font-black tracking-tighter text-black">Offerra<span className="text-blue-600">.</span></span>
               </div>

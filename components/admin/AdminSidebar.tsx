@@ -45,9 +45,9 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
             <div className="flex h-20 items-center justify-between px-8">
                 <Link href="/" className="flex items-center gap-3 group">
                     <div className="flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden shrink-0 bg-indigo-50 group-hover:scale-110 transition-transform">
-                        <ShieldCheck className="h-5 w-5 text-indigo-600" />
+                        <img src="/logo.png" alt="Offerra Logo" className="h-full w-full object-contain p-1.5" />
                     </div>
-                    <span className="text-xl font-black tracking-tighter text-zinc-900 uppercase">Admin<span className="text-indigo-600">.</span></span>
+                    <span className="text-xl font-black tracking-tighter text-zinc-900 uppercase tracking-[-0.05em]">Offerra<span className="text-indigo-600">.</span></span>
                 </Link>
                 {onClose && (
                     <button

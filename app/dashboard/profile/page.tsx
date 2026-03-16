@@ -299,7 +299,7 @@ export default function ProfilePage() {
                             <div className="min-w-0 pt-2">
                                 <div className="flex flex-wrap items-center gap-2 mb-3">
                                     <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-600 border border-blue-100">
-                                        {user?.role || "Basic"} Member
+                                        {user?.plan?.name || "Starter Pack"} • {user?.credits || 0} Credits
                                     </span>
                                     <span className="text-xs font-medium text-zinc-400">
                                         {cvs.length} Documents
@@ -609,7 +609,7 @@ export default function ProfilePage() {
                                     <div className="h-12 w-12 rounded-2xl bg-white/20 flex items-center justify-center">
                                         <Zap className="h-6 w-6 text-white" />
                                     </div>
-                                    <span className="text-[10px] font-bold uppercase tracking-widest bg-white/10 px-3 py-1 rounded-full">Pro Status</span>
+                                    <span className="text-[10px] font-bold uppercase tracking-widest bg-white/10 px-3 py-1 rounded-full">{user?.plan?.name || "Starter Pack"}</span>
                                 </div>
                                 <h3 className="text-3xl font-extrabold tracking-tight leading-tight">Social Profile<br />Automation</h3>
                                 <div className="mt-10 grid grid-cols-2 gap-4">

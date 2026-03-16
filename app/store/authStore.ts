@@ -7,6 +7,7 @@ interface User {
     email: string;
     role: string;
     email_verified_at: string | null;
+    credits: number;
     plan?: {
         name: string;
         slug: string;

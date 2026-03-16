@@ -20,6 +20,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Offerra | Intelligent Job Tracking",
   description: "The silent career assistant for modern professionals. Track your job applications automatically with our AI-powered extension.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 import { Toaster } from "sonner";
