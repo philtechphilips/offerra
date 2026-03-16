@@ -21,6 +21,7 @@ const adminNavigation = [
     { name: 'User Management', href: '/admin/users', icon: Users },
     { name: 'Job Analytics', href: '/admin/jobs', icon: BarChart3 },
     { name: 'Billing Management', href: '/admin/billing', icon: CreditCard },
+    { name: 'System Logic', href: '/admin/settings', icon: Settings },
 ];
 
 interface AdminSidebarProps {

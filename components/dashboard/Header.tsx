@@ -1,7 +1,9 @@
 "use client";
 
-import { Search, Bell, Sparkles, ChevronDown, Menu } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Search, Bell, Sparkles, ChevronDown, Menu, XCircle } from "lucide-react";
 import { useAuthStore } from "@/app/store/authStore";
+import { useJobStore } from "@/app/store/jobStore";
 import { motion } from "framer-motion";
 
 interface HeaderProps {
@@ -10,8 +12,35 @@ interface HeaderProps {
 
 export function Header({ onMenuClick }: HeaderProps) {
     const { user } = useAuthStore();
+    const { search, setSearch, fetchJobs } = useJobStore();
+    const [localSearch, setLocalSearch] = useState(search);
+    const inputRef = useRef<HTMLInputElement>(null);
+
     const initials = user?.name ? user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() : "PU";
     const displayName = user?.name || "Pro User";
+
+    // Keyboard shortcut Cmd+K
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+                e.preventDefault();
+                inputRef.current?.focus();
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, []);
+
+    // Debounce search update
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (localSearch !== search) {
+                setSearch(localSearch);
+                fetchJobs(true);
+            }
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [localSearch, search, setSearch, fetchJobs]);
 
     return (
         <header className="sticky top-0 z-10 flex h-20 items-center justify-between border-b border-zinc-100 bg-white/70 backdrop-blur-xl px-4 sm:px-6 lg:px-10">
@@ -28,14 +57,26 @@ export function Header({ onMenuClick }: HeaderProps) {
                 <div className="relative hidden md:block w-72 lg:w-[420px] group">
                     <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-300 group-focus-within:text-blue-600 transition-colors" />
                     <input
+                        ref={inputRef}
                         type="text"
-                        placeholder="Search..."
-                        className="h-12 w-full rounded-2xl bg-zinc-50/50 pl-11 pr-4 text-xs font-bold border border-transparent focus:border-blue-100 focus:bg-white focus:ring-4 focus:ring-blue-50/50 focus:outline-none transition-all placeholder:text-zinc-300"
+                        value={localSearch}
+                        onChange={(e) => setLocalSearch(e.target.value)}
+                        placeholder="Search for jobs, companies..."
+                        className="h-12 w-full rounded-2xl bg-zinc-50/50 pl-11 pr-12 text-xs font-bold border border-transparent focus:border-blue-100 focus:bg-white focus:ring-4 focus:ring-blue-50/50 focus:outline-none transition-all placeholder:text-zinc-300"
                     />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-20 group-hover:opacity-100 transition-opacity">
-                        <kbd className="px-1.5 py-0.5 rounded-md bg-zinc-100 text-[9px] font-black border border-zinc-200">⌘</kbd>
-                        <kbd className="px-1.5 py-0.5 rounded-md bg-zinc-100 text-[9px] font-black border border-zinc-200">K</kbd>
-                    </div>
+                    {localSearch ? (
+                        <button
+                            onClick={() => { setLocalSearch(""); setSearch(""); fetchJobs(true); }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-300 hover:text-zinc-500 transition-colors"
+                        >
+                            <XCircle className="h-4 w-4" />
+                        </button>
+                    ) : (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-20 group-hover:opacity-100 transition-opacity">
+                            <kbd className="px-1.5 py-0.5 rounded-md bg-zinc-100 text-[9px] font-black border border-zinc-200">⌘</kbd>
+                            <kbd className="px-1.5 py-0.5 rounded-md bg-zinc-100 text-[9px] font-black border border-zinc-200">K</kbd>
+                        </div>
+                    )}
                 </div>
             </div>
 
