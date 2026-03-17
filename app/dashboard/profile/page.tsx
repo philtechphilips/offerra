@@ -6,7 +6,7 @@ import {
     Upload, FileText, Trash2, CheckCircle2, Loader2, Sparkles,
     Briefcase, Eye, X, Copy, Zap, Linkedin, Twitter, Github,
     Mail, Plus, ShieldCheck, Clock, ExternalLink, ChevronRight,
-    Search, Layout
+    Search, Layout, Edit
 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/app/lib/api";
@@ -109,6 +109,7 @@ export default function ProfilePage() {
     const [biosData, setBiosData] = useState<any>(null);
     const [isBiosModalOpen, setIsBiosModalOpen] = useState(false);
     const [isConnectingGmail, setIsConnectingGmail] = useState(false);
+    const [cvToDelete, setCvToDelete] = useState<CVData | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const fetchCVs = async () => {
@@ -159,9 +160,15 @@ export default function ProfilePage() {
         }
     };
 
-    const handleDeleteCV = async (id: number) => {
-        if (!confirm("Are you sure you want to delete this resume?")) return;
+    const handleDeleteCV = (cv: CVData) => {
+        setCvToDelete(cv);
+    };
+
+    const confirmDelete = async () => {
+        if (!cvToDelete) return;
+        const id = cvToDelete.id;
         setIsDeleting(id);
+        setCvToDelete(null);
         try {
             await api.delete(`/cv/${id}`);
             toast.success("Resume deleted!");
@@ -419,11 +426,18 @@ export default function ProfilePage() {
 
                                                     <button
                                                         onClick={() => setPreviewCv(activeCv)}
-                                                        className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-blue-600 text-sm font-bold text-white transition-all hover:bg-blue-700"
+                                                        className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-zinc-50 border border-zinc-200 text-sm font-bold text-zinc-600 transition-all hover:bg-zinc-100"
                                                     >
                                                         <Eye className="h-4 w-4" />
-                                                        Review Details
+                                                        Preview
                                                     </button>
+                                                    <a
+                                                        href={`/dashboard/optimizer?edit=${activeCv.id}`}
+                                                        className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-blue-600 text-sm font-bold text-white transition-all hover:bg-blue-700"
+                                                    >
+                                                        <Edit className="h-4 w-4" />
+                                                        Architect
+                                                    </a>
                                                 </div>
                                             </div>
                                         )}
@@ -450,6 +464,13 @@ export default function ProfilePage() {
                                                             </div>
 
                                                             <div className="flex flex-wrap items-center gap-3">
+                                                                <a
+                                                                    href={`/dashboard/optimizer?edit=${cvItem.id}`}
+                                                                    className="h-10 px-4 rounded-xl text-xs font-bold text-blue-600 bg-blue-50 border border-blue-100 flex items-center gap-2 hover:bg-blue-100"
+                                                                >
+                                                                    <Edit className="h-3.5 w-3.5" />
+                                                                    Architect
+                                                                </a>
                                                                 <button
                                                                     onClick={() => setPreviewCv(cvItem)}
                                                                     className="h-10 px-4 rounded-xl text-sm font-bold text-zinc-500 hover:text-zinc-900"
@@ -463,7 +484,7 @@ export default function ProfilePage() {
                                                                     Set as Active
                                                                 </button>
                                                                 <button
-                                                                    onClick={() => handleDeleteCV(cvItem.id)}
+                                                                    onClick={() => handleDeleteCV(cvItem)}
                                                                     disabled={isDeleting === cvItem.id}
                                                                     className="h-10 w-10 flex items-center justify-center rounded-xl text-zinc-400 hover:text-red-500 hover:bg-red-50"
                                                                 >
@@ -914,6 +935,50 @@ export default function ProfilePage() {
                                         </div>
                                         <DynamicCVRenderer data={previewCv.parsed_data} />
                                     </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+            {/* Delete Confirmation Modal */}
+            <AnimatePresence>
+                {cvToDelete && (
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setCvToDelete(null)}
+                            className="absolute inset-0 bg-zinc-950/20 backdrop-blur-md"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="relative w-full max-w-md rounded-[2.5rem] bg-white p-10 border border-zinc-100 shadow-2xl"
+                        >
+                            <div className="flex flex-col items-center text-center">
+                                <div className="h-20 w-20 rounded-3xl bg-red-50 flex items-center justify-center mb-8">
+                                    <Trash2 className="h-10 w-10 text-red-500" />
+                                </div>
+                                <h3 className="text-2xl font-extrabold text-zinc-900 tracking-tight mb-3">Delete Resume?</h3>
+                                <p className="text-sm font-medium text-zinc-500 leading-relaxed mb-10">
+                                    Are you sure you want to delete <span className="font-bold text-zinc-900">"{cvToDelete.profile_name || cvToDelete.filename}"</span>? This action cannot be undone.
+                                </p>
+                                <div className="flex flex-col w-full gap-4">
+                                    <button
+                                        onClick={confirmDelete}
+                                        className="h-14 w-full rounded-2xl bg-red-500 text-sm font-bold text-white transition-all hover:bg-red-600 hover:-translate-y-0.5 active:translate-y-0 shadow-lg shadow-red-200"
+                                    >
+                                        Yes, Delete Permanent
+                                    </button>
+                                    <button
+                                        onClick={() => setCvToDelete(null)}
+                                        className="h-14 w-full rounded-2xl bg-zinc-50 text-sm font-bold text-zinc-600 transition-all hover:bg-zinc-100"
+                                    >
+                                        No, Keep It
+                                    </button>
                                 </div>
                             </div>
                         </motion.div>

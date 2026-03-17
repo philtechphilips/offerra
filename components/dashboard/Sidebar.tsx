@@ -34,6 +34,7 @@ const navigation = [
 const strategy = [
     { name: 'Profile', href: '/dashboard/profile', icon: FileText },
     { name: 'Optimize CV', href: '/dashboard/optimizer', icon: Sparkles },
+    { name: 'Cover Letter', href: '/dashboard/cover-letter', icon: Command },
     { name: 'Proposals', href: '/dashboard/proposals', icon: PenTool },
     { name: 'Practice', href: '/dashboard/prep', icon: Zap },
     { name: 'Billing', href: '/dashboard/billing', icon: CreditCard },
