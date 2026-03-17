@@ -667,8 +667,18 @@ export default function ProfilePage() {
                                         <GmailLogo className="h-full w-full" />
                                     </div>
                                     <div className="flex flex-col items-end gap-1">
-                                        <span className={cn("px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.15em]", user?.google_account ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600")}>
-                                            {user?.google_account ? "Sync Enabled" : "Disconnected"}
+                                        <span className={cn("px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.15em]",
+                                            user?.google_account
+                                                ? user.google_account.status === 'disconnected'
+                                                    ? "bg-amber-50 text-amber-600"
+                                                    : "bg-emerald-50 text-emerald-600"
+                                                : "bg-red-50 text-red-600"
+                                        )}>
+                                            {user?.google_account
+                                                ? user.google_account.status === 'disconnected'
+                                                    ? "Reconnect Needed"
+                                                    : "Sync Enabled"
+                                                : "Disconnected"}
                                         </span>
                                         {user?.google_account && (
                                             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1">
@@ -682,7 +692,22 @@ export default function ProfilePage() {
                                     Allow Offerra to securely synchronize with your Gmail inbox to identify job applications, technical tests, and interview invitations automatically.
                                 </p>
 
-                                {user?.google_account ? (
+                                {user?.google_account && user.google_account.status === 'disconnected' ? (
+                                    <div className="space-y-4">
+                                        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-100 mb-4">
+                                            <p className="text-xs font-bold text-amber-700 leading-relaxed">
+                                                ⚠️ Your Google session has expired. Please reconnect to resume email scanning.
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={handleConnectGmail}
+                                            disabled={isConnectingGmail}
+                                            className="group w-full h-14 rounded-2xl bg-amber-500 text-white text-sm font-bold transition-all hover:bg-amber-600 disabled:opacity-50 flex items-center justify-center gap-3"
+                                        >
+                                            {isConnectingGmail ? "Connecting..." : "Reconnect Google Account"}
+                                        </button>
+                                    </div>
+                                ) : user?.google_account ? (
                                     <div className="space-y-4">
                                         <button
                                             onClick={handleSyncGmail}

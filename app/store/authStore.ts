@@ -15,6 +15,7 @@ interface User {
     google_account?: {
         email: string;
         last_synced_at: string | null;
+        status?: string;
     } | null;
 }
 
