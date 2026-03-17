@@ -60,7 +60,7 @@ export default function ResumeOptimizerPage() {
     const [jobDescription, setJobDescription] = useState("");
     const [isOptimizing, setIsOptimizing] = useState(false);
     const [cvs, setCvs] = useState<any[]>([]);
-    const [selectedCvId, setSelectedCvId] = useState<number | null>(null);
+    const [selectedCvId, setSelectedCvId] = useState<string | null>(null);
 
     // Editor State
     const [isEditing, setIsEditing] = useState(false);
@@ -68,7 +68,7 @@ export default function ResumeOptimizerPage() {
     const [selectedTemplate, setSelectedTemplate] = useState<TemplateType>('modern');
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [cvName, setCvName] = useState("");
-    const [savedCvId, setSavedCvId] = useState<number | null>(null);
+    const [savedCvId, setSavedCvId] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
 
     const resumeRef = useRef<HTMLDivElement>(null);

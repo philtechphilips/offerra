@@ -20,7 +20,7 @@ export default function CoverLetterWriterPage() {
     const [jobDescription, setJobDescription] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
     const [cvs, setCvs] = useState<any[]>([]);
-    const [selectedCvId, setSelectedCvId] = useState<number | null>(null);
+    const [selectedCvId, setSelectedCvId] = useState<string | null>(null);
     const [result, setResult] = useState<CoverLetterResult | null>(null);
     const [hasCopied, setHasCopied] = useState(false);
     const letterRef = useRef<HTMLDivElement>(null);

@@ -32,7 +32,7 @@ function PrepContent() {
     const { jobs, fetchJobs } = useJobStore();
 
     const [cvs, setCvs] = useState<any[]>([]);
-    const [selectedCvId, setSelectedCvId] = useState<number | null>(null);
+    const [selectedCvId, setSelectedCvId] = useState<string | null>(null);
     const [jobDescription, setJobDescription] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
     const [result, setResult] = useState<PrepResult | null>(null);
@@ -56,7 +56,7 @@ function PrepContent() {
 
     useEffect(() => {
         if (jobId && jobs.length > 0) {
-            const job = jobs.find(j => j.id === parseInt(jobId));
+            const job = jobs.find(j => j.id === jobId);
             if (job) {
                 // If the job has a description, we could use it
                 // For now, we'll let the user paste or we'll try to find info
