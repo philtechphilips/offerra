@@ -21,7 +21,7 @@ import { cn } from "@/app/lib/utils";
 import { toast } from "sonner";
 
 interface Plan {
-    id: number;
+    id: string;
     name: string;
     description: string;
     price_usd: number;
@@ -80,7 +80,7 @@ export default function AdminBilling() {
         }
     };
 
-    const handleDelete = async (id: number) => {
+    const handleDelete = async (id: string) => {
         if (!confirm("Are you sure you want to delete this plan?")) return;
         try {
             await api.delete(`/admin/plans/${id}`);
@@ -116,7 +116,7 @@ export default function AdminBilling() {
                 </div>
                 <button
                     onClick={() => setEditingPlan({
-                        id: 0,
+                        id: "",
                         name: "",
                         description: "",
                         price_usd: 0,

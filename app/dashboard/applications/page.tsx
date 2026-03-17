@@ -24,7 +24,7 @@ import { toast } from "sonner";
 import { useJobStore } from "@/app/store/jobStore";
 
 interface JobApplication {
-    id: number;
+    id: string;
     title: string;
     company: string;
     location: string;
@@ -73,7 +73,7 @@ export default function ApplicationsPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Dropdown state
-    const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
+    const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
     const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
     const dropdownRef = useRef<HTMLDivElement>(null);
 

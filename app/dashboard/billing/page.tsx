@@ -22,7 +22,7 @@ import { useAuthStore } from "@/app/store/authStore";
 import { useSearchParams } from "next/navigation";
 
 interface Plan {
-    id: number;
+    id: string;
     name: string;
     description: string;
     price_usd: number;
@@ -47,7 +47,7 @@ function BillingContent() {
     const { user, setUser } = useAuthStore();
     const searchParams = useSearchParams();
     const [plans, setPlans] = useState<Plan[]>([]);
-    const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
+    const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
     const [region, setRegion] = useState<"global" | "nigeria">("global");
     const [isLoading, setIsLoading] = useState(true);
     const [isDetecting, setIsDetecting] = useState(true);

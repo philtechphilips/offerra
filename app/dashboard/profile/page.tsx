@@ -14,7 +14,7 @@ import { useAuthStore } from "@/app/store/authStore";
 import { cn } from "@/app/lib/utils";
 
 interface CVData {
-    id: number;
+    id: string;
     filename: string;
     profile_name: string;
     is_active: boolean;
@@ -103,7 +103,7 @@ export default function ProfilePage() {
     const [cvs, setCvs] = useState<CVData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isUploading, setIsUploading] = useState(false);
-    const [isDeleting, setIsDeleting] = useState<number | null>(null);
+    const [isDeleting, setIsDeleting] = useState<string | null>(null);
     const [previewCv, setPreviewCv] = useState<CVData | null>(null);
     const [isGeneratingBios, setIsGeneratingBios] = useState(false);
     const [biosData, setBiosData] = useState<any>(null);
@@ -180,7 +180,7 @@ export default function ProfilePage() {
         }
     };
 
-    const handleActivateCV = async (id: number) => {
+    const handleActivateCV = async (id: string) => {
         const loadingId = toast.loading("Updating your active resume...");
         try {
             await api.put(`/cv/${id}/activate`);

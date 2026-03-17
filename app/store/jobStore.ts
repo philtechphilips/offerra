@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import api from '@/app/lib/api';
 
 interface JobApplication {
-    id: number;
+    id: string;
     title: string;
     company: string;
     location: string;

@@ -22,7 +22,7 @@ import { cn } from "@/app/lib/utils";
 import { toast } from "sonner";
 
 interface User {
-    id: number;
+    id: string;
     name: string;
     email: string;
     role: string;
@@ -42,7 +42,7 @@ export default function UserManagement() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
-    const [updatingUserId, setUpdatingUserId] = useState<number | null>(null);
+    const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
 
     const fetchUsers = async () => {
         setLoading(true);
@@ -69,7 +69,7 @@ export default function UserManagement() {
         return () => clearTimeout(timer);
     }, [page, search]);
 
-    const handleUpdateRole = async (userId: number, currentRole: string) => {
+    const handleUpdateRole = async (userId: string, currentRole: string) => {
         const nextRole = currentRole === 'admin' ? 'user' : 'admin';
         setUpdatingUserId(userId);
         try {
@@ -83,7 +83,7 @@ export default function UserManagement() {
         }
     };
 
-    const handleDeleteUser = async (userId: number) => {
+    const handleDeleteUser = async (userId: string) => {
         if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) return;
 
         try {

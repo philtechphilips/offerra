@@ -16,7 +16,7 @@ import { cn } from "@/app/lib/utils";
 import { toast } from "sonner";
 
 interface Setting {
-    id: number;
+    id: string;
     key: string;
     value: string;
     display_name: string;

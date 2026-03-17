@@ -12,7 +12,7 @@ import { Mail } from "lucide-react";
 import { cn } from "@/app/lib/utils";
 
 interface Plan {
-  id: number;
+  id: string;
   name: string;
   description: string;
   price_usd: number;
