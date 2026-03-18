@@ -74,6 +74,7 @@ function PrepContent() {
 
         setIsGenerating(true);
         const loadingId = toast.loading("AI Coach is analyzing your match and preparing questions...");
+        
         try {
             const res = await api.post('/cv/interview-prep', {
                 job_description: jobDescription,

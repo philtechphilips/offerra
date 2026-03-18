@@ -52,6 +52,11 @@ function BillingContent() {
     const [isLoading, setIsLoading] = useState(true);
     const [isDetecting, setIsDetecting] = useState(true);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [idempotencyKey, setIdempotencyKey] = useState<string>('');
+
+    useEffect(() => {
+        setIdempotencyKey(`pay_${crypto.randomUUID()}`);
+    }, [selectedPlanId]);
 
     const refreshUser = async () => {
         try {
@@ -80,10 +85,15 @@ function BillingContent() {
         if (!activePlan) return;
 
         setIsProcessing(true);
+        // Use the stable idempotency key generated when the plan was selected
         try {
             const response = await api.post("/payments/initiate", {
                 plan_id: activePlan.id,
                 region: region
+            }, {
+                headers: {
+                    'X-Idempotency-Key': idempotencyKey
+                }
             });
 
             if (response.data.authorization_url) {
