@@ -25,7 +25,8 @@ export function Navbar() {
                     {[
                         { label: 'Features', href: '#features' },
                         { label: 'Process', href: '#how-it-works' },
-                        { label: 'Pricing', href: '#pricing' }
+                        { label: 'Pricing', href: '#pricing' },
+                        { label: 'FAQ', href: '#faq' }
                     ].map((link) => (
                         <Link
                             key={link.label}
@@ -87,6 +88,9 @@ export function Navbar() {
                     </Link>
                     <Link href="#pricing" onClick={() => setMobileOpen(false)} className="block text-sm font-black text-zinc-500 hover:text-blue-600 uppercase tracking-widest py-2">
                         Pricing
+                    </Link>
+                    <Link href="#faq" onClick={() => setMobileOpen(false)} className="block text-sm font-black text-zinc-500 hover:text-blue-600 uppercase tracking-widest py-2">
+                        FAQ
                     </Link>
                     <div className="border-t border-zinc-100 pt-5 flex flex-col gap-3">
                         {isLoggedIn ? (

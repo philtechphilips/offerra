@@ -7,6 +7,10 @@ import { Hero } from "@/components/landing/Hero";
 import { Features } from "@/components/landing/Features";
 import { ResumeFeature } from "@/components/landing/ResumeFeature";
 import { InterviewFeature } from "@/components/landing/InterviewFeature";
+import { MoreFeatures } from "@/components/landing/MoreFeatures";
+import { Testimonials } from "@/components/landing/Testimonials";
+import { FAQ } from "@/components/landing/FAQ";
+import { FinalCTA } from "@/components/landing/FinalCTA";
 import { motion } from "framer-motion";
 import { Mail } from "lucide-react";
 import { cn } from "@/app/lib/utils";
@@ -103,6 +107,8 @@ export default function Home() {
 
         <ResumeFeature />
         <InterviewFeature />
+        <MoreFeatures />
+        <Testimonials />
 
 
         {/* Pricing - Premium Tiers */}
@@ -185,6 +191,9 @@ export default function Home() {
           </div>
         </section>
 
+        <FAQ />
+        <FinalCTA />
+
         {/* Footer */}
         <footer className="py-24 lg:py-32 border-t border-zinc-100 bg-white relative overflow-hidden">
           <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-600/10 to-transparent" />
@@ -205,8 +214,8 @@ export default function Home() {
               <div>
                 <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-black mb-6">Product</h4>
                 <div className="flex flex-col gap-4">
-                  {['Features', 'Process', 'Pricing'].map((item) => (
-                    <a key={item} href="#" className="text-xs font-black text-zinc-400 hover:text-blue-600 transition-colors">{item}</a>
+                  {['Features', 'Process', 'Pricing', 'FAQ'].map((item) => (
+                    <a key={item} href={`#${item.toLowerCase()}`} className="text-xs font-black text-zinc-400 hover:text-blue-600 transition-colors">{item}</a>
                   ))}
                 </div>
               </div>

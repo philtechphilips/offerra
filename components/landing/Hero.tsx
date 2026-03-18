@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, CheckCircle2, TrendingUp, Mail, DollarSign } from "lucide-react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, Sparkles, CheckCircle2, TrendingUp, Mail, DollarSign, Play, X } from "lucide-react";
 
 interface FloatingBadgeProps {
     icon: React.ReactNode;
@@ -43,7 +44,10 @@ function FloatingBadge({ icon, label, value, className, delay = 0, duration = 6,
 }
 
 export function Hero() {
+    const [showVideo, setShowVideo] = useState(false);
+
     return (
+        <>
         <section className="relative pt-32 pb-24 lg:pt-48 lg:pb-32 overflow-hidden mesh-gradient">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(28,78,216,0.05)_0%,transparent_50%)]" />
             <div className="dot-pattern absolute inset-0 opacity-[0.4] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
@@ -122,7 +126,13 @@ export function Hero() {
                                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                             </span>
                         </Link>
-                        <button className="rounded-2xl border border-white bg-white/60 px-10 py-5 text-sm font-bold text-black transition-all hover:bg-white hover:shadow-xl backdrop-blur-sm active:scale-95">
+                        <button
+                            onClick={() => setShowVideo(true)}
+                            className="group rounded-2xl border border-white bg-white/60 px-10 py-5 text-sm font-bold text-black transition-all hover:bg-white hover:shadow-xl backdrop-blur-sm active:scale-95 flex items-center gap-3"
+                        >
+                            <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-200 group-hover:scale-110 transition-transform">
+                                <Play className="h-3.5 w-3.5 text-white fill-white ml-0.5" />
+                            </div>
                             Watch Video
                         </button>
                     </motion.div>
@@ -146,5 +156,52 @@ export function Hero() {
                 </div>
             </div>
         </section>
+
+            {/* Video Modal */}
+            <AnimatePresence>
+                {showVideo && (
+                    <motion.div
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        {/* Backdrop */}
+                        <motion.div
+                            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                            onClick={() => setShowVideo(false)}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                        />
+
+                        {/* Modal Content */}
+                        <motion.div
+                            className="relative w-full max-w-4xl aspect-video rounded-3xl overflow-hidden shadow-2xl z-10"
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                        >
+                            {/* Close Button */}
+                            <button
+                                onClick={() => setShowVideo(false)}
+                                className="absolute top-4 right-4 z-20 h-10 w-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-colors border border-white/20"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+
+                            <iframe
+                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0&modestbranding=1"
+                                title="Offerra Demo Video"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                                className="w-full h-full border-0"
+                            />
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </>
     );
 }
