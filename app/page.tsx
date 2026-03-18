@@ -239,11 +239,7 @@ export default function Home() {
           </div>
           <div className="mx-auto max-w-7xl px-4 sm:px-6 mt-20 pt-10 border-t border-zinc-50 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="text-[10px] font-black text-zinc-300 uppercase tracking-widest">
-              © 2026 Offerra AI. All rights reserved.
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">All Systems Operational</span>
+              © {new Date().getFullYear()} Offerra AI. All rights reserved.
             </div>
           </div>
         </footer>
