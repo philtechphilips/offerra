@@ -36,8 +36,8 @@ export default function JobAnalytics() {
             try {
                 const response = await api.get("/admin/stats");
                 setStats(response.data.stats);
-                setDistribution(response.data.distribution);
-                setTopCompanies(response.data.top_companies);
+                setDistribution(response.data.distribution || []);
+                setTopCompanies(response.data.top_companies || []);
             } catch (err) {
                 console.error("Failed to fetch admin stats", err);
             } finally {
