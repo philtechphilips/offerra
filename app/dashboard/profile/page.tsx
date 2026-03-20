@@ -242,6 +242,20 @@ export default function ProfilePage() {
         }
     };
 
+    const handleDisconnectGmail = async () => {
+        if (!confirm("Are you sure you want to disconnect your Google account?")) return;
+        setIsConnectingGmail(true);
+        try {
+            const res = await api.post('/auth/google/disconnect');
+            setUser(res.data.user);
+            toast.success("Google account disconnected and access revoked.");
+        } catch (err) {
+            toast.error("Failed to disconnect Gmail.");
+        } finally {
+            setIsConnectingGmail(false);
+        }
+    };
+
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const success = urlParams.get('success');
@@ -654,7 +668,6 @@ export default function ProfilePage() {
                             </div>
                         </motion.section>
 
-                        {/* Integration Card */}
                         <motion.section
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
@@ -663,10 +676,7 @@ export default function ProfilePage() {
                         >
                             <div className="p-10">
                                 <div className="flex items-start justify-between mb-8">
-                                    <div className="h-14 w-14 flex items-center justify-center p-2 rounded-2xl bg-white shadow-sm border border-zinc-50">
-                                        <GmailLogo className="h-full w-full" />
-                                    </div>
-                                    <div className="flex flex-col items-end gap-1">
+                                    <div className="flex flex-col items-start gap-1">
                                         <span className={cn("px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.15em]",
                                             user?.google_account
                                                 ? user.google_account.status === 'disconnected'
@@ -681,11 +691,21 @@ export default function ProfilePage() {
                                                 : "Disconnected"}
                                         </span>
                                         {user?.google_account && (
-                                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1">
+                                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1 mt-1">
                                                 {user.google_account.email}
                                             </span>
                                         )}
                                     </div>
+                                    {user?.google_account && (
+                                        <button 
+                                            onClick={handleDisconnectGmail}
+                                            disabled={isConnectingGmail}
+                                            className="h-8 w-8 flex items-center justify-center rounded-xl bg-red-50 text-red-500 hover:bg-red-100 transition-all disabled:opacity-50"
+                                            title="Disconnect"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </button>
+                                    )}
                                 </div>
                                 <h3 className="text-2xl font-black tracking-tight text-zinc-900 mb-3">Gmail Integration</h3>
                                 <p className="text-sm font-medium text-zinc-500 leading-relaxed mb-10">
@@ -702,9 +722,15 @@ export default function ProfilePage() {
                                         <button
                                             onClick={handleConnectGmail}
                                             disabled={isConnectingGmail}
-                                            className="group w-full h-14 rounded-2xl bg-amber-500 text-white text-sm font-bold transition-all hover:bg-amber-600 disabled:opacity-50 flex items-center justify-center gap-3"
+                                            className="group w-full h-14 rounded-xl border border-zinc-200 bg-white text-sm font-bold text-zinc-700 transition-all hover:shadow-lg hover:border-zinc-300 disabled:opacity-50 flex items-center justify-center gap-4 py-4 px-6"
                                         >
-                                            {isConnectingGmail ? "Connecting..." : "Reconnect Google Account"}
+                                            <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24">
+                                                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                                                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                                                <path d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" fill="#FBBC05"/>
+                                                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+                                            </svg>
+                                            <span className="font-medium text-zinc-600 tracking-tight">Reconnect with Google</span>
                                         </button>
                                     </div>
                                 ) : user?.google_account ? (
@@ -727,11 +753,12 @@ export default function ProfilePage() {
                                         disabled={isConnectingGmail}
                                         className="group w-full h-14 rounded-xl border border-zinc-200 bg-white text-sm font-bold text-zinc-700 transition-all hover:shadow-lg hover:border-zinc-300 disabled:opacity-50 flex items-center justify-center gap-4 py-4 px-6 relative overflow-hidden"
                                     >
-                                        <div className="flex items-center justify-center w-5 h-5">
-                                            <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-                                                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" /><path fill="#4285F4" d="M46.64 24.55c0-1.63-.15-3.2-.44-4.71H24v9.06h12.72c-.55 2.87-2.21 5.3-4.66 6.91l7.32 5.67c4.28-3.95 6.76-9.77 6.76-16.93z" /><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24s.92 7.54 2.56 10.78l7.97-6.19z" /><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.32-5.67c-2.11 1.41-4.8 2.25-7.57 2.25-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" /><path fill="none" d="M0 0h48v48H0z" />
-                                            </svg>
-                                        </div>
+                                        <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24">
+                                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                                            <path d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" fill="#FBBC05"/>
+                                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+                                        </svg>
                                         <span className="font-medium text-zinc-600 tracking-tight">Connect with Google</span>
                                     </button>
                                 )}

@@ -47,12 +47,15 @@ function BillingContent() {
     const { user, setUser } = useAuthStore();
     const searchParams = useSearchParams();
     const [plans, setPlans] = useState<Plan[]>([]);
+    const [transactions, setTransactions] = useState<any[]>([]);
+    const [creditLogs, setCreditLogs] = useState<any[]>([]);
     const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
     const [region, setRegion] = useState<"global" | "nigeria">("global");
     const [isLoading, setIsLoading] = useState(true);
     const [isDetecting, setIsDetecting] = useState(true);
     const [isProcessing, setIsProcessing] = useState(false);
     const [idempotencyKey, setIdempotencyKey] = useState<string>('');
+    const [activeHistoryTab, setActiveHistoryTab] = useState<"payments" | "usage">("payments");
 
     useEffect(() => {
         setIdempotencyKey(`pay_${crypto.randomUUID()}`);
@@ -67,25 +70,46 @@ function BillingContent() {
         }
     };
 
+    const fetchTransactions = async () => {
+        try {
+            const response = await api.get("/user/transactions");
+            setTransactions(response.data.transactions || []);
+        } catch (err) {
+            console.error("Failed to fetch transactions", err);
+        }
+    };
+
+    const fetchCreditLogs = async () => {
+        try {
+            const response = await api.get("/user/credit-logs");
+            setCreditLogs(response.data.logs || []);
+        } catch (err) {
+            console.error("Failed to fetch credit logs", err);
+        }
+    };
+
     useEffect(() => {
         const status = searchParams.get('status') || searchParams.get('success');
         if (status === 'success' || status === 'true') {
             toast.success("Payment successful! Your plan has been updated.");
             refreshUser();
+            fetchTransactions();
             window.history.replaceState({}, '', window.location.pathname);
         }
     }, [searchParams]);
 
-    // ... (rest of the logic)
-
-    // Find the current plan in the card
-    const userCurrentPlan = user?.plan?.name || "Starter Pack";
+    useEffect(() => {
+        if (activeHistoryTab === 'usage') {
+            fetchCreditLogs();
+        } else {
+            fetchTransactions();
+        }
+    }, [activeHistoryTab]);
 
     const handlePayment = async () => {
         if (!activePlan) return;
 
         setIsProcessing(true);
-        // Use the stable idempotency key generated when the plan was selected
         try {
             const response = await api.post("/payments/initiate", {
                 plan_id: activePlan.id,
@@ -101,6 +125,7 @@ function BillingContent() {
             } else if (response.data.status === 'success') {
                 toast.success("Plan updated!");
                 refreshUser();
+                fetchTransactions();
             } else {
                 toast.error("Failed to get checkout URL");
             }
@@ -129,6 +154,7 @@ function BillingContent() {
 
     useEffect(() => {
         fetchPlans();
+        fetchTransactions();
 
         const detectLocation = async () => {
             try {
@@ -169,7 +195,6 @@ function BillingContent() {
                     </p>
                 </div>
 
-                {/* Region Switcher Tabs */}
                 <div className="flex bg-zinc-100 p-1 rounded-2xl border border-zinc-200 shadow-inner">
                     <button
                         onClick={() => setRegion("nigeria")}
@@ -197,7 +222,6 @@ function BillingContent() {
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                {/* Left: Plan Selection */}
                 <div className="lg:col-span-8 space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {plans.map((plan) => (
@@ -248,17 +272,14 @@ function BillingContent() {
                                         </li>
                                     ))}
                                 </ul>
-
                             </motion.div>
                         ))}
                     </div>
 
-                    {/* Summary / Order Review */}
                     <div className="rounded-[2.5rem] border border-zinc-100 bg-white p-10 overflow-hidden relative">
                         <div className="absolute top-0 right-0 p-10 opacity-5 -z-10 rotate-12">
                             <CreditCard size={200} />
                         </div>
-
                         <div className="flex flex-col md:flex-row gap-12">
                             <div className="flex-grow">
                                 <h3 className="text-2xl font-black text-zinc-900 mb-6">Order Summary</h3>
@@ -296,7 +317,7 @@ function BillingContent() {
                                     <div className="flex items-start gap-3">
                                         <ShieldCheck className="h-5 w-5 text-emerald-500 shrink-0" />
                                         <p className="text-[11px] font-bold text-zinc-500 leading-relaxed">
-                                            Encrypted payments via {region === 'nigeria' ? 'Paystack' : 'Stripe'}. Your details are never stored on our servers.
+                                            Encrypted payments via {region === 'nigeria' ? 'Paystack' : 'Stripe/Polar'}. Your details are never stored on our servers.
                                         </p>
                                     </div>
                                     <div className="flex items-start gap-3">
@@ -310,21 +331,142 @@ function BillingContent() {
                                         disabled={isProcessing || !activePlan}
                                         className="w-full h-14 bg-zinc-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-black shadow-xl shadow-zinc-200 flex items-center justify-center gap-3 disabled:opacity-50"
                                     >
-                                        {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : (
-                                            <>
-                                                Complete Payment
-                                            </>
-                                        )}
+                                        {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Complete Payment"}
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <div className="rounded-[2.5rem] border border-zinc-100 bg-white p-10">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+                            <h3 className="text-2xl font-black text-zinc-900">Activity History</h3>
+                            <div className="flex bg-zinc-50 p-1 rounded-xl border border-zinc-100">
+                                <button
+                                    onClick={() => setActiveHistoryTab("payments")}
+                                    className={cn(
+                                        "px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
+                                        activeHistoryTab === "payments" ? "bg-white text-blue-600 shadow-sm border border-zinc-100" : "text-zinc-400"
+                                    )}
+                                >
+                                    Payments
+                                </button>
+                                <button
+                                    onClick={() => setActiveHistoryTab("usage")}
+                                    className={cn(
+                                        "px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
+                                        activeHistoryTab === "usage" ? "bg-white text-blue-600 shadow-sm border border-zinc-100" : "text-zinc-400"
+                                    )}
+                                >
+                                    AI Usage
+                                </button>
+                            </div>
+                        </div>
+
+                        {activeHistoryTab === 'payments' ? (
+                            <div className="overflow-x-auto">
+                                {transactions.length > 0 ? (
+                                    <table className="w-full text-left">
+                                        <thead>
+                                            <tr className="border-b border-zinc-50">
+                                                <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-zinc-400">Date</th>
+                                                <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-zinc-400">Description</th>
+                                                <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-zinc-400">Amount</th>
+                                                <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-zinc-400">Reference</th>
+                                                <th className="pb-4 text-right text-[10px] font-black uppercase tracking-widest text-zinc-400">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-zinc-50 font-bold">
+                                            {transactions.map((tx) => (
+                                                <tr key={tx.id} className="group">
+                                                    <td className="py-5 text-xs text-zinc-900 whitespace-nowrap">
+                                                        {new Date(tx.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                    </td>
+                                                    <td className="py-5">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-xs text-zinc-900">{tx.plan?.name || "Credits Top-up"}</span>
+                                                            <span className="text-[9px] text-zinc-400 uppercase tracking-tight">{tx.provider}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-5 text-xs text-zinc-900">
+                                                        {tx.currency} {Number(tx.amount).toLocaleString()}
+                                                    </td>
+                                                    <td className="py-5">
+                                                        <code className="text-[10px] text-zinc-400 bg-zinc-50 px-2 py-1 rounded-md">{tx.reference.substring(0, 8)}...</code>
+                                                    </td>
+                                                    <td className="py-5 text-right">
+                                                        <span className={cn(
+                                                            "text-[9px] uppercase tracking-widest px-3 py-1 rounded-full",
+                                                            tx.status === 'success' ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
+                                                        )}>
+                                                            {tx.status}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                ) : (
+                                    <div className="py-20 text-center">
+                                        <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">No payment history found</p>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                {creditLogs.length > 0 ? (
+                                    <table className="w-full text-left">
+                                        <thead>
+                                            <tr className="border-b border-zinc-50">
+                                                <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-zinc-400">Date/Time</th>
+                                                <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-zinc-400">Action</th>
+                                                <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-zinc-400 text-right">Credits</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-zinc-50 font-bold">
+                                            {creditLogs.map((log) => (
+                                                <tr key={log.id} className="group">
+                                                    <td className="py-5 text-xs text-zinc-400 whitespace-nowrap">
+                                                        {new Date(log.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                                        <span className="ml-2 opacity-50 text-[10px]">
+                                                            {new Date(log.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-5">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-xs text-zinc-900">{log.description || "Credit Change"}</span>
+                                                            <span className={cn(
+                                                                "text-[9px] uppercase tracking-widest",
+                                                                log.type === 'top-up' ? "text-emerald-500" : "text-zinc-400"
+                                                            )}>
+                                                                {log.type}
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-5 text-right">
+                                                        <span className={cn(
+                                                            "text-sm font-black",
+                                                            log.amount > 0 ? "text-emerald-500" : "text-red-500"
+                                                        )}>
+                                                            {log.amount > 0 ? `+${log.amount}` : log.amount}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                ) : (
+                                    <div className="py-20 text-center">
+                                        <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">No AI usage logged yet</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Right: Sidebar / Info */}
                 <div className="lg:col-span-4 space-y-8">
-                    {/* Active Plan Mini Card */}
                     <div className="rounded-[2.5rem] bg-zinc-900 p-10 text-white relative overflow-hidden">
                         <div className="absolute top-0 right-0 p-8 opacity-10">
                             <Star size={80} className="fill-current" />
@@ -351,7 +493,6 @@ function BillingContent() {
                         </div>
                     </div>
 
-                    {/* Payment methods */}
                     <div className="rounded-[2.5rem] border border-zinc-100 bg-white p-10">
                         <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-8">Supported Methods</h4>
                         <div className="grid grid-cols-2 gap-4">
@@ -376,7 +517,6 @@ function BillingContent() {
                         </div>
                     </div>
 
-                    {/* FAQ Mini */}
                     <div className="rounded-[2.5rem] border border-zinc-100 bg-zinc-50/50 p-10">
                         <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-6">Need Help?</p>
                         <div className="space-y-6">

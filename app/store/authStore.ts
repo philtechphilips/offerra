@@ -17,6 +17,9 @@ interface User {
         last_synced_at: string | null;
         status?: string;
     } | null;
+    professional_headline?: string | null;
+    ai_tone?: string;
+    notifications_enabled?: boolean;
 }
 
 interface AuthState {
