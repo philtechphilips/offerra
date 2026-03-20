@@ -1,12 +1,39 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, Globe, Twitter, Linkedin, Github, Send, Sparkles, Phone, MessageCircle } from "lucide-react";
+import { Mail, Globe, Twitter, Linkedin, Github, Send, Sparkles, Phone, MessageCircle, Loader2 } from "lucide-react";
 import Link from 'next/link';
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
+import api from "@/app/lib/api";
+import { toast } from "sonner";
 
 export default function ContactPage() {
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        subject: "",
+        message: ""
+    });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        const loadingId = toast.loading("Sending your message...");
+
+        try {
+            await api.post("/contact", formData);
+            toast.success("Message sent successfully! We'll get back to you soon.", { id: loadingId });
+            setFormData({ name: "", email: "", subject: "", message: "" });
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || "Failed to send message. Please try again.", { id: loadingId });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-white">
             <Navbar />
@@ -69,7 +96,7 @@ export default function ContactPage() {
                                             <a
                                                 key={idx}
                                                 href={social.href}
-                                                className="group flex flex-col items-center gap-3 p-6 rounded-[2rem] border border-zinc-100 bg-white hover:border-blue-100 hover:shadow-xl hover:shadow-blue-50 transition-all active:scale-95 w-32"
+                                                className="group flex flex-col items-center gap-3 p-6 rounded-[2rem] border border-zinc-100 bg-white hover:border-blue-100 hover:bg-zinc-50 transition-all active:scale-95 w-32"
                                             >
                                                 <social.icon className="h-6 w-6 text-zinc-400 group-hover:text-blue-600 transition-colors" />
                                                 <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 group-hover:text-black">{social.label}</span>
@@ -88,13 +115,16 @@ export default function ContactPage() {
                             >
                                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-blue-50/50 rounded-full blur-[100px] -z-10" />
                                 
-                                <div className="p-8 lg:p-16 rounded-[3rem] border border-zinc-100 bg-white shadow-2xl relative z-10">
-                                    <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
+                                <div className="p-8 lg:p-16 rounded-[3rem] border border-zinc-100 bg-white relative z-10">
+                                    <form className="space-y-8" onSubmit={handleSubmit}>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                             <div className="space-y-3">
                                                 <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-4">Full Name</label>
                                                 <input
                                                     type="text"
+                                                    value={formData.name}
+                                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                                    required
                                                     placeholder="John Doe"
                                                     className="w-full px-8 py-5 rounded-2xl bg-zinc-50 border border-zinc-50 text-black font-bold placeholder:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
                                                 />
@@ -103,6 +133,9 @@ export default function ContactPage() {
                                                 <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-4">Email Address</label>
                                                 <input
                                                     type="email"
+                                                    value={formData.email}
+                                                    onChange={e => setFormData({ ...formData, email: e.target.value })}
+                                                    required
                                                     placeholder="john@example.com"
                                                     className="w-full px-8 py-5 rounded-2xl bg-zinc-50 border border-zinc-50 text-black font-bold placeholder:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
                                                 />
@@ -112,7 +145,9 @@ export default function ContactPage() {
                                             <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-4">Subject</label>
                                             <input
                                                 type="text"
-                                                placeholder="Support / Partnership / Hire Me"
+                                                value={formData.subject}
+                                                onChange={e => setFormData({ ...formData, subject: e.target.value })}
+                                                placeholder="Support / Partnership"
                                                 className="w-full px-8 py-5 rounded-2xl bg-zinc-50 border border-zinc-50 text-black font-bold placeholder:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
                                             />
                                         </div>
@@ -120,6 +155,9 @@ export default function ContactPage() {
                                             <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-4">Your Message</label>
                                             <textarea
                                                 rows={5}
+                                                value={formData.message}
+                                                onChange={e => setFormData({ ...formData, message: e.target.value })}
+                                                required
                                                 placeholder="Tell us what's on your mind..."
                                                 className="w-full px-8 py-5 rounded-2xl bg-zinc-50 border border-zinc-50 text-black font-bold placeholder:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all resize-none"
                                             />
@@ -127,10 +165,11 @@ export default function ContactPage() {
                                         
                                         <button
                                             type="submit"
-                                            className="w-full group inline-flex items-center justify-center gap-4 rounded-2xl bg-blue-600 px-10 py-6 text-sm font-black text-white hover:bg-blue-700 transition-all uppercase tracking-[0.25em] shadow-xl shadow-blue-200 active:scale-[0.98]"
+                                            disabled={isSubmitting}
+                                            className="w-full group inline-flex items-center justify-center gap-4 rounded-2xl bg-blue-600 px-10 py-6 text-sm font-black text-white hover:bg-blue-700 transition-all uppercase tracking-[0.25em] active:scale-[0.98] disabled:opacity-50"
                                         >
-                                            <Send className="h-4 w-4" />
-                                            Send Message
+                                            {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                                            {isSubmitting ? "Sending..." : "Send Message"}
                                         </button>
                                         
                                         <p className="text-[9px] font-black text-zinc-300 text-center uppercase tracking-widest">
