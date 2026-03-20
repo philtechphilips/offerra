@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 💎 Offerra Frontend: Next-Gen Job Tracker UI
 
-## Getting Started
+The Offerra Frontend is a high-performance **Next.js 15 (React 19)** single-page application, meticulously designed to provide a premium, smooth dashboard experience for job seekers.
 
-First, run the development server:
+![Frontend Overview](https://via.placeholder.com/1200x500?text=Next.js+Frontend+Dashboard)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🧩 Module Breakdown
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 1. 🎨 Design Language (Zinc & Indigo)
+*   **Aesthetic System**: A tailored color palette using deep Zine grays and vibrant Indigo accents.
+*   **Motion Architecture**: Integrated **Framer Motion** for liquid-smooth transitions, modal entries, and live ticker updates.
+*   **Glassmorphism Components**: Premium translucent backgrounds for the Top Header and Sidebar elements.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 🧠 State Management (Zustand & Context)
+*   **`notificationStore`**: A reactive global store that handles:
+    *   **Fetching**: Server-side fetching of unread notifications.
+    *   **Marking as Read**: Optimistic updates for instant UI feedback.
+    *   **Counting**: Live red bubble count for the header bell icon.
+*   **Auth Store**: Secure management of Sanctum sessions and user credit balances.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 📊 Dashboard & Analytics
+*   **Application Pipeline**: Vertical bar charts showing your "Applied", "Interviewing", and "Offered" job stages.
+*   **Revenue Velocity (Admin Only)**: Advanced bar charts for administrators to monitor sales growth for the last 14 days.
+*   **Popular Plans**: Interactive Sales breakdown for every credit pack on the platform.
 
-## Learn More
+### 🛡️ Admin Suite
+*   **User Control**: Search, delete, toggle roles, and **manually add bonus credits** with one click.
+*   **System Settings**: Real-time configuration for global credit costs and platform constants.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠️ Technical Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+*   **Framework**: Next.js 15+ (App Router)
+*   **Core Library**: React 19 (Zero-config [React Compiler](https://react.dev/learn/react-compiler) ready)
+*   **State Management**: Zustand (Lightweight alternative to Redux)
+*   **Styling**: Tailwind CSS 4.x (Utility-first, highly customized)
+*   **Animations**: Framer Motion 12+
+*   **Icons**: Lucide-React (Vibrant, accessible icons)
+*   **HTTP Client**: Axios with Sanctum CSRF protection
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🚀 Setup & Installation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1.  **Clone & Install**:
+    ```bash
+    npm install
+    ```
+2.  **Environment Setup**:
+    Create `.env.local` and add:
+    ```env
+    NEXT_PUBLIC_API_URL=http://localhost:8000/api
+    ```
+3.  **Launch**:
+    ```bash
+    npm run dev
+    ```
+
+---
+
+## 🏗️ Folder Structure
+
+*   `app/`: Dynamic routing, layouts, and page definitions.
+*   `app/store/`: Zustand global storage for notifications/auth.
+*   `components/`: Reusable React components.
+    *   `dashboard/`: Specialized modules for the main app views.
+    *   `landing/`: Components for the high-end marketing home page.
+*   `app/lib/`: Custom utility functions and api client.
+
+---
+
+## 📸 Component Showcase
+
+| Notification Dropdown | Admin Analytics Grid | Dashboard Sidebar |
+| :---: | :---: | :---: |
+| ![Notification UI](https://via.placeholder.com/350x200?text=Notification+UI) | ![Analytics UI](https://via.placeholder.com/350x200?text=Revenue+Charts) | ![Sidebar UI](https://via.placeholder.com/350x200?text=Sidebar+Design) |
+
+---
+
+## 📄 License
+Copyright © 2026 Offerra Frontend Team.
