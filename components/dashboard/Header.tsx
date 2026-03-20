@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Search, Bell, Sparkles, ChevronDown, Menu, XCircle } from "lucide-react";
 import { useAuthStore } from "@/app/store/authStore";
 import { useJobStore } from "@/app/store/jobStore";
+import { NotificationDropdown } from "@/components/dashboard/NotificationDropdown";
 import { motion } from "framer-motion";
 
 interface HeaderProps {
@@ -94,12 +95,9 @@ export function Header({ onMenuClick }: HeaderProps) {
                 </motion.button>
 
                 <div className="hidden sm:block h-6 w-px bg-zinc-100" />
-
-                <button className="relative rounded-xl p-2.5 text-zinc-400 transition-colors hover:bg-zinc-50 hover:text-blue-600">
-                    <Bell className="h-5 w-5" />
-                    <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full border-2 border-white bg-red-500" />
-                </button>
-
+ 
+                <NotificationDropdown />
+ 
                 <button
                     onClick={() => window.location.href = "/dashboard/profile"}
                     className="flex items-center gap-3 rounded-2xl border border-zinc-100 p-1.5 pr-2 sm:pr-4 transition-all hover:bg-white hover:border-blue-200 group"

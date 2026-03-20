@@ -497,16 +497,16 @@ function BillingContent() {
                         <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-8">Supported Methods</h4>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="h-16 rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center justify-center p-4 group hover:border-blue-200 transition-colors">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" className="h-5 opacity-40 group-hover:opacity-100 grayscale hover:grayscale-0 transition-all" />
+                                <img src="https://cdn.simpleicons.org/mastercard" alt="Mastercard" className="h-6 opacity-50 group-hover:opacity-100 grayscale hover:grayscale-0 transition-all" />
                             </div>
                             <div className="h-16 rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center justify-center p-4 group hover:border-blue-200 transition-colors">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/Mastercard-logo.svg" alt="Mastercard" className="h-8 opacity-40 group-hover:opacity-100 grayscale hover:grayscale-0 transition-all" />
+                                <img src="https://cdn.simpleicons.org/stripe" alt="Stripe" className="h-6 opacity-50 group-hover:opacity-100 grayscale hover:grayscale-0 transition-all" />
                             </div>
                             <div className="h-16 rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center justify-center p-4 group hover:border-blue-200 transition-colors">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Stripe_logo%2C_revised_2016.svg" alt="Stripe" className="h-6 opacity-40 group-hover:opacity-100 grayscale hover:grayscale-0 transition-all" />
+                                <img src="https://cdn.simpleicons.org/visa" alt="Visa" className="h-5 opacity-50 group-hover:opacity-100 grayscale hover:grayscale-0 transition-all" />
                             </div>
                             <div className="h-16 rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center justify-center p-4 group hover:border-blue-200 transition-colors">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa" className="h-4 opacity-40 group-hover:opacity-100 grayscale hover:grayscale-0 transition-all" />
+                                <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">+ More</span>
                             </div>
                         </div>
                         <div className="mt-10 flex items-center gap-3">
@@ -514,21 +514,6 @@ function BillingContent() {
                                 <CheckCircle2 className="h-4 w-4 text-blue-600" />
                             </div>
                             <p className="text-[11px] font-bold text-zinc-500">Verified Secure Checkout</p>
-                        </div>
-                    </div>
-
-                    <div className="rounded-[2.5rem] border border-zinc-100 bg-zinc-50/50 p-10">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-6">Need Help?</p>
-                        <div className="space-y-6">
-                            {[
-                                "Can I switch plans later?",
-                                "What is the refund policy?",
-                                "Can I pay annually?"
-                            ].map((q) => (
-                                <div key={q} className="flex items-center justify-between cursor-pointer group">
-                                    <span className="text-xs font-bold text-zinc-600 group-hover:text-blue-600 transition-colors">{q}</span>
-                                </div>
-                            ))}
                         </div>
                     </div>
                 </div>
