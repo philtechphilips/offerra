@@ -10,6 +10,7 @@ import {
     Clock,
     Activity,
     Building2,
+    DollarSign,
     PieChart as PieChartIcon
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -20,6 +21,8 @@ interface Stats {
     total_jobs: number;
     recent_users_7d: number;
     active_users: number;
+    total_revenue: number;
+    monthly_revenue: number;
     growth: {
         users_30d: number;
         jobs_30d: number;
@@ -36,10 +39,25 @@ interface Company {
     total: number;
 }
 
+interface PopularPlan {
+    id: string;
+    name: string;
+    price_usd: number;
+    credits: number;
+    transactions_count: number;
+}
+
+interface DailyRevenue {
+    date: string;
+    total: number;
+}
+
 export default function AdminDashboard() {
     const [stats, setStats] = useState<Stats | null>(null);
     const [distribution, setDistribution] = useState<Distribution[]>([]);
     const [topCompanies, setTopCompanies] = useState<Company[]>([]);
+    const [popularPlans, setPopularPlans] = useState<PopularPlan[]>([]);
+    const [dailyRevenue, setDailyRevenue] = useState<DailyRevenue[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -48,7 +66,9 @@ export default function AdminDashboard() {
                 const response = await api.get("/admin/stats");
                 setStats(response.data.stats);
                 setDistribution(response.data.distribution);
-                setTopCompanies(response.data.top_companies);
+                setTopCompanies(response.data.top_companies || []);
+                setPopularPlans(response.data.popular_plans || []);
+                setDailyRevenue(response.data.daily_revenue || []);
             } catch (err) {
                 console.error("Failed to fetch admin stats", err);
             } finally {
@@ -65,11 +85,16 @@ export default function AdminDashboard() {
     );
 
     const statCards = [
-        { label: "Total Users", value: stats?.total_users, icon: Users, color: "text-blue-600", bg: "bg-blue-50" },
-        { label: "Active Jobs", value: stats?.total_jobs, icon: Briefcase, color: "text-indigo-600", bg: "bg-indigo-50" },
-        { label: "Active Users", value: stats?.active_users, icon: Activity, color: "text-emerald-600", bg: "bg-emerald-50" },
-        { label: "New Users (7d)", value: stats?.recent_users_7d, icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
+        { label: "Total Revenue", value: stats?.total_revenue, icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-50", prefix: "$" },
+        { label: "Monthly Revenue", value: stats?.monthly_revenue, icon: TrendingUp, color: "text-blue-600", bg: "bg-blue-50", prefix: "$" },
+        { label: "Total Users", value: stats?.total_users, icon: Users, color: "text-indigo-600", bg: "bg-indigo-50" },
+        { label: "Total Jobs", value: stats?.total_jobs, icon: Briefcase, color: "text-amber-600", bg: "bg-amber-50" },
     ];
+
+    const valueFormatter = (val: number | undefined, prefix?: string) => {
+        if (val === undefined) return "0";
+        return `${prefix || ""}${val.toLocaleString()}`;
+    };
 
     return (
         <div className="space-y-10">
@@ -92,7 +117,7 @@ export default function AdminDashboard() {
                             <card.icon className={cn("h-7 w-7", card.color)} />
                         </div>
                         <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">{card.label}</p>
-                        <h3 className="text-4xl font-black text-zinc-900">{card.value?.toLocaleString()}</h3>
+                        <h3 className="text-4xl font-black text-zinc-900">{valueFormatter(card.value, card.prefix)}</h3>
                     </motion.div>
                 ))}
             </div>
@@ -131,35 +156,88 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
-                {/* Top Companies */}
+                {/* Popular Plans */}
                 <div className="lg:col-span-12 xl:col-span-5 bg-white border border-zinc-100 rounded-[3rem] p-10">
-                    <div className="flex items-center gap-4 mb-10">
-                        <div className="h-12 w-12 rounded-2xl bg-zinc-50 flex items-center justify-center">
-                            <Building2 className="h-6 w-6 text-zinc-400" />
+                    <div className="flex items-center justify-between mb-10">
+                        <div className="flex items-center gap-4">
+                            <div className="h-12 w-12 rounded-2xl bg-zinc-50 flex items-center justify-center">
+                                <DollarSign className="h-6 w-6 text-zinc-400" />
+                            </div>
+                            <h4 className="text-xl font-black text-zinc-900 uppercase">Popular Plans</h4>
                         </div>
-                        <h4 className="text-xl font-black text-zinc-900 uppercase">Hot Companies</h4>
+                        <button 
+                            onClick={() => window.location.href = "/admin/billing"}
+                            className="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:underline"
+                        >
+                            Manage
+                        </button>
                     </div>
 
-                    <div className="space-y-5">
-                        {topCompanies.map((company, i) => (
-                            <div key={company.company} className="flex items-center justify-between p-5 bg-zinc-50/50 rounded-2xl border border-transparent hover:border-zinc-100 hover:bg-white transition-all group">
+                    <div className="space-y-4">
+                        {popularPlans.map((plan, i) => (
+                            <div key={plan.id} className="flex items-center justify-between p-5 bg-zinc-50/50 rounded-2xl border border-transparent hover:border-zinc-100 hover:bg-white transition-all group">
                                 <div className="flex items-center gap-4">
-                                    <div className="h-10 w-10 bg-white border border-zinc-100 rounded-xl flex items-center justify-center text-xs font-black text-indigo-600 shadow-sm group-hover:scale-110 transition-transform">
-                                        #{i + 1}
+                                    <div className="h-10 w-10 bg-white border border-zinc-100 rounded-xl flex items-center justify-center text-[10px] font-black text-emerald-600 shadow-sm">
+                                        ${plan.price_usd}
                                     </div>
                                     <div>
-                                        <p className="text-sm font-black text-zinc-900 uppercase truncate max-w-[150px]">{company.company || "Unknown"}</p>
-                                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest leading-none mt-1">Trending Company</p>
+                                        <p className="text-sm font-black text-zinc-900 uppercase truncate max-w-[150px]">{plan.name}</p>
+                                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest leading-none mt-1">
+                                            {plan.credits} Credits per Pack
+                                        </p>
                                     </div>
                                 </div>
-                                <span className="h-8 min-w-[32px] px-3 bg-white border border-zinc-100 rounded-lg flex items-center justify-center text-xs font-black text-zinc-900">
-                                    {company.total}
-                                </span>
+                                <div className="text-right">
+                                    <span className="block text-xs font-black text-zinc-900">{plan.transactions_count}</span>
+                                    <span className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">Sales</span>
+                                </div>
                             </div>
                         ))}
                     </div>
                 </div>
             </div>
+
+            {/* Daily Revenue Trend (Simple visualization) */}
+            {dailyRevenue.length > 0 && (
+                <div className="bg-white border border-zinc-100 rounded-[3rem] p-10 mt-10">
+                    <div className="flex items-center justify-between mb-10">
+                        <div className="flex items-center gap-4">
+                            <div className="h-12 w-12 rounded-2xl bg-zinc-50 flex items-center justify-center">
+                                <TrendingUp className="h-6 w-6 text-zinc-400" />
+                            </div>
+                            <h4 className="text-xl font-black text-zinc-900 uppercase">Revenue Velocity</h4>
+                        </div>
+                        <button 
+                            onClick={() => window.location.href = "/admin/billing"} // To be updated to transactions page
+                            className="bg-zinc-900 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-800 transition-colors"
+                        >
+                            History
+                        </button>
+                    </div>
+
+                    <div className="flex items-end gap-2 h-48">
+                        {dailyRevenue.slice(-14).map((day, i) => {
+                            const maxRev = Math.max(...dailyRevenue.map(d => d.total));
+                            const height = (day.total / maxRev) * 100;
+                            return (
+                                <div key={day.date} className="flex-1 flex flex-col items-center gap-2 group">
+                                    <div className="relative w-full">
+                                        <motion.div 
+                                            initial={{ height: 0 }}
+                                            animate={{ height: `${height}%` }}
+                                            className="w-full bg-indigo-100 group-hover:bg-indigo-600 rounded-t-lg transition-colors min-h-[4px]"
+                                        />
+                                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-zinc-900 text-white text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                                            ${day.total}
+                                        </div>
+                                    </div>
+                                    <span className="text-[8px] font-black text-zinc-300 uppercase rotate-45 mt-4">{day.date.split('-').slice(1).join('/')}</span>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
+            )}
 
             {/* Growth Section */}
             <div className="bg-indigo-900 rounded-[3rem] p-12 text-white overflow-hidden relative">

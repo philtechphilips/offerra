@@ -15,7 +15,8 @@ import {
     SearchX,
     UserCircle,
     CheckCircle2,
-    ShieldCheck
+    ShieldCheck,
+    Coins
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/app/lib/utils";
@@ -26,6 +27,7 @@ interface User {
     name: string;
     email: string;
     role: string;
+    credits: number;
     created_at: string;
     job_applications_count: number;
 }
@@ -83,6 +85,20 @@ export default function UserManagement() {
         }
     };
 
+    const handleUpdateCredits = async (userId: string, amount: number) => {
+        try {
+            await api.post(`/admin/users/${userId}/credits`, { 
+                amount, 
+                type: 'bonus',
+                description: 'Admin bonus credits'
+            });
+            setUsers(users.map(u => u.id === userId ? { ...u, credits: u.credits + amount } : u));
+            toast.success(`Added ${amount} credits to user`);
+        } catch (err) {
+            toast.error("Failed to update credits");
+        }
+    };
+
     const handleDeleteUser = async (userId: string) => {
         if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) return;
 
@@ -124,6 +140,11 @@ export default function UserManagement() {
                                 <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400">User Details</th>
                                 <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400">Account Role</th>
                                 <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400 text-center">Engagement</th>
+                                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400 text-center">
+                                    <div className="flex items-center justify-center gap-1">
+                                        <Coins className="h-3 w-3" /> Wallet
+                                    </div>
+                                </th>
                                 <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400">Joined</th>
                                 <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-zinc-400 text-right">Actions</th>
                             </tr>
@@ -168,7 +189,35 @@ export default function UserManagement() {
                                             <span className="text-[10px] font-black text-zinc-300 uppercase tracking-widest">Jobs</span>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-6">
+                                    <td className="px-8 py-6 text-center">
+                                         <div className="flex flex-col items-center">
+                                             <span className="text-sm font-black text-zinc-900">{u.job_applications_count}</span>
+                                             <span className="text-[10px] font-black text-zinc-300 uppercase tracking-widest">Jobs</span>
+                                         </div>
+                                     </td>
+                                     <td className="px-8 py-6 text-center">
+                                         <div className="flex flex-col items-center gap-2">
+                                             <div className="flex items-center gap-1.5">
+                                                 <Coins className="h-4 w-4 text-amber-600" />
+                                                 <span className="text-sm font-black text-zinc-900">{(u.credits || 0).toLocaleString()}</span>
+                                             </div>
+                                             <div className="flex gap-1.5">
+                                                 <button 
+                                                     onClick={() => handleUpdateCredits(u.id, 100)}
+                                                     className="px-2 py-0.5 bg-zinc-50 border border-zinc-100 rounded-lg text-[8px] font-black text-zinc-400 hover:bg-white hover:border-amber-200 hover:text-amber-600 transition-all"
+                                                 >
+                                                     +100
+                                                 </button>
+                                                 <button 
+                                                     onClick={() => handleUpdateCredits(u.id, 500)}
+                                                     className="px-2 py-0.5 bg-zinc-50 border border-zinc-100 rounded-lg text-[8px] font-black text-zinc-400 hover:bg-white hover:border-emerald-200 hover:text-emerald-600 transition-all"
+                                                 >
+                                                     +500
+                                                 </button>
+                                             </div>
+                                         </div>
+                                     </td>
+                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-2 text-[11px] font-black text-zinc-500 uppercase tracking-tighter">
                                             <Calendar className="h-4 w-4 text-zinc-300" />
                                             {new Date(u.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
