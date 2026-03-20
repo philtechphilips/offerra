@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { PenTool, Wand2, MousePointerClick, Mail, CheckCircle2, ArrowRight } from "lucide-react";
+import { cn } from "@/app/lib/utils";
 import Link from "next/link";
 
 const showcaseFeatures = [
@@ -216,11 +217,14 @@ export function MoreFeatures() {
                         <div className="absolute top-0 right-0 w-[40%] h-[40%] bg-blue-50/40 rounded-full blur-[120px] -z-10 opacity-70" />
                     )}
 
-                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-4">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
                             {/* Content */}
                             <motion.div
-                                className={sectionIdx % 2 !== 0 ? "order-1 lg:order-2" : ""}
+                                className={cn(
+                                    "flex flex-col items-center lg:items-start text-center lg:text-left",
+                                    sectionIdx % 2 !== 0 ? "order-1 lg:order-2" : ""
+                                )}
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
@@ -236,7 +240,7 @@ export function MoreFeatures() {
                                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600">{feature.badge}</span>
                                 </motion.div>
 
-                                <h2 className="text-[clamp(2.5rem,5vw,5rem)] font-black tracking-tighter leading-[0.9] mb-10 text-black text-gradient">
+                                <h2 className="text-[clamp(2.5rem,5vw,5rem)] font-black tracking-tighter leading-[1.1] mb-10 text-black text-gradient">
                                     {feature.title}
                                 </h2>
 
@@ -248,7 +252,7 @@ export function MoreFeatures() {
                                     {feature.points.map((point, idx) => (
                                         <motion.div
                                             key={point.title}
-                                            className="flex gap-6"
+                                            className="flex flex-col items-center sm:flex-row sm:items-start text-center sm:text-left gap-6"
                                             initial={{ opacity: 0, x: sectionIdx % 2 !== 0 ? 20 : -10 }}
                                             whileInView={{ opacity: 1, x: 0 }}
                                             viewport={{ once: true }}
@@ -270,7 +274,6 @@ export function MoreFeatures() {
                                     className="group inline-flex items-center gap-4 rounded-3xl bg-blue-600 px-10 py-5 text-sm font-black text-white hover:bg-blue-700 transition-all uppercase tracking-[0.2em] shadow-2xl shadow-blue-200"
                                 >
                                     {feature.cta}
-                                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                                 </Link>
                             </motion.div>
 

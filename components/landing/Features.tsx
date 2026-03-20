@@ -33,7 +33,7 @@ const features = [
         title: "Smart Gmail Sync",
         description: "Stay updated on your status. We detect interview invites and follow-ups directly from your inbox.",
         icon: Mail,
-        color: "red"
+        color: "blue"
     },
     {
         title: "Search Analytics",
@@ -50,8 +50,8 @@ export function Features() {
             <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-zinc-200/60 to-transparent" />
             <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-zinc-200/60 to-transparent" />
 
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
-                <div className="flex flex-col items-start mb-32 max-w-3xl">
+            <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-4 relative">
+                <div className="flex flex-col items-center lg:items-start text-center lg:text-left mb-32 max-w-3xl mx-auto lg:mx-0">
                     <motion.div
                         className="mb-8 flex items-center gap-3"
                         initial={{ opacity: 0, x: -10 }}
@@ -63,7 +63,7 @@ export function Features() {
                     </motion.div>
 
                     <motion.h2
-                        className="text-[clamp(2.5rem,7vw,5rem)] font-black leading-[0.9] tracking-tighter mb-10 text-black text-gradient"
+                        className="text-[clamp(2.5rem,7vw,5rem)] font-black leading-[1.1] tracking-tighter mb-10 text-black text-gradient"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
@@ -88,7 +88,7 @@ export function Features() {
                     {features.map((feature, idx) => (
                         <motion.div
                             key={feature.title}
-                            className="group relative flex flex-col p-10 rounded-[2rem] border border-zinc-100 bg-white hover:bg-zinc-50/50 transition-all duration-500 overflow-hidden"
+                            className="group relative flex flex-col items-center lg:items-start text-center lg:text-left p-10 rounded-[2rem] border border-zinc-100 bg-white hover:bg-zinc-50/50 transition-all duration-500 overflow-hidden"
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
@@ -97,10 +97,7 @@ export function Features() {
                             {/* Card Spotlight Background Glow */}
                             <div className="absolute inset-x-0 -top-px h-px w-full bg-gradient-to-r from-transparent via-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                            <div className={cn(
-                                "mb-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-white border border-zinc-100 shadow-sm transition-all duration-500 group-hover:scale-110 group-hover:shadow-xl",
-                                feature.color === 'red' ? "text-[#EA4335] group-hover:bg-[#EA4335] group-hover:text-white" : "group-hover:bg-[#1C4ED8] group-hover:text-white"
-                            )}>
+                            <div className="mb-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-white border border-zinc-100 shadow-sm transition-all duration-500 group-hover:scale-110 group-hover:shadow-xl group-hover:bg-blue-600 group-hover:text-white text-blue-600">
                                 <feature.icon className="h-6 w-6" />
                             </div>
 
@@ -110,7 +107,7 @@ export function Features() {
                             </p>
 
                             {/* Subtle Indicator */}
-                            <div className="mt-8 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0">
+                            <div className="mt-8 flex items-center justify-center lg:justify-start gap-2 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0">
                                 <div className="h-1.5 w-1.5 rounded-full bg-blue-600" />
                                 <span className="text-[10px] font-black uppercase tracking-[0.15em] text-blue-600">Active Module</span>
                             </div>

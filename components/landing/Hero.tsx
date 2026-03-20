@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, CheckCircle2, TrendingUp, Mail, DollarSign, Play, X } from "lucide-react";
+import { ArrowRight, Sparkles, CheckCircle2, TrendingUp, Mail, DollarSign, Play, X, Chrome, Download } from "lucide-react";
+import { cn } from "@/app/lib/utils";
+import { ExtensionModal } from "./ExtensionModal";
 
 interface FloatingBadgeProps {
     icon: React.ReactNode;
@@ -11,33 +13,37 @@ interface FloatingBadgeProps {
     value: string;
     className?: string;
     delay?: number;
-    duration?: number;
     yOffset?: number;
 }
 
-function FloatingBadge({ icon, label, value, className, delay = 0, duration = 6, yOffset = 10 }: FloatingBadgeProps) {
+function FloatingBadge({ icon, label, value, className, delay = 0, yOffset = 10 }: FloatingBadgeProps) {
     return (
         <motion.div
-            className={`absolute hidden lg:flex items-center gap-3 rounded-2xl border border-white/40 bg-white/40 p-3 shadow-[0_20px_50px_rgba(0,0,0,0.05)] backdrop-blur-xl z-20 ${className}`}
-            initial={{ opacity: 0, scale: 0.9, y: 10 }}
-            animate={{
-                opacity: 1,
-                scale: 1,
-                y: [0, -yOffset, 0]
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ 
+                opacity: 1, 
+                y: [0, -yOffset, 0],
             }}
-            transition={{
-                delay,
-                y: { duration, repeat: Infinity, ease: "easeInOut" },
-                opacity: { duration: 0.5 },
-                scale: { duration: 0.5 }
+            transition={{ 
+                opacity: { duration: 0.5, delay },
+                y: { 
+                    duration: 4, 
+                    repeat: Infinity, 
+                    ease: "easeInOut",
+                    delay: delay
+                }
             }}
+            className={cn(
+                "absolute hidden lg:flex items-center gap-4 rounded-2xl border border-white bg-white/60 p-4 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] backdrop-blur-xl z-20",
+                className
+            )}
         >
-            <div className="h-10 w-10 rounded-xl bg-white/50 p-2.5 flex items-center justify-center shrink-0 shadow-inner">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-50 shrink-0">
                 {icon}
             </div>
-            <div className="text-left leading-tight pr-2">
-                <div className="text-[9px] font-black uppercase text-zinc-400 tracking-wider whitespace-nowrap">{label}</div>
-                <div className="text-xs font-black text-black whitespace-nowrap tracking-tight">{value}</div>
+            <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-0.5">{label}</p>
+                <p className="text-xs font-black text-black whitespace-nowrap">{value}</p>
             </div>
         </motion.div>
     );
@@ -45,6 +51,7 @@ function FloatingBadge({ icon, label, value, className, delay = 0, duration = 6,
 
 export function Hero() {
     const [showVideo, setShowVideo] = useState(false);
+    const [isExtensionModalOpen, setIsExtensionModalOpen] = useState(false);
 
     return (
         <>
@@ -52,7 +59,7 @@ export function Hero() {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(28,78,216,0.05)_0%,transparent_50%)]" />
             <div className="dot-pattern absolute inset-0 opacity-[0.4] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
+            <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-4 relative">
                 {/* Floating Badges */}
                 <FloatingBadge
                     icon={<CheckCircle2 className="h-5 w-5 text-blue-600" />}
@@ -93,7 +100,7 @@ export function Hero() {
                     </motion.div>
 
                     <motion.h1
-                        className="text-[clamp(2.5rem,9vw,6.5rem)] font-black leading-[1.05] tracking-[-0.045em] text-black relative z-10 text-gradient text-center max-w-6xl"
+                        className="text-[clamp(2.5rem,9vw,6.5rem)] font-black leading-[1.2] tracking-[-0.045em] text-black relative z-10 text-gradient text-center max-w-6xl"
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
@@ -103,105 +110,80 @@ export function Hero() {
                     </motion.h1>
 
                     <motion.p
-                        className="mt-12 max-w-2xl text-lg font-medium text-zinc-500 sm:text-xl lg:text-2xl leading-relaxed relative z-10"
+                        className="mt-12 max-w-3xl text-lg font-medium text-zinc-500 sm:text-xl lg:text-2xl leading-relaxed relative z-10"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                     >
-                        Find your next job in half the time. We track your applications automatically, optimize your resume with AI, and help you master your interviews with elite coaching.
+                        Find your next job, faster. Track all your applications automatically and use AI to build perfect resumes and practice for interviews.
                     </motion.p>
 
                     <motion.div
-                        className="mt-16 flex flex-col items-center justify-center gap-4 sm:flex-row relative z-10"
+                        className="mt-16 flex flex-wrap items-center justify-center gap-4 relative z-10"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
                     >
                         <Link
                             href="/signup"
-                            className="btn-premium group"
+                            className="btn-premium group px-10 h-16 flex items-center justify-center font-bold text-sm tracking-widest uppercase"
                         >
-                            <span className="relative z-10 flex items-center gap-3">
-                                Start Your Pro Track
-                                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                            </span>
+                            Get Started for Free
                         </Link>
+                        
+                        <div className="relative group">
+                            <button 
+                                onClick={() => setIsExtensionModalOpen(true)}
+                                className="flex items-center gap-3 rounded-2xl border border-zinc-200 bg-white/50 px-8 h-16 text-[10px] font-black uppercase tracking-[0.2em] text-black transition-all hover:bg-white hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5 backdrop-blur-sm active:scale-95 group/btn"
+                            >
+                                <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center group-hover/btn:scale-110 transition-transform">
+                                    <Download className="h-4 w-4 text-blue-600" />
+                                </div>
+                                Download Extension
+                            </button>
+                        </div>
+
                         <button
                             onClick={() => setShowVideo(true)}
-                            className="group rounded-2xl border border-white bg-white/60 px-10 py-5 text-sm font-bold text-black transition-all hover:bg-white hover:shadow-xl backdrop-blur-sm active:scale-95 flex items-center gap-3"
+                            className="flex items-center gap-2 px-8 h-16 text-sm font-bold text-zinc-400 hover:text-black transition-colors"
                         >
-                            <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-200 group-hover:scale-110 transition-transform">
-                                <Play className="h-3.5 w-3.5 text-white fill-white ml-0.5" />
-                            </div>
-                            Watch Video
+                            <Play className="h-4 w-4 fill-current" />
+                            Watch Demo
                         </button>
-                    </motion.div>
-
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.8, duration: 1 }}
-                        className="mt-20 flex flex-col items-center gap-6"
-                    >
-                        <span className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-300">Powering Talent At</span>
-                        <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-6 opacity-30 grayscale hover:opacity-100 transition-all duration-700">
-                            {['Tesla', 'Stripe', 'OpenAI', 'Anthropic', 'Scale AI'].map((company) => (
-                                <span key={company} className="text-xl font-black tracking-tighter text-black select-none">
-                                    {company}<span className="text-blue-600">.</span>
-                                </span>
-                            ))}
-                        </div>
                     </motion.div>
                 </div>
             </div>
         </section>
 
-            {/* Video Modal */}
-            <AnimatePresence>
-                {showVideo && (
-                    <motion.div
-                        className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
+        {/* Video Modal */}
+        <AnimatePresence>
+            {showVideo && (
+                <motion.div 
+                    className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                >
+                    <button 
+                        onClick={() => setShowVideo(false)}
+                        className="absolute top-8 right-8 text-white/40 hover:text-white"
                     >
-                        {/* Backdrop */}
-                        <motion.div
-                            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-                            onClick={() => setShowVideo(false)}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                        />
+                        <X className="h-8 w-8" />
+                    </button>
+                    <div className="w-full max-w-5xl aspect-video bg-zinc-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl relative">
+                         <div className="absolute inset-0 flex items-center justify-center">
+                            <p className="text-zinc-600 font-black tracking-widest uppercase">Video Placeholder</p>
+                        </div>
+                    </div>
+                </motion.div>
+            )}
+        </AnimatePresence>
 
-                        {/* Modal Content */}
-                        <motion.div
-                            className="relative w-full max-w-4xl aspect-video rounded-3xl overflow-hidden shadow-2xl z-10"
-                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                        >
-                            {/* Close Button */}
-                            <button
-                                onClick={() => setShowVideo(false)}
-                                className="absolute top-4 right-4 z-20 h-10 w-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-colors border border-white/20"
-                            >
-                                <X className="h-5 w-5" />
-                            </button>
-
-                            <iframe
-                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0&modestbranding=1"
-                                title="Offerra Demo Video"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                                className="w-full h-full border-0"
-                            />
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+        {/* Extension Download Modal */}
+        <ExtensionModal 
+            isOpen={isExtensionModalOpen} 
+            onClose={() => setIsExtensionModalOpen(false)} 
+        />
         </>
     );
 }

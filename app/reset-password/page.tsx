@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Lock, ArrowRight, CheckCircle2, Eye, EyeOff } from "lucide-react";
+import { Lock, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import api from "@/app/lib/api";
 import { toast } from "sonner";
 
@@ -152,7 +152,6 @@ function ResetPasswordForm() {
                             className="w-full h-14 bg-[#1C4ED8] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-blue-600/20 hover:bg-[#1e40af] transition-all flex items-center justify-center gap-2 group active:scale-[0.98] disabled:opacity-50"
                         >
                             {isLoading ? "Updating Security..." : "Reset Password"}
-                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                         </button>
                     </form>
                 </div>

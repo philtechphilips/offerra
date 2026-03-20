@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Command, ArrowRight, Github, Mail, CheckCircle2, Eye, EyeOff } from "lucide-react";
+import { Command, CheckCircle2, Eye, EyeOff } from "lucide-react";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -144,31 +144,13 @@ export default function SignupPage() {
                             className="w-full h-14 bg-[#1C4ED8] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-blue-600/20 hover:bg-[#1e40af] transition-all flex items-center justify-center gap-2 group active:scale-[0.98] disabled:opacity-50"
                         >
                             {isLoading ? "Creating account..." : "Sign Up"}
-                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                         </button>
                     </form>
 
-                    <div className="relative my-8 text-center">
-                        <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-zinc-50"></div>
-                        </div>
-                        <span className="relative bg-white px-4 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-300">Or sign up with</span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <button className="flex h-14 items-center justify-center gap-3 rounded-2xl border border-zinc-100 bg-white hover:bg-zinc-50 transition-colors active:scale-[0.98]">
-                            <Github className="h-5 w-5" />
-                            <span className="text-sm font-bold">Github</span>
-                        </button>
-                        <button className="flex h-14 items-center justify-center gap-3 rounded-2xl border border-zinc-100 bg-white hover:bg-zinc-50 transition-colors active:scale-[0.98]">
-                            <Mail className="h-5 w-5 text-red-500" />
-                            <span className="text-sm font-bold">Google</span>
-                        </button>
-                    </div>
 
                     <div className="mt-8 text-center">
                         <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest leading-relaxed">
-                            By signing up, you agree to our <Link href="#" className="underline">Terms of Service</Link> and <Link href="#" className="underline">Privacy Policy</Link>.
+                            By signing up, you agree to our <Link href="/terms" className="underline">Terms of Service</Link> and <Link href="/privacy" className="underline">Privacy Policy</Link>.
                         </p>
                     </div>
                 </div>

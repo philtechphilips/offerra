@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import api from "@/app/lib/api";
 import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
@@ -11,9 +12,21 @@ import { MoreFeatures } from "@/components/landing/MoreFeatures";
 import { Testimonials } from "@/components/landing/Testimonials";
 import { FAQ } from "@/components/landing/FAQ";
 import { FinalCTA } from "@/components/landing/FinalCTA";
-import { motion } from "framer-motion";
-import { Mail } from "lucide-react";
+import { Footer } from "@/components/landing/Footer";
+import { ExtensionFeature } from "@/components/landing/ExtensionFeature";
+import { CoverLetterFeature } from "@/components/landing/CoverLetterFeature";
+import { motion, AnimatePresence } from "framer-motion";
+import { Mail, CheckCircle2, Globe, MapPin, Twitter, Linkedin, Github, MessageCircle } from "lucide-react";
 import { cn } from "@/app/lib/utils";
+
+const COMMON_FEATURES = [
+  "Automated Job Tracking",
+  "AI Resume Optimization",
+  "Interview Practice Coach",
+  "Smart Gmail Sync",
+  "Browser Companion",
+  "Priority Support"
+];
 
 interface Plan {
   id: string;
@@ -31,19 +44,35 @@ interface Plan {
 export default function Home() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currency, setCurrency] = useState<'USD' | 'NGN'>('USD');
 
   useEffect(() => {
     const fetchPlans = async () => {
       try {
         const response = await api.get("/plans");
-        setPlans(response.data);
+        const sortedPlans = response.data.sort((a: Plan, b: Plan) => a.price_usd - b.price_usd);
+        setPlans(sortedPlans);
       } catch (err) {
         console.error("Failed to fetch plans", err);
       } finally {
         setIsLoading(false);
       }
     };
+
+    const detectCountry = async () => {
+      try {
+        const response = await fetch("https://ipapi.co/json/");
+        const data = await response.json();
+        if (data.country_code === "NG") {
+          setCurrency("NGN");
+        }
+      } catch (err) {
+        // Fallback or silent error if blocked/failed
+      }
+    };
+
     fetchPlans();
+    detectCountry();
   }, []);
 
   return (
@@ -51,19 +80,21 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
+        <ExtensionFeature />
         <Features />
         {/* How it Works - Refined Flow */}
         <section id="how-it-works" className="py-24 lg:py-32 bg-[#F9FBFF]/50 border-y border-zinc-100 relative overflow-hidden">
           <div className="absolute inset-0 dot-pattern opacity-40" />
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
+          <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-4 relative">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 lg:gap-32 items-center">
               <div>
                 <motion.div
+                  className="flex flex-col items-center lg:items-start text-center lg:text-left"
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                 >
-                  <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-black tracking-tighter leading-[0.85] mb-10 text-black text-gradient uppercase">
+                  <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-black tracking-tighter leading-[1.1] mb-10 text-black text-gradient uppercase">
                     Zero effort. <br />Better <span className="text-[#1C4ED8]">Results.</span>
                   </h2>
                   <p className="text-xl font-medium text-zinc-400 leading-relaxed max-w-md">
@@ -82,7 +113,7 @@ export default function Home() {
                 ].map((item, idx) => (
                   <motion.div
                     key={item.step}
-                    className="group flex gap-8 items-start relative z-10"
+                    className="group flex flex-col sm:flex-row gap-8 items-center sm:items-start text-center sm:text-left relative z-10"
                     initial={{ opacity: 0, x: 20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
@@ -106,6 +137,7 @@ export default function Home() {
         </section>
 
         <ResumeFeature />
+        <CoverLetterFeature />
         <InterviewFeature />
         <MoreFeatures />
         <Testimonials />
@@ -113,17 +145,43 @@ export default function Home() {
 
         {/* Pricing - Premium Tiers */}
         <section id="pricing" className="py-24 lg:py-32 relative bg-white">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+          <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-4 text-center">
             <div className="max-w-2xl mx-auto mb-32 text-center">
               <motion.h2
-                className="text-[clamp(2.5rem,6vw,5rem)] font-black tracking-tighter mb-8 text-black text-gradient uppercase"
+                className="text-[clamp(2.5rem,5vw,5rem)] font-black tracking-tighter leading-[1.1] text-black text-gradient uppercase mb-10"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
                 Transparent Plans.
               </motion.h2>
-              <p className="text-xl font-medium text-zinc-400 tracking-tight">Scale your career with the right tools.</p>
+              <p className="text-xl font-medium text-zinc-400 tracking-tight mb-16">Scale your career with the right tools.</p>
+              
+              {/* Currency Selector */}
+              <div className="flex items-center justify-center mb-16">
+                <div className="inline-flex p-1 bg-zinc-50 rounded-2xl border border-zinc-100">
+                  <button
+                    onClick={() => setCurrency('USD')}
+                    className={cn(
+                      "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2",
+                      currency === 'USD' ? "bg-white text-blue-600 shadow-sm border border-zinc-100" : "text-zinc-400 hover:text-black"
+                    )}
+                  >
+                    <Globe className="h-3 w-3" />
+                    Global (USD)
+                  </button>
+                  <button
+                    onClick={() => setCurrency('NGN')}
+                    className={cn(
+                      "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2",
+                      currency === 'NGN' ? "bg-white text-blue-600 shadow-sm border border-zinc-100" : "text-zinc-400 hover:text-black"
+                    )}
+                  >
+                    <span className="text-xs">🇳🇬</span>
+                    Nigeria (NGN)
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto">
@@ -147,29 +205,30 @@ export default function Home() {
                     {plan.name}
                   </div>
                   <div className={cn(
-                    "flex items-baseline gap-1 mb-10",
+                    "flex flex-col mb-10",
                     plan.is_popular ? "text-[#1C4ED8]" : "text-black"
                   )}>
-                    <span className="text-7xl font-black tracking-tighter">${Math.round(plan.price_usd)}</span>
-                    <span className={cn(
-                      "text-sm font-black uppercase tracking-widest",
+                    <div className="flex items-baseline gap-2">
+                        <span className="text-4xl sm:text-7xl font-black tracking-tighter leading-none">
+                        {currency === 'USD' ? '$' : '₦'}
+                        {Math.round(currency === 'USD' ? plan.price_usd : plan.price_ngn).toLocaleString()}
+                        </span>
+                    </div>
+                    <div className={cn(
+                      "mt-2 text-sm font-black uppercase tracking-widest",
                       plan.is_popular ? "opacity-60" : "text-zinc-400"
-                    )}>{plan.credits} Credits</span>
+                    )}>{plan.credits} Application Credits</div>
                   </div>
                   <ul className={cn(
                     "space-y-6 mb-12 text-sm font-black flex-grow",
                     plan.is_popular ? "text-black" : "text-zinc-500"
                   )}>
-                    {plan.features.map((f, i) => (
+                    {COMMON_FEATURES.map((f, i) => (
                       <li key={i} className="flex items-center gap-4">
-                        {f.toLowerCase().includes('gmail') ? (
-                          <Mail className="h-4 w-4 shrink-0 text-red-500" />
-                        ) : (
-                          <div className={cn(
-                            "h-2 w-2 rounded-full shadow-[0_0_10px_rgba(28,78,216,0.2)]",
-                            plan.is_popular ? "bg-[#1C4ED8]" : "bg-blue-200"
-                          )} />
-                        )}
+                        <div className={cn(
+                          "h-2 w-2 rounded-full",
+                          plan.is_popular ? "bg-[#1C4ED8]" : "bg-blue-200"
+                        )} />
                         {f}
                       </li>
                     ))}
@@ -193,56 +252,7 @@ export default function Home() {
 
         <FAQ />
         <FinalCTA />
-
-        {/* Footer */}
-        <footer className="py-24 lg:py-32 border-t border-zinc-100 bg-white relative overflow-hidden">
-          <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-600/10 to-transparent" />
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 flex flex-col items-center justify-between gap-12 md:flex-row">
-            <div className="flex flex-col gap-6">
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center overflow-hidden">
-                  <img src="/logo.png" alt="Offerra Logo" className="h-full w-full object-contain p-1" />
-                </div>
-                <span className="text-xl font-black tracking-tighter text-black">Offerra<span className="text-blue-600">.</span></span>
-              </div>
-              <p className="text-sm font-medium text-zinc-400 max-w-xs">
-                The intelligent command center for modern career progression.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-16">
-              <div>
-                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-black mb-6">Product</h4>
-                <div className="flex flex-col gap-4">
-                  {['Features', 'Process', 'Pricing', 'FAQ'].map((item) => (
-                    <a key={item} href={`#${item.toLowerCase()}`} className="text-xs font-black text-zinc-400 hover:text-blue-600 transition-colors">{item}</a>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-black mb-6">Company</h4>
-                <div className="flex flex-col gap-4">
-                  {['Twitter', 'LinkedIn', 'Github'].map((item) => (
-                    <a key={item} href="#" className="text-xs font-black text-zinc-400 hover:text-blue-600 transition-colors">{item}</a>
-                  ))}
-                </div>
-              </div>
-              <div className="hidden sm:block">
-                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-black mb-6">Legal</h4>
-                <div className="flex flex-col gap-4">
-                  {['Privacy', 'Terms'].map((item) => (
-                    <a key={item} href="#" className="text-xs font-black text-zinc-400 hover:text-blue-600 transition-colors">{item}</a>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 mt-20 pt-10 border-t border-zinc-50 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="text-[10px] font-black text-zinc-300 uppercase tracking-widest">
-              © {new Date().getFullYear()} Offerra AI. All rights reserved.
-            </div>
-          </div>
-        </footer>
+        <Footer />
 
       </main>
     </div>

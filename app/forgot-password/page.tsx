@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, Mail, ArrowRight } from "lucide-react";
+import { Mail } from "lucide-react";
 import api from "@/app/lib/api";
 import { toast } from "sonner";
 
@@ -65,7 +65,6 @@ export default function ForgotPasswordPage() {
             >
                 <div className="flex flex-col items-center mb-10 text-center">
                     <Link href="/login" className="mb-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:text-black transition-colors group">
-                        <ArrowLeft className="h-3 w-3 group-hover:-translate-x-1 transition-transform" />
                         Back to Login
                     </Link>
                     <h1 className="text-3xl font-black text-black mb-3 tracking-tight">Forgot password?</h1>
@@ -94,7 +93,6 @@ export default function ForgotPasswordPage() {
                             className="w-full h-14 bg-[#1C4ED8] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-blue-600/20 hover:bg-[#1e40af] transition-all flex items-center justify-center gap-2 group active:scale-[0.98] disabled:opacity-50"
                         >
                             {isLoading ? "Sending Link..." : "Send Reset Link"}
-                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                         </button>
                     </form>
                 </div>

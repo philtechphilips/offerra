@@ -313,7 +313,6 @@ function BillingContent() {
                                         {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : (
                                             <>
                                                 Complete Payment
-                                                <ArrowRight className="h-4 w-4" />
                                             </>
                                         )}
                                     </button>
@@ -388,7 +387,6 @@ function BillingContent() {
                             ].map((q) => (
                                 <div key={q} className="flex items-center justify-between cursor-pointer group">
                                     <span className="text-xs font-bold text-zinc-600 group-hover:text-blue-600 transition-colors">{q}</span>
-                                    <ChevronRight className="h-4 w-4 text-zinc-300 group-hover:text-blue-600 transition-all" />
                                 </div>
                             ))}
                         </div>

@@ -87,7 +87,6 @@ export default function NotFound() {
                         href="/"
                         className="group flex h-16 items-center justify-center gap-4 rounded-2xl bg-white border border-zinc-100 px-10 text-[11px] font-black uppercase tracking-[0.2em] text-zinc-500 hover:text-blue-600 hover:border-blue-100 transition-all"
                     >
-                        <ArrowLeft className="h-4 w-4" />
                         Go Home
                     </Link>
                 </motion.div>

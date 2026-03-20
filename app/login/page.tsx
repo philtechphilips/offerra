@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Command, ArrowRight, Github, Mail, Eye, EyeOff } from "lucide-react";
+import { Command, Eye, EyeOff } from "lucide-react";
 
 import api from "@/app/lib/api";
 import { useAuthStore } from "@/app/store/authStore";
@@ -116,27 +116,9 @@ export default function LoginPage() {
                             className="w-full h-14 bg-[#1C4ED8] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-blue-600/20 hover:bg-[#1e40af] transition-all flex items-center justify-center gap-2 group active:scale-[0.98] disabled:opacity-50"
                         >
                             {isLoading ? "Signing in..." : "Sign In"}
-                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                         </button>
                     </form>
 
-                    <div className="relative my-8 text-center">
-                        <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-zinc-50"></div>
-                        </div>
-                        <span className="relative bg-white px-4 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-300">Or continue with</span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <button className="flex h-14 items-center justify-center gap-3 rounded-2xl border border-zinc-100 bg-white hover:bg-zinc-50 transition-colors active:scale-[0.98]">
-                            <Github className="h-5 w-5" />
-                            <span className="text-sm font-bold">Github</span>
-                        </button>
-                        <button className="flex h-14 items-center justify-center gap-3 rounded-2xl border border-zinc-100 bg-white hover:bg-zinc-50 transition-colors active:scale-[0.98]">
-                            <Mail className="h-5 w-5 text-red-500" />
-                            <span className="text-sm font-bold">Google</span>
-                        </button>
-                    </div>
                 </div>
 
                 <div className="mt-10 text-center">

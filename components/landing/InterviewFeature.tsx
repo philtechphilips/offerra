@@ -10,7 +10,7 @@ export function InterviewFeature() {
             {/* Soft Glows */}
             <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[40%] h-[40%] bg-blue-100/20 rounded-full blur-[100px] -z-10" />
 
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-4">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
 
                     {/* Visualization Side */}
@@ -110,7 +110,7 @@ export function InterviewFeature() {
 
                     {/* Content Side */}
                     <motion.div
-                        className="order-1 lg:order-2"
+                        className="order-1 lg:order-2 flex flex-col items-center lg:items-start text-center lg:text-left"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
@@ -123,16 +123,16 @@ export function InterviewFeature() {
                             viewport={{ once: true }}
                         >
                             <Zap className="h-4 w-4 text-blue-600" />
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600">Dynamic Coaching</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600">Interview Practice</span>
                         </motion.div>
 
-                        <h2 className="text-[clamp(2.5rem,5vw,5rem)] font-black tracking-tighter leading-[0.9] mb-10 text-black text-gradient">
-                            Walk into every <br />
-                            interview <span className="text-blue-600 italic">ready.</span>
+                        <h2 className="text-[clamp(2.5rem,5vw,5rem)] font-black tracking-tighter leading-[1.1] mb-10 text-black text-gradient">
+                            Know what to say in <br />
+                            your <span className="text-blue-600 italic">interview.</span>
                         </h2>
 
                         <p className="text-xl font-medium text-zinc-400 mb-12 leading-relaxed max-w-lg">
-                            Stop guessing what they'll ask. Our AI analyzes the job role and your history to predict questions and help you craft winning STAR-method answers.
+                            Practice your answers for the specific job you want. Reach for your dream job with confidence and know exactly what to say.
                         </p>
 
                         <div className="space-y-8 mb-16">
@@ -143,7 +143,7 @@ export function InterviewFeature() {
                             ].map((item, idx) => (
                                 <motion.div
                                     key={item.title}
-                                    className="flex gap-6"
+                                    className="flex flex-col items-center sm:flex-row sm:items-start text-center sm:text-left gap-6"
                                     initial={{ opacity: 0, x: 20 }}
                                     whileInView={{ opacity: 1, x: 0 }}
                                     viewport={{ once: true }}
@@ -165,7 +165,6 @@ export function InterviewFeature() {
                             className="group inline-flex items-center gap-4 rounded-3xl bg-blue-600 px-10 py-5 text-sm font-black text-white hover:bg-blue-700 transition-all uppercase tracking-[0.2em] shadow-2xl shadow-blue-200"
                         >
                             Start Practicing
-                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                         </Link>
                     </motion.div>
                 </div>

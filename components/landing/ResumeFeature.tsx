@@ -11,10 +11,11 @@ export function ResumeFeature() {
             <div className="absolute top-0 right-0 w-[40%] h-[40%] bg-blue-50/40 rounded-full blur-[120px] -z-10 opacity-70" />
             <div className="absolute bottom-0 left-0 w-[30%] h-[30%] bg-blue-50/30 rounded-full blur-[100px] -z-10 opacity-50" />
 
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-4">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
                     {/* Content Side */}
                     <motion.div
+                        className="flex flex-col items-center lg:items-start text-center lg:text-left"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
@@ -27,16 +28,16 @@ export function ResumeFeature() {
                             viewport={{ once: true }}
                         >
                             <Sparkles className="h-4 w-4 text-blue-600" />
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600">Smart Resume Helper</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600">Smart Resumes</span>
                         </motion.div>
 
-                        <h2 className="text-[clamp(2.5rem,5vw,5rem)] font-black tracking-tighter leading-[0.9] mb-10 text-black text-gradient">
-                            The only resume <br />
-                            you'll ever <span className="text-blue-600">need.</span>
+                        <h2 className="text-[clamp(2.5rem,5vw,5rem)] font-black tracking-tighter leading-[1.1] mb-10 text-black text-gradient">
+                            Create the perfect <br />
+                            resume <span className="text-blue-600">every time.</span>
                         </h2>
 
                         <p className="text-xl font-medium text-zinc-400 mb-12 leading-relaxed max-w-lg">
-                            Don't manually rewrite your resume for every job. Paste the job description and our AI will instantly tailor your experience to match perfectly.
+                            Don&apos;t spend hours rewriting your resume. Just paste the job description and we&apos;ll update it to match perfectly in seconds.
                         </p>
 
                         <div className="space-y-8 mb-16">
@@ -47,7 +48,7 @@ export function ResumeFeature() {
                             ].map((item, idx) => (
                                 <motion.div
                                     key={item.title}
-                                    className="flex gap-6"
+                                    className="flex flex-col items-center sm:flex-row sm:items-start text-center sm:text-left gap-6"
                                     initial={{ opacity: 0, x: -10 }}
                                     whileInView={{ opacity: 1, x: 0 }}
                                     viewport={{ once: true }}
@@ -69,7 +70,6 @@ export function ResumeFeature() {
                             className="group inline-flex items-center gap-4 rounded-3xl bg-blue-600 px-10 py-5 text-sm font-black text-white hover:bg-blue-700 transition-all uppercase tracking-[0.2em] shadow-2xl shadow-blue-200"
                         >
                             Build My Resume
-                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                         </Link>
                     </motion.div>
 

@@ -28,7 +28,7 @@ export function Testimonials() {
     return (
         <section id="testimonials" className="py-24 lg:py-32 relative bg-white overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-zinc-100/60 to-transparent" />
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
+            <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-4 relative">
                 <div className="flex flex-col items-center text-center mb-24 max-w-2xl mx-auto">
                     <motion.div
                         className="mb-8 flex items-center justify-center gap-2 rounded-full border border-blue-100 bg-blue-50/50 px-4 py-1.5 shadow-[0_4px_20px_rgba(28,78,216,0.05)]"
@@ -40,7 +40,7 @@ export function Testimonials() {
                         <span className="text-[10px] font-black uppercase tracking-[0.25em] text-blue-600">The Social Proof</span>
                     </motion.div>
                     <motion.h2
-                        className="text-[clamp(2.5rem,7vw,4.5rem)] font-black leading-[0.9] tracking-tighter mb-10 text-black text-gradient uppercase"
+                        className="text-[clamp(2.5rem,7vw,4.5rem)] font-black leading-[1.1] tracking-tighter mb-10 text-black text-gradient uppercase"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}

@@ -1,17 +1,21 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, Download } from "lucide-react";
+import { useState } from "react";
+import { cn } from "@/app/lib/utils";
+import { ExtensionModal } from "./ExtensionModal";
 
 export function FinalCTA() {
+    const [showMenu, setShowMenu] = useState(false);
+    
     return (
-        <section className="py-24 lg:py-48 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-white">
-            <div className="dot-pattern absolute inset-0 opacity-40" />
+        <section className="py-24 lg:py-32 px-4 relative overflow-hidden bg-white">
             
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
-                <div className="rounded-[3rem] lg:rounded-[5rem] bg-black border border-zinc-800 p-12 lg:p-32 text-center text-white relative z-10 overflow-hidden group shadow-[0_64px_128px_-32px_rgba(28,78,216,0.3)] shimmer">
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-blue-900/10 to-transparent pointer-events-none" />
+            <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-4 relative">
+                <div className="rounded-[3rem] bg-black p-12 lg:p-24 text-center text-white relative z-10 overflow-hidden shadow-2xl">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(28,78,216,0.1)_0%,transparent_50%)]" />
                     
                     <motion.div
                         className="mb-12 flex items-center justify-center gap-3"
@@ -20,42 +24,65 @@ export function FinalCTA() {
                         viewport={{ once: true }}
                     >
                         <Sparkles className="h-5 w-5 text-blue-400 group-hover:scale-110 transition-transform" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-400">Join the movement</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-400">Ready to find your next job?</span>
                         <Sparkles className="h-5 w-5 text-blue-400 group-hover:scale-110 transition-transform" />
                     </motion.div>
                     
                     <motion.h2
-                        className="text-[clamp(2.5rem,8vw,6.5rem)] font-black leading-[0.9] tracking-tighter mb-16 uppercase italic"
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
+                        className="text-[clamp(2.5rem,6vw,5rem)] font-black leading-[1.1] tracking-tighter mb-8 uppercase"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                     >
-                        Ready <br />
-                        <span className="text-blue-500">to win?</span>
+                        Ready to reach <br />
+                        <span className="text-blue-500">your dream job?</span>
                     </motion.h2>
+
+                    <motion.p
+                        className="text-lg text-zinc-400 font-medium max-w-xl mx-auto mb-12 leading-relaxed"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.1 }}
+                    >
+                        Start tracking your jobs for free. No credit card needed.
+                    </motion.p>
                     
                     <motion.div
-                        className="flex flex-col sm:flex-row items-center justify-center gap-8"
+                        className="flex flex-col sm:flex-row items-center justify-center gap-10"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.2 }}
                     >
-                       <Link
-                            href="/signup"
-                            className="btn-premium group"
-                        >
-                            <span className="relative z-10 flex items-center gap-3">
-                                Get Started for Free
-                                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                            </span>
-                        </Link>
-                        <p className="text-sm font-black text-zinc-400 uppercase tracking-widest leading-none">
-                            No Credit Card <span className="text-blue-400">Required.</span>
-                        </p>
+                        <Link
+                             href="/signup"
+                             className="btn-premium group px-12 py-6 text-base font-bold tracking-widest uppercase"
+                         >
+                             Get Started for Free
+                         </Link>
+                        <div className="flex flex-col items-center sm:items-start gap-4">
+                            <button 
+                                onClick={() => setShowMenu(true)}
+                                className="flex items-center gap-3 rounded-2xl border border-zinc-800 bg-white/5 px-8 h-16 text-[10px] font-black uppercase tracking-[0.2em] text-white transition-all hover:bg-white/10 hover:border-blue-500/50 backdrop-blur-sm active:scale-95 group/btn"
+                            >
+                                <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center group-hover/btn:scale-110 transition-transform">
+                                    <Download className="h-4 w-4 text-white" />
+                                </div>
+                                Download Extension
+                            </button>
+                            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest leading-none">
+                                No Credit Card <span className="text-blue-400 italic">Required.</span>
+                            </p>
+                         </div>
                     </motion.div>
+
                 </div>
             </div>
+            <ExtensionModal 
+                isOpen={showMenu} 
+                onClose={() => setShowMenu(false)} 
+            />
         </section>
     );
 }
