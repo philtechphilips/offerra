@@ -89,8 +89,8 @@ export function Header({ onMenuClick }: HeaderProps) {
                     onClick={() => window.location.href = "/dashboard/billing"}
                 >
                     <Sparkles className="h-3.5 w-3.5 text-blue-600 animate-pulse" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-900">
-                        {user?.credits || 0} AI Credits
+                    <span className="text-[11px] font-black text-zinc-900">
+                        {user?.credits || 0} AI credits
                     </span>
                 </motion.button>
 
@@ -107,7 +107,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                     </div>
                     <div className="text-left hidden sm:block">
                         <div className="text-[11px] font-black tracking-tight text-brand-blue-black group-hover:text-brand-blue transition-colors">{displayName}</div>
-                        <div className="text-[9px] font-bold text-zinc-300 uppercase tracking-widest leading-none mt-0.5">{user?.plan?.name || "Starter Pack"}</div>
+                        <div className="text-[11px] font-bold text-zinc-300 leading-none mt-0.5">{user?.plan?.name || "Starter pack"}</div>
                     </div>
                     <ChevronDown className="ml-1 sm:ml-2 h-3 w-3 text-zinc-300 group-hover:text-blue-600 transition-colors" />
                 </button>

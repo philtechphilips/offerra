@@ -108,7 +108,7 @@ export default function CoverLetterWriterPage() {
     };
 
     return (
-        <div className="max-w-7xl mx-auto space-y-12 pb-32 px-4 md:px-0">
+        <div className="w-full space-y-12 pb-32 px-4 sm:px-8">
             {/* Background Decorations */}
             <div className="absolute -top-40 -right-40 h-[600px] w-[600px] bg-blue-50/20 rounded-full blur-[120px] -z-10" />
             <div className="absolute top-1/2 -left-40 h-[400px] w-[400px] bg-indigo-50/10 rounded-full blur-[100px] -z-10" />
@@ -118,12 +118,12 @@ export default function CoverLetterWriterPage() {
                     <div className="h-10 w-10 rounded-2xl bg-blue-50 flex items-center justify-center border border-blue-100 shadow-sm animate-pulse">
                         <FileText className="h-5 w-5 text-blue-600" />
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-600">The Pitch Deck</span>
+                    <span className="text-[11px] font-black text-blue-600">The pitch deck</span>
                 </div>
                 <motion.h1
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-5xl md:text-6xl font-black tracking-tight text-brand-blue-black uppercase leading-none"
+                    className="text-5xl md:text-6xl font-black tracking-tight text-brand-blue-black leading-none"
                 >
                     Write <span className="text-blue-600">to Win.</span>
                 </motion.h1>
@@ -138,9 +138,9 @@ export default function CoverLetterWriterPage() {
                     <section className="rounded-[2.5rem] border border-zinc-100 bg-white p-8 md:p-10 shadow-xl shadow-zinc-200/50 space-y-10">
                         <div className="space-y-6">
                             <div className="flex items-center justify-between">
-                                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 flex items-center gap-2">
+                                <h3 className="text-[11px] font-black text-zinc-400 flex items-center gap-2">
                                     <Briefcase className="h-4 w-4 text-blue-500" />
-                                    1. Source Profile
+                                    1. Source profile
                                 </h3>
                                 <div className="h-6 w-6 rounded-full bg-blue-50 flex items-center justify-center text-[10px] font-black text-blue-600 border border-blue-100">
                                     {cvs.length}
@@ -152,7 +152,7 @@ export default function CoverLetterWriterPage() {
                                         key={cv.id}
                                         onClick={() => setSelectedCvId(cv.id)}
                                         className={cn(
-                                            "group relative w-full text-left p-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all border",
+                                            "group relative w-full text-left p-4 rounded-2xl text-[13px] font-bold transition-all border",
                                             selectedCvId === cv.id
                                                 ? "bg-brand-blue-black text-white border-brand-blue-black shadow-xl shadow-blue-900/10"
                                                 : "bg-zinc-50 text-zinc-400 border-zinc-50 hover:bg-zinc-100 hover:border-zinc-200"
@@ -170,7 +170,7 @@ export default function CoverLetterWriterPage() {
                                 ))}
                                 {cvs.length === 0 && (
                                     <div className="p-10 text-center rounded-3xl bg-zinc-50 border-2 border-dashed border-zinc-200">
-                                        <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">No profiles found</p>
+                                        <p className="text-[11px] font-black text-zinc-400">No profiles found</p>
                                         <button className="mt-2 text-blue-600 font-bold text-xs">Upload CV First</button>
                                     </div>
                                 )}
@@ -179,9 +179,9 @@ export default function CoverLetterWriterPage() {
 
                         <div className="space-y-6">
                             <div className="flex items-center justify-between">
-                                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 flex items-center gap-2">
+                                <h3 className="text-[11px] font-black text-zinc-400 flex items-center gap-2">
                                     <Target className="h-4 w-4 text-blue-500" />
-                                    2. Match Target
+                                    2. Match target
                                 </h3>
                             </div>
                             <div className="relative group/textarea">
@@ -191,7 +191,7 @@ export default function CoverLetterWriterPage() {
                                     placeholder="Paste the job requirements or company mission here..."
                                     className="w-full h-80 p-8 rounded-[2rem] bg-zinc-50 border border-zinc-100 focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all outline-none font-medium text-sm text-zinc-600 leading-relaxed resize-none shadow-inner"
                                 />
-                                <div className="absolute bottom-4 right-6 text-[9px] font-black text-zinc-300 uppercase tracking-widest">
+                                <div className="absolute bottom-4 right-6 text-[10px] font-black text-zinc-300">
                                     {jobDescription.length} chars
                                 </div>
                             </div>
@@ -200,11 +200,11 @@ export default function CoverLetterWriterPage() {
                         <button
                             onClick={handleGenerate}
                             disabled={isGenerating || !jobDescription.trim() || !selectedCvId}
-                            className="group relative w-full h-20 rounded-3xl bg-blue-600 text-white text-[13px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-4 transition-all hover:bg-brand-blue-black hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 shadow-2xl shadow-blue-600/20 overflow-hidden"
+                            className="group relative w-full h-20 rounded-3xl bg-blue-600 text-white text-[13px] font-black flex items-center justify-center gap-4 transition-all hover:bg-brand-blue-black hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 shadow-2xl shadow-blue-600/20 overflow-hidden"
                         >
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shimmer" />
                             {isGenerating ? <Loader2 className="h-6 w-6 animate-spin" /> : <Sparkles className="h-6 w-6" />}
-                            Refactor Narrative
+                            Refactor narrative
                         </button>
                     </section>
                 </div>
@@ -229,13 +229,13 @@ export default function CoverLetterWriterPage() {
                                     {/* Action Bar */}
                                     <div className="flex items-center justify-between p-8 md:p-10 border-b border-zinc-50 bg-zinc-50/30 backdrop-blur-sm sticky top-0 z-20">
                                         <div>
-                                            <h3 className="text-xl font-black tracking-tight text-brand-blue-black uppercase">Cover Letter</h3>
-                                            <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mt-1">Generated by Intelligence</p>
+                                            <h3 className="text-xl font-black tracking-tight text-brand-blue-black">Cover letter</h3>
+                                            <p className="text-[11px] font-black text-zinc-400 mt-1">Generated by intelligence</p>
                                         </div>
                                         <div className="flex gap-3">
                                             <button
                                                 onClick={downloadAsPDF}
-                                                className="flex items-center gap-2 px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-white border border-zinc-100 text-zinc-600 hover:border-blue-600 hover:text-blue-600 transition-all shadow-sm active:scale-95"
+                                                className="flex items-center gap-2 px-5 py-3 rounded-2xl text-[11px] font-black bg-white border border-zinc-100 text-zinc-600 hover:border-blue-600 hover:text-blue-600 transition-all shadow-sm active:scale-95"
                                             >
                                                 <Download className="h-4 w-4" />
                                                 Download
@@ -243,12 +243,12 @@ export default function CoverLetterWriterPage() {
                                             <button
                                                 onClick={copyToClipboard}
                                                 className={cn(
-                                                    "flex items-center gap-2 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg active:scale-95",
+                                                    "flex items-center gap-2 px-6 py-3 rounded-2xl text-[11px] font-black transition-all shadow-lg active:scale-95",
                                                     hasCopied ? "bg-emerald-500 text-white shadow-emerald-200" : "bg-blue-600 text-white shadow-blue-200"
                                                 )}
                                             >
                                                 {hasCopied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                                                {hasCopied ? "Copied" : "Copy All"}
+                                                {hasCopied ? "Copied" : "Copy all"}
                                             </button>
                                         </div>
                                     </div>
@@ -276,9 +276,9 @@ export default function CoverLetterWriterPage() {
                                             <div className="absolute top-0 right-0 p-6 opacity-10 group-hover/tip:scale-110 transition-transform">
                                                 <Zap className="h-16 w-16 text-blue-400" />
                                             </div>
-                                            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-400 mb-3 flex items-center gap-2">
+                                            <h4 className="text-[11px] font-black text-blue-400 mb-3 flex items-center gap-2">
                                                 <Zap className="h-3 w-3 fill-blue-400" />
-                                                Strategic Narrative
+                                                Strategic narrative
                                             </h4>
                                             <p className="text-sm font-bold text-zinc-300 leading-relaxed italic">
                                                 "{result.strategic_approach}"
@@ -299,9 +299,9 @@ export default function CoverLetterWriterPage() {
                                     <div className="h-28 w-28 rounded-[2.5rem] bg-white border border-zinc-100 flex items-center justify-center mb-8 shadow-2xl shadow-zinc-100 group-hover:rotate-6 transition-transform duration-500">
                                         <RefreshCw className="h-12 w-12 animate-pulse text-blue-100" />
                                     </div>
-                                    <h3 className="text-3xl font-black text-zinc-300 mb-3 uppercase tracking-tighter">Ready for Signal</h3>
-                                    <p className="text-sm font-black text-zinc-300 uppercase tracking-widest max-w-sm leading-relaxed">
-                                        Paste the Job Target & Select Profile<br />
+                                    <h3 className="text-3xl font-black text-zinc-300 mb-3 tracking-tighter">Ready for signal</h3>
+                                    <p className="text-[11px] font-black text-zinc-300 max-w-sm leading-relaxed">
+                                        Paste the job target & select profile<br />
                                         <span className="text-zinc-200">Our AI will generate the rest.</span>
                                     </p>
                                     <div className="mt-10 flex gap-2 justify-center opacity-30">

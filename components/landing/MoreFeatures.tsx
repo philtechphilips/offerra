@@ -18,11 +18,11 @@ const showcaseFeatures = [
         ],
         cta: "Generate a Cover Letter",
         visual: (
-            <div className="rounded-[2.5rem] border border-zinc-100 bg-white/60 backdrop-blur-2xl p-6 lg:p-10 shadow-[0_64px_120px_-20px_rgba(0,0,0,0.08)] relative">
+            <div className="rounded-[2.5rem] border border-zinc-100 bg-white/60 backdrop-blur-2xl p-6 lg:p-10 relative">
                 {/* Letter Preview */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-3 pb-4 border-b border-zinc-100">
-                        <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                        <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center text-white">
                             <PenTool className="h-5 w-5" />
                         </div>
                         <div>
@@ -62,7 +62,7 @@ const showcaseFeatures = [
 
                     {/* AI Suggestion */}
                     <motion.div
-                        className="p-4 rounded-2xl bg-blue-600 text-white shadow-xl"
+                        className="p-4 rounded-2xl bg-blue-600 text-white"
                         initial={{ opacity: 0, y: 10 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
@@ -92,7 +92,7 @@ const showcaseFeatures = [
         ],
         cta: "Install Extension",
         visual: (
-            <div className="rounded-[2.5rem] border border-zinc-100 bg-white/60 backdrop-blur-2xl p-6 lg:p-10 shadow-[0_64px_120px_-20px_rgba(0,0,0,0.08)] relative">
+            <div className="rounded-[2.5rem] border border-zinc-100 bg-white/60 backdrop-blur-2xl p-6 lg:p-10 relative">
                 {/* Application Form Mockup */}
                 <div className="space-y-5">
                     <div className="flex items-center gap-3 pb-4 border-b border-zinc-100">
@@ -240,7 +240,7 @@ export function MoreFeatures() {
                                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600">{feature.badge}</span>
                                 </motion.div>
 
-                                <h2 className="text-[clamp(2.5rem,5vw,5rem)] font-black tracking-tighter leading-[1.1] mb-10 text-black text-gradient">
+                                <h2 className="text-[clamp(2rem,4.5vw,4.2rem)] font-black tracking-tighter leading-[1.1] mb-10 text-black text-gradient">
                                     {feature.title}
                                 </h2>
 

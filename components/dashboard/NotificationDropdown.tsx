@@ -87,9 +87,9 @@ export function NotificationDropdown() {
                         {/* Header */}
                         <div className="flex items-center justify-between p-6 border-b border-zinc-50 bg-zinc-50/50">
                             <div>
-                                <h3 className="text-sm font-black text-brand-blue-black uppercase tracking-tight">Notifications</h3>
-                                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-1">
-                                    {unreadCount} Unread
+                                <h3 className="text-sm font-black text-brand-blue-black">Notifications</h3>
+                                <p className="text-[10px] font-bold text-zinc-400 mt-1">
+                                    {unreadCount} unread
                                 </p>
                             </div>
                             {unreadCount > 0 && (
@@ -120,10 +120,10 @@ export function NotificationDropdown() {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center justify-between gap-2 mb-1">
-                                                <h4 className="text-xs font-black text-brand-blue-black truncate uppercase tracking-tight">
+                                                <h4 className="text-xs font-black text-brand-blue-black truncate tracking-tight">
                                                     {n.data.title}
                                                 </h4>
-                                                <span className="text-[9px] font-bold text-zinc-300 uppercase tracking-widest shrink-0">
+                                                <span className="text-[9px] font-bold text-zinc-300 shrink-0">
                                                     {timeAgo(new Date(n.created_at))}
                                                 </span>
                                             </div>
@@ -133,9 +133,9 @@ export function NotificationDropdown() {
                                             {n.data.action_url && (
                                                 <Link 
                                                     href={n.data.action_url}
-                                                    className="inline-flex items-center text-[10px] font-black text-blue-600 uppercase tracking-[0.15em] hover:underline"
+                                                    className="inline-flex items-center text-[10px] font-black text-blue-600 hover:underline"
                                                 >
-                                                    View Details
+                                                    View details
                                                 </Link>
                                             )}
                                         </div>
@@ -149,15 +149,15 @@ export function NotificationDropdown() {
                                     <div className="h-16 w-16 rounded-3xl bg-zinc-50 flex items-center justify-center mx-auto mb-4 border border-zinc-100">
                                         <Bell className="h-6 w-6 text-zinc-300" />
                                     </div>
-                                    <p className="text-xs font-black text-zinc-300 uppercase tracking-[0.2em]">No new notifications</p>
+                                    <p className="text-[11px] font-black text-zinc-300">No new notifications</p>
                                 </div>
                             )}
                         </div>
 
                         {/* Footer */}
                         <div className="p-4 border-t border-zinc-50 text-center bg-zinc-50/30">
-                            <button className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] hover:text-blue-600 transition-colors">
-                                View All Activity
+                            <button className="text-[11px] font-black text-zinc-400 hover:text-blue-600 transition-colors">
+                                View all activity
                             </button>
                         </div>
                     </motion.div>

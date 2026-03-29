@@ -94,8 +94,8 @@ export default function Home() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                 >
-                  <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-black tracking-tighter leading-[1.1] mb-10 text-black text-gradient uppercase">
-                    Zero effort. <br />Better <span className="text-[#1C4ED8]">Results.</span>
+                  <h2 className="text-[clamp(2rem,4.5vw,3.8rem)] font-black tracking-tighter leading-[1.1] mb-10 text-black text-gradient">
+                    Zero effort. <br />Better <span className="text-[#1C4ED8]">results.</span>
                   </h2>
                   <p className="text-xl font-medium text-zinc-400 leading-relaxed max-w-md">
                     We built Offerra to do the hard work for you. Our tools run in the background while you focus on getting hired.
@@ -120,13 +120,12 @@ export default function Home() {
                     transition={{ delay: idx * 0.15 }}
                   >
                     <div className="relative">
-                      <div className="absolute inset-0 bg-blue-400/20 blur-xl rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <span className="relative text-sm font-black text-[#1C4ED8] bg-white border border-blue-100 h-10 w-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110">
+                      <span className="relative text-sm font-black text-[#1C4ED8] bg-white border border-blue-100 h-10 w-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110">
                         {item.step}
                       </span>
                     </div>
                     <div>
-                      <h3 className="text-2xl font-black mb-3 tracking-tight text-black group-hover:text-blue-600 transition-colors uppercase tracking-[0.05em]">{item.title}</h3>
+                      <h3 className="text-2xl font-black mb-3 tracking-tight text-black group-hover:text-blue-600 transition-colors">{item.title}</h3>
                       <p className="text-base font-medium text-zinc-500 leading-relaxed max-w-sm">{item.desc}</p>
                     </div>
                   </motion.div>
@@ -148,12 +147,12 @@ export default function Home() {
           <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-4 text-center">
             <div className="max-w-2xl mx-auto mb-32 text-center">
               <motion.h2
-                className="text-[clamp(2.5rem,5vw,5rem)] font-black tracking-tighter leading-[1.1] text-black text-gradient uppercase mb-10"
+                className="text-[clamp(2rem,4.5vw,4.2rem)] font-black tracking-tighter leading-[1.1] text-black text-gradient mb-10"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
-                Transparent Plans.
+                Transparent plans.
               </motion.h2>
               <p className="text-xl font-medium text-zinc-400 tracking-tight mb-16">Scale your career with the right tools.</p>
               
@@ -163,8 +162,8 @@ export default function Home() {
                   <button
                     onClick={() => setCurrency('USD')}
                     className={cn(
-                      "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2",
-                      currency === 'USD' ? "bg-white text-blue-600 shadow-sm border border-zinc-100" : "text-zinc-400 hover:text-black"
+                      "px-8 py-3 rounded-xl text-[11px] font-black transition-all flex items-center gap-2",
+                      currency === 'USD' ? "bg-white text-blue-600 border border-zinc-100" : "text-zinc-400 hover:text-black"
                     )}
                   >
                     <Globe className="h-3 w-3" />
@@ -173,8 +172,8 @@ export default function Home() {
                   <button
                     onClick={() => setCurrency('NGN')}
                     className={cn(
-                      "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2",
-                      currency === 'NGN' ? "bg-white text-blue-600 shadow-sm border border-zinc-100" : "text-zinc-400 hover:text-black"
+                      "px-8 py-3 rounded-xl text-[11px] font-black transition-all flex items-center gap-2",
+                      currency === 'NGN' ? "bg-white text-blue-600 border border-zinc-100" : "text-zinc-400 hover:text-black"
                     )}
                   >
                     <span className="text-xs">🇳🇬</span>
@@ -191,12 +190,12 @@ export default function Home() {
                   className={cn(
                     "group relative border p-10 rounded-[2rem] text-left transition-all flex flex-col",
                     plan.is_popular
-                      ? "border-2 border-[#1C4ED8] md:scale-110 z-10 hover:scale-[1.12] shadow-[0_40px_80px_-20px_rgba(28,78,216,0.15)] shimmer"
+                      ? "border-2 border-[#1C4ED8] md:scale-110 z-10 hover:scale-[1.12] shimmer"
                       : "border-zinc-100 bg-white hover:border-blue-200 hover:-translate-y-2"
                   )}
                 >
                   {plan.is_popular && (
-                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#1C4ED8] text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.3em] shadow-xl">Most Popular</div>
+                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#1C4ED8] text-white px-6 py-2 rounded-full text-[11px] font-black">Most Popular</div>
                   )}
                   <div className={cn(
                     "text-[10px] font-black uppercase tracking-[0.25em] mb-10",
@@ -238,7 +237,7 @@ export default function Home() {
                     className={cn(
                       "w-full rounded-2xl py-5 text-[10px] font-black uppercase tracking-[0.2em] transition-all",
                       plan.is_popular
-                        ? "bg-blue-600 text-white hover:bg-blue-700 shadow-xl shadow-blue-200"
+                        ? "bg-blue-600 text-white hover:bg-blue-700"
                         : "border border-zinc-200 hover:bg-zinc-50 text-black"
                     )}
                   >

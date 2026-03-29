@@ -11,6 +11,13 @@
   --color-primary: var(--color-brand-blue);
   --color-primary-hover: var(--color-brand-blue-hover);
   --color-accent: var(--color-brand-blue);
+
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-2xl: none;
+  --shadow-inner: none;
 }
 
 :root {
@@ -75,7 +82,7 @@ body {
 }
 
 .btn-primary {
-  @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-2xl bg-brand-blue px-6 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-all duration-300 hover:bg-brand-blue-hover active:scale-95 shadow-lg shadow-brand-blue/20 whitespace-nowrap leading-none;
+  @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-2xl bg-brand-blue px-6 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-all duration-300 hover:bg-brand-blue-hover active:scale-95 whitespace-nowrap leading-none;
 }
 
 .btn-secondary {

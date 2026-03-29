@@ -227,7 +227,7 @@ export default function ApplicationsPage() {
             {/* Page Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-black tracking-tight text-brand-blue-black uppercase">My Jobs</h1>
+                    <h1 className="text-3xl font-black tracking-tight text-brand-blue-black font-black">My jobs</h1>
                     <p className="mt-2 text-sm font-medium text-zinc-400">
                         {meta ? `You have ${meta.total} jobs you are currently tracking.` : 'Loading your jobs...'}
                     </p>
@@ -277,12 +277,12 @@ export default function ApplicationsPage() {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="border-b border-zinc-50 bg-zinc-50/50">
-                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-400 w-[200px] min-w-[200px]">Company & Role</th>
-                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-400">Location</th>
-                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-400">Status</th>
-                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-400">Match</th>
-                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-400">Salary</th>
-                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-400 text-right">Action</th>
+                                <th className="px-8 py-5 text-[11px] font-black text-zinc-400 w-[200px] min-w-[200px]">Company & role</th>
+                                <th className="px-8 py-5 text-[11px] font-black text-zinc-400">Location</th>
+                                <th className="px-8 py-5 text-[11px] font-black text-zinc-400">Status</th>
+                                <th className="px-8 py-5 text-[11px] font-black text-zinc-400">Match</th>
+                                <th className="px-8 py-5 text-[11px] font-black text-zinc-400">Salary</th>
+                                <th className="px-8 py-5 text-[11px] font-black text-zinc-400 text-right">Action</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-zinc-50">

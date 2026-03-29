@@ -14,7 +14,7 @@ export function FinalCTA() {
         <section className="py-24 lg:py-32 px-4 relative overflow-hidden bg-white">
             
             <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-4 relative">
-                <div className="rounded-[3rem] bg-black p-12 lg:p-24 text-center text-white relative z-10 overflow-hidden shadow-2xl">
+                <div className="rounded-[3rem] bg-black p-12 lg:p-24 text-center text-white relative z-10 overflow-hidden">
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(28,78,216,0.1)_0%,transparent_50%)]" />
                     
                     <motion.div
@@ -29,7 +29,7 @@ export function FinalCTA() {
                     </motion.div>
                     
                     <motion.h2
-                        className="text-[clamp(2.5rem,6vw,5rem)] font-black leading-[1.1] tracking-tighter mb-8 uppercase"
+                        className="text-[clamp(2rem,5vw,4.2rem)] font-black leading-[1.1] tracking-tighter mb-8"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}

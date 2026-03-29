@@ -92,15 +92,15 @@ function PrepContent() {
     };
 
     return (
-        <div className="max-w-7xl mx-auto space-y-12 pb-32">
+        <div className="w-full space-y-12 pb-32 px-4 sm:px-8">
             <header className="space-y-4">
                 <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-2xl bg-brand-blue/10 flex items-center justify-center border border-brand-blue/20">
                         <Zap className="h-5 w-5 text-brand-blue" />
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-blue">Practice</span>
+                    <span className="text-[11px] font-black text-brand-blue">Practice</span>
                 </div>
-                <h1 className="text-4xl md:text-5xl font-black tracking-tight text-zinc-900 uppercase">
+                <h1 className="text-4xl md:text-5xl font-black tracking-tight text-zinc-900">
                     Practice.
                 </h1>
                 <p className="text-sm font-medium text-zinc-400 max-w-2xl leading-relaxed">
@@ -113,9 +113,9 @@ function PrepContent() {
                 <div className="lg:col-span-4 space-y-8">
                     <section className="rounded-[2.5rem] border border-zinc-100 bg-white p-8 space-y-8">
                         <div className="space-y-4">
-                            <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
+                            <h3 className="text-xs font-black text-zinc-400 flex items-center gap-2">
                                 <UserCheck className="h-4 w-4 text-brand-blue" />
-                                Source Profile
+                                Source profile
                             </h3>
                             <div className="space-y-2">
                                 {cvs.map((cv) => (
@@ -136,9 +136,9 @@ function PrepContent() {
                         </div>
 
                         <div className="space-y-4">
-                            <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
+                            <h3 className="text-xs font-black text-zinc-400 flex items-center gap-2">
                                 <Briefcase className="h-4 w-4 text-brand-blue" />
-                                Job Context
+                                Job context
                             </h3>
                             <textarea
                                 value={jobDescription}
@@ -164,9 +164,9 @@ function PrepContent() {
                             animate={{ opacity: 1, scale: 1 }}
                             className="rounded-[2.5rem] bg-gradient-to-br from-blue-600 to-indigo-700 p-8 text-white shadow-2xl shadow-blue-200"
                         >
-                            <h4 className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-6 flex items-center gap-2">
+                            <h4 className="text-[11px] font-black opacity-60 mb-6 flex items-center gap-2">
                                 <Lightbulb className="h-4 w-4" />
-                                Coaching Tips
+                                Coaching tips
                             </h4>
                             <div className="space-y-4">
                                 {result.general_tips.map((tip, i) => (
@@ -209,7 +209,7 @@ function PrepContent() {
                                                     <MessageSquare className="h-5 w-5" />
                                                 </div>
                                                 <div>
-                                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-brand-blue mb-1 block">
+                                                    <span className="text-[9px] font-black text-brand-blue mb-1 block">
                                                         {item.category}
                                                     </span>
                                                     <h3 className="text-lg font-black text-zinc-900 tracking-tight">{item.question}</h3>
@@ -229,7 +229,7 @@ function PrepContent() {
                                                     <div className="px-8 pb-8 space-y-8 border-t border-zinc-50 pt-8">
                                                         <div className="space-y-4">
                                                             <div className="flex items-center gap-2">
-                                                                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">STAR Method Answer</span>
+                                                                <span className="text-[10px] font-black text-zinc-400">STAR method answer</span>
                                                                 <div className="h-[1px] flex-1 bg-zinc-50" />
                                                             </div>
                                                             <p className="text-sm font-medium text-zinc-600 leading-[1.8] whitespace-pre-wrap italic">
@@ -242,7 +242,7 @@ function PrepContent() {
                                                                 <ShieldCheck className="h-5 w-5 text-brand-blue" />
                                                             </div>
                                                             <div>
-                                                                <p className="text-[10px] font-black text-brand-blue-dark uppercase tracking-widest mb-1">Coach's Analysis</p>
+                                                                <p className="text-[10px] font-black text-brand-blue-dark mb-1">Coach's analysis</p>
                                                                 <p className="text-[11px] font-bold text-brand-blue-black/70 leading-relaxed">
                                                                     {item.why_this_works}
                                                                 </p>
@@ -260,7 +260,7 @@ function PrepContent() {
                                 <div className="h-24 w-24 rounded-[2rem] bg-white border border-zinc-50 flex items-center justify-center mb-8 shadow-sm">
                                     <RefreshCw className="h-10 w-10 animate-pulse text-zinc-200" />
                                 </div>
-                                <h3 className="text-xl font-black text-zinc-400 mb-2 uppercase tracking-tighter">Ready for Selection</h3>
+                                <h3 className="text-xl font-black text-zinc-400 mb-2 tracking-tighter">Ready for selection</h3>
                                 <p className="text-sm font-medium text-zinc-400 max-w-sm">
                                     Click "Start Preparation" on the left to generate your custom interview guide.
                                 </p>

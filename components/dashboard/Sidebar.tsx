@@ -74,7 +74,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     <div className="flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden shrink-0 bg-blue-50 group-hover:scale-110 transition-transform">
                         <img src="/logo.png" alt="Offerra Logo" className="h-full w-full object-contain p-1.5" />
                     </div>
-                    <span className="text-xl font-black tracking-tighter text-brand-blue-black uppercase tracking-[-0.05em]">Offerra<span className="text-brand-blue">.</span></span>
+                    <span className="text-xl font-black tracking-tighter text-brand-blue-black tracking-[-0.05em]">Offerra<span className="text-brand-blue">.</span></span>
                 </Link>
                 {onClose && (
                     <button
@@ -88,14 +88,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
             <div className="flex flex-1 flex-col gap-y-10 px-6 py-8 overflow-y-auto">
                 <div>
-                    <span className="px-3 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-300">Your Jobs</span>
+                    <span className="px-3 text-[11px] font-black text-zinc-300">Your jobs</span>
                     <nav className="mt-6 space-y-1.5">
                         {navigation.map((item) => (
                             <Link
                                 key={item.name}
                                 href={item.href}
                                 className={cn(
-                                    "group flex items-center gap-3.5 rounded-2xl px-4 py-3 text-[11px] font-black uppercase tracking-widest transition-all relative overflow-hidden",
+                                    "group flex items-center gap-3.5 rounded-2xl px-4 py-3 text-[13px] font-bold transition-all relative overflow-hidden",
                                     pathname === item.href
                                         ? "bg-brand-blue text-white"
                                         : "text-zinc-400 hover:bg-zinc-50 hover:text-brand-blue"
@@ -120,14 +120,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </div>
 
                 <div>
-                    <span className="px-3 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-300">Tools</span>
+                    <span className="px-3 text-[11px] font-black text-zinc-300">Tools</span>
                     <nav className="mt-6 space-y-1.5">
                         {strategy.map((item) => (
                             <Link
                                 key={item.name}
                                 href={item.href}
                                 className={cn(
-                                    "group flex items-center gap-3.5 rounded-2xl px-4 py-3 text-[11px] font-black uppercase tracking-widest transition-all",
+                                    "group flex items-center gap-3.5 rounded-2xl px-4 py-3 text-[13px] font-bold transition-all",
                                     pathname === item.href
                                         ? "bg-brand-blue text-white"
                                         : "text-zinc-400 hover:bg-zinc-50 hover:text-brand-blue"
@@ -144,11 +144,11 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </div>
                 {user?.role === 'admin' && (
                     <div>
-                        <span className="px-3 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-300">Management</span>
+                        <span className="px-3 text-[11px] font-black text-zinc-300">Management</span>
                         <nav className="mt-6 space-y-1.5">
                             <Link
                                 href="/admin"
-                                className="group flex items-center gap-3.5 rounded-2xl px-4 py-3 text-[11px] font-black uppercase tracking-widest transition-all bg-indigo-50/50 text-indigo-600 hover:bg-indigo-600 hover:text-white"
+                                className="group flex items-center gap-3.5 rounded-2xl px-4 py-3 text-[13px] font-bold transition-all bg-indigo-50/50 text-indigo-600 hover:bg-indigo-600 hover:text-white"
                             >
                                 <ShieldCheck className="h-4 w-4 shrink-0" />
                                 Admin Portal
@@ -161,12 +161,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             <div className="mt-auto border-t border-zinc-100 p-4">
                 <div className="rounded-3xl bg-zinc-50/50 border border-zinc-100 p-4 space-y-4">
                     <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-2xl bg-brand-blue flex items-center justify-center font-black text-white text-[10px] uppercase shrink-0 shadow-sm">
+                        <div className="h-10 w-10 rounded-2xl bg-brand-blue flex items-center justify-center font-black text-white text-[10px] shrink-0 shadow-sm">
                             {user?.name ? user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() : "PU"}
                         </div>
                         <div className="flex flex-col min-w-0">
-                            <span className="text-[11px] font-black tracking-tight text-brand-blue-black truncate uppercase">{user?.name || "User Account"}</span>
-                            <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest truncate">{user?.plan?.name || "Starter Pack"}</span>
+                            <span className="text-[13px] font-bold tracking-tight text-brand-blue-black truncate">{user?.name || "User account"}</span>
+                            <span className="text-[11px] font-medium text-zinc-400 truncate">{user?.plan?.name || "Starter pack"}</span>
                         </div>
                     </div>
 
@@ -178,9 +178,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                             <div className="h-6 w-6 rounded-lg bg-emerald-50 flex items-center justify-center">
                                 <Zap className="h-3 w-3 text-emerald-600 fill-emerald-600" />
                             </div>
-                            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest group-hover/credit:text-emerald-600 transition-colors">Balance</span>
+                            <span className="text-[11px] font-bold text-zinc-500 group-hover/credit:text-emerald-600 transition-colors">Balance</span>
                         </div>
-                        <span className="text-[11px] font-black text-emerald-600 uppercase">
+                        <span className="text-[11px] font-black text-emerald-600">
                             {user?.credits || 0} <span className="text-[8px] opacity-70">Cr</span>
                         </span>
                     </Link>
@@ -189,17 +189,17 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 <div className="mt-4 px-2 space-y-0.5">
                     <Link
                         href="/dashboard/settings"
-                        className="flex items-center gap-3.5 rounded-xl px-3 py-2.5 text-[11px] font-black uppercase tracking-widest text-zinc-400 hover:bg-zinc-50 hover:text-blue-600 transition-all"
+                        className="flex items-center gap-3.5 rounded-xl px-3 py-2.5 text-[13px] font-medium text-zinc-400 hover:bg-zinc-50 hover:text-blue-600 transition-all"
                     >
                         <Settings className="h-4 w-4" />
                         Settings
                     </Link>
                     <button
                         onClick={logout}
-                        className="flex w-full items-center gap-3.5 rounded-xl px-3 py-2.5 text-[11px] font-black uppercase tracking-widest text-zinc-400 hover:bg-red-50 hover:text-red-500 transition-all"
+                        className="flex w-full items-center gap-3.5 rounded-xl px-3 py-2.5 text-[13px] font-medium text-zinc-400 hover:bg-red-50 hover:text-red-500 transition-all"
                     >
                         <LogOut className="h-4 w-4" />
-                        Sign Out
+                        Sign out
                     </button>
                 </div>
             </div>

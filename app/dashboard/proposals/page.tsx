@@ -71,16 +71,16 @@ export default function ProposalWriterPage() {
     };
 
     return (
-        <div className="max-w-6xl mx-auto space-y-12 pb-32">
+        <div className="w-full space-y-12 pb-32 px-4 sm:px-8">
             <header className="space-y-4">
                 <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-2xl bg-blue-50 flex items-center justify-center border border-blue-100">
                         <PenTool className="h-5 w-5 text-blue-600" />
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-600">Proposal Engine</span>
+                    <span className="text-[11px] font-black text-blue-600">Proposal engine</span>
                 </div>
-                <h1 className="text-4xl md:text-5xl font-black tracking-tight text-zinc-900 uppercase">
-                    Win the <span className="text-blue-600">Gig.</span>
+                <h1 className="text-4xl md:text-5xl font-black tracking-tight text-zinc-900">
+                    Win the <span className="text-blue-600">gig.</span>
                 </h1>
                 <p className="text-sm font-medium text-zinc-400 max-w-2xl leading-relaxed">
                     Generate high-converting Upwork proposals in seconds. Using your background and the job's unique needs to craft a hook that clients can't ignore.
@@ -92,9 +92,9 @@ export default function ProposalWriterPage() {
                 <div className="lg:col-span-5 space-y-8">
                     <section className="rounded-[2.5rem] border border-zinc-100 bg-white p-10 space-y-10">
                         <div className="space-y-6">
-                            <h3 className="text-xs font-black uppercase tracking-widest text-zinc-900 flex items-center gap-2">
+                            <h3 className="text-xs font-black text-zinc-900 flex items-center gap-2">
                                 <Briefcase className="h-4 w-4 text-blue-500" />
-                                Select Source CV
+                                Select source CV
                             </h3>
                             <div className="space-y-3">
                                 {cvs.map((cv) => (
@@ -119,9 +119,9 @@ export default function ProposalWriterPage() {
 
                         <div className="space-y-6">
                             <div className="flex items-center justify-between">
-                                <h3 className="text-xs font-black uppercase tracking-widest text-zinc-900 flex items-center gap-2">
+                                <h3 className="text-xs font-black text-zinc-900 flex items-center gap-2">
                                     <Target className="h-4 w-4 text-blue-500" />
-                                    Job Description
+                                    Job description
                                 </h3>
                             </div>
                             <textarea
@@ -135,10 +135,10 @@ export default function ProposalWriterPage() {
                         <button
                             onClick={handleGenerate}
                             disabled={isGenerating || !jobDescription.trim() || !selectedCvId}
-                            className="w-full h-16 rounded-2xl bg-zinc-900 text-white text-[12px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-4 transition-all hover:bg-black hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 shadow-xl shadow-zinc-200"
+                            className="w-full h-16 rounded-2xl bg-zinc-900 text-white text-[12px] font-black flex items-center justify-center gap-4 transition-all hover:bg-black hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 shadow-xl shadow-zinc-200"
                         >
                             {isGenerating ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
-                            Wrire Proposal
+                            Write proposal
                         </button>
                     </section>
                 </div>
@@ -162,13 +162,13 @@ export default function ProposalWriterPage() {
                                     <div className="relative z-10 space-y-8">
                                         <div className="flex items-center justify-between border-b border-zinc-50 pb-6">
                                             <div>
-                                                <h3 className="text-lg font-black tracking-tight text-zinc-900">Your Generated Proposal</h3>
-                                                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-1">Ready for copy & paste</p>
+                                                <h3 className="text-lg font-black tracking-tight text-zinc-900">Your generated proposal</h3>
+                                                <p className="text-[11px] font-bold text-zinc-400 mt-1">Ready for copy & paste</p>
                                             </div>
                                             <button
                                                 onClick={copyToClipboard}
                                                 className={cn(
-                                                    "flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                                                    "flex items-center gap-2 px-6 py-3 rounded-xl text-[11px] font-black transition-all",
                                                     hasCopied ? "bg-emerald-500 text-white" : "bg-blue-50 text-blue-600 hover:bg-blue-100"
                                                 )}
                                             >
@@ -187,9 +187,9 @@ export default function ProposalWriterPage() {
 
                                         {result.strategy_used && (
                                             <div className="p-6 rounded-2xl bg-blue-50/50 border border-blue-100">
-                                                <h4 className="text-[10px] font-black uppercase tracking-widest text-blue-600 mb-2 flex items-center gap-2">
+                                                <h4 className="text-[11px] font-black text-blue-600 mb-2 flex items-center gap-2">
                                                     <Zap className="h-3 w-3" />
-                                                    AI Strategy Applied
+                                                    AI strategy applied
                                                 </h4>
                                                 <p className="text-[11px] font-bold text-blue-900/70 leading-relaxed italic">
                                                     "{result.strategy_used}"
@@ -209,7 +209,7 @@ export default function ProposalWriterPage() {
                                 <div className="h-24 w-24 rounded-full bg-white border border-zinc-50 flex items-center justify-center mb-8 shadow-sm">
                                     <RefreshCw className="h-10 w-10 animate-pulse text-zinc-200" />
                                 </div>
-                                <h3 className="text-xl font-bold text-zinc-400 mb-2 uppercase tracking-tighter">Waiting for Input</h3>
+                                <h3 className="text-xl font-bold text-zinc-400 mb-2 tracking-tighter">Ready for input</h3>
                                 <p className="text-sm font-medium max-w-sm">
                                     Paste the job description on the left to generate your custom-tailored proposal.
                                 </p>

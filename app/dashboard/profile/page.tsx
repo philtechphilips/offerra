@@ -30,8 +30,8 @@ const GmailLogo = ({ className }: { className?: string }) => (
     </svg>
 );
 
-const containerClasses = "rounded-3xl border border-zinc-200 bg-white transition-all duration-300";
-const cardHeaderClasses = "flex items-center justify-between border-b border-zinc-100 p-6 sm:px-8";
+const containerClasses = "rounded-[2rem] border border-zinc-100 bg-white transition-all duration-300";
+const cardHeaderClasses = "flex items-center justify-between p-8 sm:px-10 pb-0";
 
 const DynamicCVRenderer = ({ data, depth = 0 }: { data: any, depth?: number }) => {
     if (data === null || data === undefined) return null;
@@ -87,7 +87,7 @@ const DynamicCVRenderer = ({ data, depth = 0 }: { data: any, depth?: number }) =
 
                     return (
                         <div key={key} className={cn("space-y-1.5", colSpan)}>
-                            <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">{title}</div>
+                            <div className="text-[11px] font-black text-zinc-400 mb-2">{title}</div>
                             <DynamicCVRenderer data={value} depth={depth + 1} />
                         </div>
                     );
@@ -304,62 +304,64 @@ export default function ProfilePage() {
                 <motion.section
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={cn(containerClasses, "relative overflow-hidden p-0 border-none bg-gradient-to-br from-white to-zinc-50")}
+                    className="relative p-0"
                 >
-                    <div className="flex flex-col gap-8 p-8 sm:p-12 lg:flex-row lg:items-center">
-                        <div className="flex flex-1 items-start gap-8">
-                            <div className="relative">
-                                <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-[2.5rem] bg-blue-600 text-3xl font-bold text-white">
+                    <div className="flex flex-col gap-8 py-12 lg:flex-row lg:items-center">
+                        <div className="flex flex-1 items-center gap-10">
+                            <div className="relative group">
+                                <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-[2rem] bg-zinc-50 border border-zinc-100 text-3xl font-black text-blue-600 transition-transform group-hover:scale-105 duration-500">
                                     {getInitials(user?.name)}
                                 </div>
-                                <div className="absolute -bottom-1 -right-1 h-8 w-8 rounded-xl bg-white border border-zinc-200 flex items-center justify-center">
-                                    <ShieldCheck className="h-4 w-4 text-blue-500" />
+                                <div className="absolute -bottom-2 -right-2 h-10 w-10 rounded-2xl bg-white border border-zinc-100 flex items-center justify-center shadow-sm">
+                                    <ShieldCheck className="h-5 w-5 text-blue-600" />
                                 </div>
                             </div>
 
-                            <div className="min-w-0 pt-2">
-                                <div className="flex flex-wrap items-center gap-2 mb-3">
-                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-600 border border-blue-100">
-                                        {user?.plan?.name || "Starter Pack"} • {user?.credits || 0} Credits
-                                    </span>
-                                    <span className="text-xs font-medium text-zinc-400">
-                                        {cvs.length} Documents
-                                    </span>
+                            <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-3 mb-4">
+                                    <div className="flex flex-col items-start gap-1">
+                                        <span className="inline-flex items-center px-4 py-1.5 rounded-full text-[11px] font-black bg-blue-50 text-blue-600 border border-blue-100/50">
+                                            {user?.plan?.name || "Starter Pack"}
+                                        </span>
+                                        <span className="text-[11px] font-black text-zinc-300 px-1">
+                                            {user?.credits || 0} credits remaining
+                                        </span>
+                                    </div>
                                 </div>
-                                <h1 className="text-4xl font-extrabold tracking-tight text-zinc-900">
+                                <h1 className="text-5xl font-black tracking-tighter text-zinc-900 leading-[1.1]">
                                     {user?.name || "Your Profile"}
                                 </h1>
-                                <div className="mt-5 flex flex-wrap items-center gap-8 text-sm text-zinc-500 font-medium">
-                                    <span className="inline-flex items-center gap-2">
-                                        <Mail className="h-4 w-4 text-zinc-400" />
-                                        {user?.email}
-                                    </span>
-                                    <span className="inline-flex items-center gap-2">
-                                        <CheckCircle2 className={cn("h-4 w-4", activeCv ? "text-emerald-500" : "text-zinc-300")} />
-                                        {activeCv ? "Resume Verified" : "No resume yet"}
-                                    </span>
+                                <div className="mt-8 flex flex-wrap items-center gap-10">
+                                    <div className="flex items-center gap-3">
+                                        <Mail className="h-4 w-4 text-zinc-300" />
+                                        <span className="text-sm font-bold text-zinc-500">{user?.email}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <CheckCircle2 className={cn("h-4 w-4", activeCv ? "text-emerald-500" : "text-zinc-200")} />
+                                        <span className="text-sm font-bold text-zinc-500">{activeCv ? "Resume verified" : "Incomplete profile"}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-4 sm:flex-row lg:flex-row">
+                        <div className="flex flex-col gap-4 sm:flex-row lg:flex-row lg:items-center">
                             <button
                                 type="button"
                                 onClick={() => fileInputRef.current?.click()}
                                 disabled={isUploading}
-                                className="inline-flex items-center justify-center gap-2.5 h-14 rounded-2xl bg-blue-600 px-10 text-sm font-bold text-white transition-all hover:bg-blue-700 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
+                                className="inline-flex items-center justify-center gap-3 h-14 rounded-xl bg-blue-600 px-8 text-xs font-black text-white transition-all hover:bg-blue-700 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
                             >
-                                {isUploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
-                                Upload Resume
+                                {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                                Upload resume
                             </button>
                             <button
                                 type="button"
                                 onClick={() => biosData ? setIsBiosModalOpen(true) : handleGenerateBios()}
                                 disabled={isGeneratingBios || cvs.length === 0}
-                                className="inline-flex items-center justify-center gap-2.5 h-14 rounded-2xl bg-blue-600 px-10 text-sm font-bold text-white transition-all hover:bg-blue-700 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
+                                className="inline-flex items-center justify-center gap-3 h-14 rounded-xl bg-zinc-900 px-8 text-xs font-black text-white transition-all hover:bg-black hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
                             >
-                                {isGeneratingBios ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5 text-white" />}
-                                {biosData ? "Open My Bios" : "Create Social Bios"}
+                                {isGeneratingBios ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                                {biosData ? "View bios" : "Create bios"}
                             </button>
                         </div>
                     </div>
@@ -375,17 +377,14 @@ export default function ProfilePage() {
                             className={containerClasses}
                         >
                             <div className={cardHeaderClasses}>
-                                <div className="flex items-center gap-4">
-                                    <div className="h-10 w-10 rounded-2xl bg-zinc-50 flex items-center justify-center">
-                                        <FileText className="h-5 w-5 text-zinc-500" />
+                                <div className="flex items-center gap-5">
+                                    <div className="h-12 w-12 rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center justify-center">
+                                        <FileText className="h-5 w-5 text-blue-600" />
                                     </div>
                                     <div>
-                                        <h2 className="text-xl font-bold tracking-tight text-zinc-900">My Resumes</h2>
-                                        <p className="text-sm text-zinc-500">Manage all versions of your CV</p>
+                                        <h2 className="text-xl font-black tracking-tight text-zinc-900">My Resumes</h2>
+                                        <p className="text-xs font-bold text-zinc-400 mt-1">Manage and architect your CV versions</p>
                                     </div>
-                                </div>
-                                <div className="px-3 py-1 bg-zinc-50 rounded-full text-xs font-bold text-zinc-500 border border-zinc-100">
-                                    {cvs.length} Total
                                 </div>
                             </div>
 
@@ -416,91 +415,91 @@ export default function ProfilePage() {
                                 ) : (
                                     <div className="space-y-6">
                                         {activeCv && (
-                                            <div className="relative rounded-[2.5rem] border-2 border-blue-500/10 bg-blue-50/10 p-8 transition-all hover:bg-blue-50/20">
-                                                <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-                                                    <div className="min-w-0">
-                                                        <div className="flex items-center gap-2 mb-3">
-                                                            <div className="h-2 w-2 rounded-full bg-blue-600" />
-                                                            <span className="text-[10px] font-bold uppercase tracking-widest text-blue-600">Active Resume</span>
+                                            <div className="relative rounded-[2rem] border border-blue-600/5 bg-blue-50/10 p-10">
+                                                <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
+                                                    <div className="flex items-start gap-6 min-w-0">
+                                                        <div className="mt-1 h-10 w-10 flex items-center justify-center rounded-xl bg-white border border-blue-100 shadow-sm">
+                                                            <CheckCircle2 className="h-5 w-5 text-blue-600" />
                                                         </div>
-                                                        <h3 className="truncate text-2xl font-bold tracking-tight text-zinc-900">
-                                                            {activeCv.profile_name || activeCv.filename}
-                                                        </h3>
-                                                        <div className="mt-4 flex flex-wrap gap-x-8 gap-y-2 text-sm text-zinc-500">
-                                                            <span className="flex items-center gap-2">
-                                                                <Clock className="h-4 w-4" />
-                                                                Added {formatDate(activeCv.created_at)}
-                                                            </span>
-                                                            <span className="flex items-center gap-2">
-                                                                <Briefcase className="h-4 w-4" />
-                                                                {currentTitle}
-                                                            </span>
+                                                        <div className="min-w-0">
+                                                            <div className="flex items-center gap-3 mb-2">
+                                                                <span className="text-[11px] font-black text-blue-600">Active profile</span>
+                                                            </div>
+                                                            <h3 className="truncate text-3xl font-black tracking-tight text-zinc-900">
+                                                                {activeCv.profile_name || activeCv.filename}
+                                                            </h3>
+                                                            <div className="mt-4 flex flex-wrap gap-x-10 gap-y-2 text-[11px] font-black text-zinc-300">
+                                                                <span className="flex items-center gap-2">
+                                                                    <Clock className="h-3 w-3" />
+                                                                    {formatDate(activeCv.created_at)}
+                                                                </span>
+                                                                <span className="flex items-center gap-2">
+                                                                    <Briefcase className="h-3 w-3" />
+                                                                    {currentTitle}
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                     </div>
 
-                                                    <button
-                                                        onClick={() => setPreviewCv(activeCv)}
-                                                        className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-zinc-50 border border-zinc-200 text-sm font-bold text-zinc-600 transition-all hover:bg-zinc-100"
-                                                    >
-                                                        <Eye className="h-4 w-4" />
-                                                        Preview
-                                                    </button>
-                                                    <a
-                                                        href={`/dashboard/optimizer?edit=${activeCv.id}`}
-                                                        className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-blue-600 text-sm font-bold text-white transition-all hover:bg-blue-700"
-                                                    >
-                                                        <Edit className="h-4 w-4" />
-                                                        Architect
-                                                    </a>
+                                                    <div className="flex items-center gap-4">
+                                                        <button
+                                                            onClick={() => setPreviewCv(activeCv)}
+                                                            className="text-xs font-black text-zinc-400 hover:text-zinc-900 transition-colors"
+                                                        >
+                                                            Preview
+                                                        </button>
+                                                        <a
+                                                            href={`/dashboard/optimizer?edit=${activeCv.id}`}
+                                                            className="inline-flex items-center justify-center h-12 px-8 rounded-xl bg-blue-600 text-xs font-black text-white transition-all hover:bg-blue-700 hover:-translate-y-0.5 active:translate-y-0"
+                                                        >
+                                                            Optimize
+                                                        </a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         )}
 
-                                        <div className="overflow-hidden rounded-[2.5rem] border border-zinc-100 bg-zinc-50">
-                                            <div className="p-5 px-10 border-b border-zinc-100 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-zinc-400">
-                                                <Layout className="h-4 w-4" />
-                                                Saved Versions
+                                        <div className="overflow-hidden rounded-[2rem] border border-zinc-100 bg-white">
+                                            <div className="p-6 px-10 border-b border-zinc-50 bg-zinc-50/30 flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <Layout className="h-4 w-4 text-zinc-400" />
+                                                    <span className="text-[11px] font-black text-zinc-400">Archived versions</span>
+                                                </div>
+                                                <span className="text-[11px] font-black text-zinc-300">{cvs.filter(c => !c.is_active).length} files</span>
                                             </div>
                                             <div className="divide-y divide-zinc-100 bg-white">
                                                 {cvs.filter((cv) => !cv.is_active).length > 0 ? (
                                                     cvs.filter((cv) => !cv.is_active).map((cvItem) => (
                                                         <div
                                                             key={cvItem.id}
-                                                            className="flex flex-col gap-6 p-6 sm:px-10 md:flex-row md:items-center md:justify-between transition-colors hover:bg-zinc-50"
+                                                            className="flex flex-col gap-6 p-6 sm:px-10 md:flex-row md:items-center md:justify-between transition-colors hover:bg-zinc-50/50"
                                                         >
                                                             <div className="min-w-0">
-                                                                <p className="truncate text-lg font-bold text-zinc-900">
+                                                                <p className="truncate text-base font-black text-zinc-900">
                                                                     {cvItem.profile_name || cvItem.filename}
                                                                 </p>
-                                                                <p className="mt-1 text-sm text-zinc-400">
+                                                                <p className="mt-1 text-xs font-bold text-zinc-400">
                                                                     Uploaded {formatDate(cvItem.created_at)}
                                                                 </p>
                                                             </div>
 
-                                                            <div className="flex flex-wrap items-center gap-3">
-                                                                <a
-                                                                    href={`/dashboard/optimizer?edit=${cvItem.id}`}
-                                                                    className="h-10 px-4 rounded-xl text-xs font-bold text-blue-600 bg-blue-50 border border-blue-100 flex items-center gap-2 hover:bg-blue-100"
-                                                                >
-                                                                    <Edit className="h-3.5 w-3.5" />
-                                                                    Architect
-                                                                </a>
+                                                            <div className="flex flex-wrap items-center gap-4">
                                                                 <button
                                                                     onClick={() => setPreviewCv(cvItem)}
-                                                                    className="h-10 px-4 rounded-xl text-sm font-bold text-zinc-500 hover:text-zinc-900"
+                                                                    className="text-xs font-black text-zinc-400 hover:text-zinc-900 transition-colors"
                                                                 >
-                                                                    Preview
+                                                                    View
                                                                 </button>
                                                                 <button
                                                                     onClick={() => handleActivateCV(cvItem.id)}
-                                                                    className="h-10 px-5 rounded-xl bg-blue-600 text-sm font-bold text-white hover:bg-blue-700"
+                                                                    className="h-10 px-6 rounded-xl border border-zinc-200 text-xs font-black text-zinc-600 hover:bg-zinc-50"
                                                                 >
-                                                                    Set as Active
+                                                                    Activate
                                                                 </button>
                                                                 <button
                                                                     onClick={() => handleDeleteCV(cvItem)}
                                                                     disabled={isDeleting === cvItem.id}
-                                                                    className="h-10 w-10 flex items-center justify-center rounded-xl text-zinc-400 hover:text-red-500 hover:bg-red-50"
+                                                                    className="h-10 w-10 flex items-center justify-center rounded-xl text-zinc-300 hover:text-red-500 hover:bg-red-50 transition-all"
                                                                 >
                                                                     <Trash2 className="h-4 w-4" />
                                                                 </button>
@@ -519,14 +518,14 @@ export default function ProfilePage() {
                                             type="button"
                                             onClick={() => fileInputRef.current?.click()}
                                             disabled={isUploading}
-                                            className="group flex w-full items-center justify-between p-8 rounded-[2.5rem] border-2 border-dashed border-zinc-100 bg-zinc-50 transition-all hover:bg-white hover:border-blue-500/20 disabled:opacity-50"
+                                            className="group flex w-full items-center justify-between p-10 rounded-[2rem] border-2 border-dashed border-zinc-100 transition-all hover:bg-zinc-50/50 hover:border-zinc-200 disabled:opacity-50"
                                         >
                                             <div className="text-left">
-                                                <p className="text-base font-bold text-zinc-900">Add another resume version</p>
-                                                <p className="mt-1 text-sm text-zinc-500">Upload variations to see different insights.</p>
+                                                <p className="text-base font-black text-zinc-900">Upload new version</p>
+                                                <p className="mt-1 text-xs font-bold text-zinc-400 leading-relaxed">Add a targeted resume for a new role</p>
                                             </div>
-                                            <div className="h-12 w-12 rounded-2xl bg-white border border-zinc-100 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
-                                                {isUploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Plus className="h-5 w-5" />}
+                                            <div className="h-14 w-14 rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center justify-center group-hover:bg-zinc-900 group-hover:text-white transition-all duration-500">
+                                                {isUploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Plus className="h-6 w-6" />}
                                             </div>
                                         </button>
                                     </div>
@@ -543,13 +542,13 @@ export default function ProfilePage() {
                                 className={containerClasses}
                             >
                                 <div className={cardHeaderClasses}>
-                                    <div className="flex items-center gap-4">
-                                        <div className="h-10 w-10 rounded-2xl bg-emerald-50 flex items-center justify-center">
-                                            <Zap className="h-5 w-5 text-emerald-500" />
+                                    <div className="flex items-center gap-5">
+                                        <div className="h-12 w-12 rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center justify-center">
+                                            <Zap className="h-5 w-5 text-blue-600" />
                                         </div>
                                         <div>
-                                            <h2 className="text-xl font-bold tracking-tight text-zinc-900">Resume Summary</h2>
-                                            <p className="text-sm text-zinc-500">A quick look at your profile strengths</p>
+                                            <h2 className="text-xl font-black tracking-tight text-zinc-900">Resume Insights</h2>
+                                            <p className="text-xs font-bold text-zinc-400 mt-1">Extracted data from your active profile</p>
                                         </div>
                                     </div>
                                 </div>
@@ -563,23 +562,23 @@ export default function ProfilePage() {
                                     ) : (
                                         <>
                                             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                                                <div className="p-6 rounded-[2rem] bg-zinc-50 border border-zinc-100">
-                                                    <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-3">Job Focus</p>
-                                                    <p className="text-base font-bold text-zinc-900 leading-tight">{currentTitle}</p>
+                                                <div className="p-8 rounded-[2rem] bg-zinc-50/50 border border-zinc-100">
+                                                    <p className="text-[11px] font-black text-zinc-400 mb-4">Job focus</p>
+                                                    <p className="text-base font-black text-zinc-900 leading-tight">{currentTitle}</p>
                                                 </div>
-                                                <div className="p-6 rounded-[2rem] bg-zinc-50 border border-zinc-100">
-                                                    <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-3">Skills Found</p>
-                                                    <p className="text-3xl font-extrabold text-zinc-900">{skills.length}</p>
+                                                <div className="p-8 rounded-[2rem] bg-zinc-50/50 border border-zinc-100">
+                                                    <p className="text-[11px] font-black text-zinc-400 mb-4">Core skills</p>
+                                                    <p className="text-4xl font-black text-zinc-900">{skills.length}</p>
                                                 </div>
-                                                <div className="p-6 rounded-[2rem] bg-zinc-50 border border-zinc-100">
-                                                    <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-3">Experience</p>
-                                                    <p className="text-3xl font-extrabold text-zinc-900">{yearsOfExperience} <span className="text-xs font-bold text-zinc-400">years</span></p>
+                                                <div className="p-8 rounded-[2rem] bg-zinc-50/50 border border-zinc-100">
+                                                    <p className="text-[11px] font-black text-zinc-400 mb-4">Total tenure</p>
+                                                    <p className="text-4xl font-black text-zinc-900">{yearsOfExperience} <span className="text-xs font-black text-zinc-400">yrs</span></p>
                                                 </div>
                                             </div>
 
                                             {parsed.summary && (
                                                 <div className="space-y-4">
-                                                    <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 ml-4">About You</p>
+                                                    <p className="text-[11px] font-bold text-zinc-400 ml-4">About you</p>
                                                     <div className="p-8 rounded-[2.5rem] bg-zinc-50 border border-zinc-100">
                                                         <p className="text-sm font-medium leading-relaxed text-zinc-600">{parsed.summary}</p>
                                                     </div>
@@ -587,38 +586,38 @@ export default function ProfilePage() {
                                             )}
 
                                             <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-                                                <div className="space-y-6">
-                                                    <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 ml-2">Top Skills</p>
-                                                    <div className="flex flex-wrap gap-2.5">
+                                                <div className="space-y-8">
+                                                    <p className="text-[11px] font-black text-zinc-400 ml-2">Top keywords</p>
+                                                    <div className="flex flex-wrap gap-3">
                                                         {skills.length > 0 ? (
                                                             skills.map((skill: string, idx: number) => (
-                                                                <span key={idx} className="px-5 py-3 rounded-2xl bg-white border border-zinc-200 text-sm font-bold text-zinc-800">
+                                                                <span key={idx} className="px-5 py-3 rounded-2xl bg-zinc-50 border border-zinc-100 text-xs font-black text-zinc-900">
                                                                     {skill}
                                                                 </span>
                                                             ))
                                                         ) : (
-                                                            <p className="text-sm text-zinc-400">No specific skills listed.</p>
+                                                            <p className="text-sm text-zinc-400 font-bold italic ml-2">No specific skills listed.</p>
                                                         )}
                                                     </div>
                                                 </div>
 
-                                                <div className="space-y-6">
-                                                    <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 ml-2">Recent Experience</p>
+                                                <div className="space-y-8">
+                                                    <p className="text-[11px] font-black text-zinc-400 ml-2">Recent experience</p>
                                                     <div className="space-y-4">
                                                         {workExperience.length > 0 ? (
                                                             workExperience.map((role: any, idx: number) => (
-                                                                <div key={idx} className="flex items-center gap-5 p-5 rounded-[2rem] bg-white border border-zinc-200">
-                                                                    <div className="h-12 w-12 flex-shrink-0 flex items-center justify-center rounded-2xl bg-zinc-50 border border-zinc-100">
-                                                                        <Briefcase className="h-5 w-5 text-zinc-400" />
+                                                                <div key={idx} className="flex items-center gap-6 p-6 rounded-[2rem] bg-zinc-50/50 border border-zinc-100">
+                                                                    <div className="h-14 w-14 flex-shrink-0 flex items-center justify-center rounded-[1.25rem] bg-white border border-zinc-100 text-zinc-400">
+                                                                        <Briefcase className="h-6 w-6" />
                                                                     </div>
                                                                     <div className="min-w-0">
-                                                                        <p className="text-sm font-bold text-zinc-900 truncate">{role.title || role.position || "Untitled Position"}</p>
-                                                                        <p className="text-xs font-medium text-zinc-500 mt-0.5">{role.company || role.organization || "Company"}</p>
+                                                                        <p className="text-sm font-black text-zinc-900 truncate tracking-tight">{role.title || role.position || "Untitled position"}</p>
+                                                                        <p className="text-[10px] font-bold text-zinc-400 mt-1">{role.company || role.organization || "Company"}</p>
                                                                     </div>
                                                                 </div>
                                                             ))
                                                         ) : (
-                                                            <p className="text-sm text-zinc-400">No work history found.</p>
+                                                            <p className="text-sm text-zinc-400 font-bold italic ml-2">No work history found.</p>
                                                         )}
                                                     </div>
                                                 </div>
@@ -632,38 +631,41 @@ export default function ProfilePage() {
 
                     {/* Sidebar components */}
                     <div className="space-y-8 lg:col-span-4">
-                        {/* Profile Status Card - Removed Black Background */}
+                        {/* Profile Status Card - Improved Sidebar Card */}
                         <motion.section
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.12 }}
-                            className={cn(containerClasses, "overflow-hidden border-none bg-blue-600 text-white")}
+                            className={containerClasses}
                         >
                             <div className="p-10">
-                                <div className="flex items-center justify-between mb-10">
-                                    <div className="h-12 w-12 rounded-2xl bg-white/20 flex items-center justify-center">
-                                        <Zap className="h-6 w-6 text-white" />
+                                <div className="flex items-center justify-between mb-12">
+                                    <div className="h-14 w-14 rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center justify-center text-blue-600">
+                                        <Sparkles className="h-6 w-6" />
                                     </div>
-                                    <span className="text-[10px] font-bold uppercase tracking-widest bg-white/10 px-3 py-1 rounded-full">{user?.plan?.name || "Starter Pack"}</span>
+                                    <span className="text-[11px] font-black text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100/50">{user?.plan?.name || "Starter Pack"}</span>
                                 </div>
-                                <h3 className="text-3xl font-extrabold tracking-tight leading-tight">Social Profile<br />Automation</h3>
-                                <div className="mt-10 grid grid-cols-2 gap-4">
-                                    <div className="bg-white/10 p-5 rounded-3xl">
-                                        <p className="text-[10px] font-bold uppercase text-white/50 tracking-wider mb-1">Documents</p>
-                                        <p className="text-3xl font-bold">{cvs.length}</p>
+                                <h3 className="text-2xl font-black tracking-tighter leading-tight text-zinc-900 mb-2">Profile assets</h3>
+                                <p className="text-[11px] font-black text-zinc-400 mb-10">AI-powered social profiles</p>
+                                
+                                <div className="space-y-3 mb-12">
+                                    <div className="flex justify-between items-center py-4 border-b border-zinc-50">
+                                        <span className="text-[11px] font-black text-zinc-300">Files</span>
+                                        <span className="text-base font-black text-zinc-900">{cvs.length}</span>
                                     </div>
-                                    <div className="bg-white/10 p-5 rounded-3xl">
-                                        <p className="text-[10px] font-bold uppercase text-white/50 tracking-wider mb-1">Generated</p>
-                                        <p className="text-3xl font-bold">{biosReadyCount}</p>
+                                    <div className="flex justify-between items-center py-4 border-b border-zinc-50">
+                                        <span className="text-[11px] font-black text-zinc-300">Ready</span>
+                                        <span className="text-base font-black text-zinc-900">{biosReadyCount}</span>
                                     </div>
                                 </div>
+
                                 <button
                                     onClick={() => biosData ? setIsBiosModalOpen(true) : handleGenerateBios()}
                                     disabled={isGeneratingBios || cvs.length === 0}
-                                    className="w-full h-14 mt-10 bg-white text-blue-600 rounded-2xl text-sm font-bold transition-all hover:bg-blue-50 flex items-center justify-center gap-3 disabled:opacity-50"
+                                    className="group w-full h-14 bg-zinc-900 text-white rounded-xl text-xs font-black transition-all hover:bg-black flex items-center justify-center gap-3 disabled:opacity-50 active:scale-95"
                                 >
-                                    {isGeneratingBios ? "Working..." : biosData ? "Open My Bios" : "Create Social Bios"}
-                                    {isGeneratingBios ? <Loader2 className="h-5 w-5 animate-spin" /> : <ChevronRight className="h-5 w-5" />}
+                                    {isGeneratingBios ? "Processing..." : biosData ? "Manage" : "Generate"}
+                                    {isGeneratingBios ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />}
                                 </button>
                             </div>
                         </motion.section>
@@ -675,23 +677,23 @@ export default function ProfilePage() {
                             className={containerClasses}
                         >
                             <div className="p-10">
-                                <div className="flex items-start justify-between mb-8">
+                                <div className="flex items-start justify-between mb-10">
                                     <div className="flex flex-col items-start gap-1">
-                                        <span className={cn("px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.15em]",
+                                        <span className={cn("px-4 py-1.5 rounded-full text-[11px] font-black border shadow-sm",
                                             user?.google_account
                                                 ? user.google_account.status === 'disconnected'
-                                                    ? "bg-amber-50 text-amber-600"
-                                                    : "bg-emerald-50 text-emerald-600"
-                                                : "bg-red-50 text-red-600"
+                                                    ? "bg-amber-50 text-amber-600 border-amber-100"
+                                                    : "bg-emerald-50 text-emerald-600 border-emerald-100"
+                                                : "bg-zinc-50 text-zinc-400 border-zinc-100"
                                         )}>
                                             {user?.google_account
                                                 ? user.google_account.status === 'disconnected'
-                                                    ? "Reconnect Needed"
-                                                    : "Sync Enabled"
-                                                : "Disconnected"}
+                                                    ? "Action required"
+                                                    : "Live sync"
+                                                : "Inactive"}
                                         </span>
                                         {user?.google_account && (
-                                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1 mt-1">
+                                            <span className="text-[11px] font-black text-zinc-300 px-1 mt-2">
                                                 {user.google_account.email}
                                             </span>
                                         )}
@@ -700,16 +702,16 @@ export default function ProfilePage() {
                                         <button 
                                             onClick={handleDisconnectGmail}
                                             disabled={isConnectingGmail}
-                                            className="h-8 w-8 flex items-center justify-center rounded-xl bg-red-50 text-red-500 hover:bg-red-100 transition-all disabled:opacity-50"
-                                            title="Disconnect"
+                                            className="h-10 w-10 flex items-center justify-center rounded-xl bg-red-50 text-red-500 hover:bg-red-100 transition-all disabled:opacity-50"
+                                            title="Disconnect Account"
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </button>
                                     )}
                                 </div>
-                                <h3 className="text-2xl font-black tracking-tight text-zinc-900 mb-3">Gmail Integration</h3>
-                                <p className="text-sm font-medium text-zinc-500 leading-relaxed mb-10">
-                                    Allow Offerra to securely synchronize with your Gmail inbox to identify job applications, technical tests, and interview invitations automatically.
+                                <h3 className="text-2xl font-black tracking-tighter text-zinc-900 mb-4">Mail intelligence</h3>
+                                <p className="text-xs font-bold text-zinc-400 leading-relaxed mb-12">
+                                    Securely scan your inbox for invites, technical tasks, and interviews.
                                 </p>
 
                                 {user?.google_account && user.google_account.status === 'disconnected' ? (
@@ -738,20 +740,20 @@ export default function ProfilePage() {
                                         <button
                                             onClick={handleSyncGmail}
                                             disabled={isConnectingGmail}
-                                            className="group w-full h-14 rounded-2xl bg-zinc-900 text-white text-sm font-bold transition-all hover:bg-black disabled:opacity-50 flex items-center justify-center gap-3 shadow-xl shadow-zinc-200"
+                                            className="group w-full h-14 rounded-xl bg-blue-600 text-white text-xs font-black transition-all hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-3 active:scale-95"
                                         >
-                                            {isConnectingGmail ? "Synchronizing..." : "Sync My Inbox"}
-                                            <Zap className="h-4 w-4 text-emerald-400 group-hover:animate-pulse" />
+                                            {isConnectingGmail ? "Analyzing..." : "Sync inbox"}
+                                            <Zap className="h-4 w-4 text-white group-hover:animate-pulse" />
                                         </button>
-                                        <p className="text-[10px] font-bold text-zinc-300 text-center uppercase tracking-widest">
+                                        <p className="text-[11px] font-bold text-zinc-300 text-center">
                                             Last scan: {user.google_account.last_synced_at ? formatDate(user.google_account.last_synced_at) : 'No recent sync'}
                                         </p>
                                     </div>
                                 ) : (
-                                    <button
+                                        <button
                                         onClick={handleConnectGmail}
                                         disabled={isConnectingGmail}
-                                        className="group w-full h-14 rounded-xl border border-zinc-200 bg-white text-sm font-bold text-zinc-700 transition-all hover:shadow-lg hover:border-zinc-300 disabled:opacity-50 flex items-center justify-center gap-4 py-4 px-6 relative overflow-hidden"
+                                        className="group w-full h-12 rounded bg-white px-4 py-2 text-sm font-medium text-zinc-700 border border-[#747775] hover:bg-[#F8F9FA] transition-all flex items-center justify-center gap-3 active:scale-95"
                                     >
                                         <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24">
                                             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -759,13 +761,13 @@ export default function ProfilePage() {
                                             <path d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" fill="#FBBC05"/>
                                             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
                                         </svg>
-                                        <span className="font-medium text-zinc-600 tracking-tight">Connect with Google</span>
+                                        <span className="font-['Roboto',sans-serif]">Connect with Google</span>
                                     </button>
                                 )}
 
                                 <div className="mt-8 pt-6 border-t border-zinc-50 flex items-center justify-center gap-2">
                                     <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-                                    <span className="text-[9px] font-black text-zinc-300 uppercase tracking-widest">Secure OAuth 2.0 Integration</span>
+                                    <span className="text-[11px] font-black text-zinc-300">Secure OAuth 2.0 integration</span>
                                 </div>
                             </div>
                         </motion.section>
@@ -775,19 +777,21 @@ export default function ProfilePage() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.25 }}
-                            className={cn(containerClasses, "bg-zinc-50 border-none")}
+                            className={cn(containerClasses, "bg-zinc-50 border-zinc-100/50")}
                         >
                             <div className="p-10">
-                                <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-8">Quick Tips</h3>
-                                <ul className="space-y-6">
+                                <h3 className="text-[11px] font-black text-zinc-400 mb-10">Platform strategy</h3>
+                                <ul className="space-y-8">
                                     {[
                                         "Keep one resume active for best AI results.",
-                                        "Refresh your social bios when you update your active resume.",
-                                        "Upload different versions for different types of jobs."
+                                        "Refresh your social bios when you update your profile.",
+                                        "Upload targeted versions for specific industries."
                                     ].map((note, idx) => (
-                                        <li key={idx} className="flex items-start gap-4">
-                                            <CheckCircle2 className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
-                                            <p className="text-sm font-bold text-zinc-600 leading-relaxed">{note}</p>
+                                        <li key={idx} className="flex items-start gap-5">
+                                            <div className="h-6 w-6 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                                                <CheckCircle2 className="h-3.5 w-3.5 text-blue-600" />
+                                            </div>
+                                            <p className="text-xs font-bold text-zinc-500 leading-relaxed">{note}</p>
                                         </li>
                                     ))}
                                 </ul>
@@ -821,8 +825,8 @@ export default function ProfilePage() {
                                         <Sparkles className="h-7 w-7 text-white" />
                                     </div>
                                     <div>
-                                        <h2 className="text-3xl font-extrabold text-zinc-900 tracking-tight">Social Profile Bios</h2>
-                                        <p className="text-sm font-bold text-zinc-400 uppercase tracking-widest mt-1">Generated by AI based on your active resume</p>
+                                        <h2 className="text-3xl font-black text-zinc-900 tracking-tighter">Social intelligence</h2>
+                                        <p className="text-[11px] font-black text-zinc-400 mt-2">Generated profile assets</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4">
@@ -872,20 +876,20 @@ export default function ProfilePage() {
                                                             <IconInfo className="h-6 w-6" />
                                                         </div>
                                                         <div>
-                                                            <h4 className="text-lg font-bold tracking-tight text-zinc-900">{meta.label}</h4>
-                                                            <p className="text-xs font-medium text-zinc-400">{meta.desc}</p>
+                                                            <h4 className="text-base font-black tracking-tight text-zinc-900">Small bio</h4>
+                                                            <p className="text-[11px] font-black text-zinc-400 mt-1">Condensed professional overview</p>
                                                         </div>
                                                     </div>
                                                     <button
                                                         onClick={() => {
-                                                            const text = typeof data === 'string' ? data : Object.entries(data).map(([k, v]) => `${k.toUpperCase()}:\n${v}`).join('\n\n');
+                                                            const text = typeof data === 'string' ? data : Object.entries(data).map(([k, v]) => `${k}:\n${v}`).join('\n\n');
                                                             navigator.clipboard.writeText(text);
                                                             toast.success(`${meta.label} bio copied!`);
                                                         }}
-                                                        className="h-10 px-4 rounded-xl bg-blue-600 text-white text-[11px] font-bold uppercase tracking-wider transition-all hover:bg-blue-700 flex items-center gap-2"
+                                                        className="h-10 px-4 rounded-xl bg-blue-600 text-white text-[11px] font-bold transition-all hover:bg-blue-700 flex items-center gap-2"
                                                     >
                                                         <Copy className="h-3.5 w-3.5" />
-                                                        Copy All
+                                                        Copy all
                                                     </button>
                                                 </div>
 
@@ -898,21 +902,21 @@ export default function ProfilePage() {
                                                     ) : (
                                                         <div className="space-y-6">
                                                             {Object.entries(data).map(([key, val]: [string, any]) => (
-                                                                <div key={key} className="space-y-2">
+                                                                <div key={key} className="space-y-3">
                                                                     <div className="flex items-center justify-between px-1">
-                                                                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{key}</span>
+                                                                        <span className="text-[11px] font-black text-zinc-400">{key}</span>
                                                                         <button
                                                                             onClick={() => {
                                                                                 navigator.clipboard.writeText(val);
                                                                                 toast.success(`${key} copied!`);
                                                                             }}
-                                                                            className="text-[9px] font-bold text-blue-500 uppercase tracking-wider hover:text-blue-700"
+                                                                            className="text-[11px] font-black text-blue-500 hover:text-blue-700 transition-colors"
                                                                         >
-                                                                            Copy only this
+                                                                            Copy
                                                                         </button>
                                                                     </div>
-                                                                    <div className="p-5 rounded-2xl bg-zinc-50/50 border border-zinc-100">
-                                                                        <p className="text-sm font-medium text-zinc-700 leading-relaxed whitespace-pre-wrap">{val}</p>
+                                                                    <div className="p-6 rounded-2xl bg-zinc-50 border border-zinc-100">
+                                                                        <p className="text-xs font-bold text-zinc-600 leading-relaxed whitespace-pre-wrap">{val}</p>
                                                                     </div>
                                                                 </div>
                                                             ))}
@@ -964,8 +968,8 @@ export default function ProfilePage() {
                                         <Search className="h-7 w-7 text-white" />
                                     </div>
                                     <div>
-                                        <h2 className="text-3xl font-extrabold text-zinc-900 tracking-tight">Resume Review</h2>
-                                        <p className="text-sm font-bold text-zinc-400 uppercase tracking-widest mt-1">{previewCv.filename}</p>
+                                        <h2 className="text-3xl font-black text-zinc-900 tracking-tighter">Profile deep dive</h2>
+                                        <p className="text-[11px] font-black text-zinc-400 mt-1">{previewCv.filename}</p>
                                     </div>
                                 </div>
                                 <button
@@ -981,8 +985,8 @@ export default function ProfilePage() {
                                     <div className="bg-white p-10 sm:p-16 rounded-[2.5rem] border border-zinc-100 mb-12">
                                         <div className="mb-10 flex items-center justify-between border-b border-zinc-100 pb-8">
                                             <div className="flex items-center gap-3">
-                                                <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                                                <span className="text-xs font-bold tracking-widest uppercase text-zinc-400">Analysis Successful</span>
+                                                <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                                                <span className="text-[11px] font-black text-zinc-400">Analysis complete</span>
                                             </div>
                                         </div>
                                         <DynamicCVRenderer data={previewCv.parsed_data} />

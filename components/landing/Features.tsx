@@ -63,7 +63,7 @@ export function Features() {
                     </motion.div>
 
                     <motion.h2
-                        className="text-[clamp(2.5rem,7vw,5rem)] font-black leading-[1.1] tracking-tighter mb-10 text-black text-gradient"
+                        className="text-[clamp(2.2rem,6vw,4.2rem)] font-black leading-[1.1] tracking-tighter mb-10 text-black text-gradient"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
@@ -101,7 +101,7 @@ export function Features() {
                                 <feature.icon className="h-6 w-6" />
                             </div>
 
-                            <h3 className="text-xl font-black mb-4 tracking-tight text-black group-hover:text-blue-600 transition-colors uppercase tracking-[0.05em]">{feature.title}</h3>
+                            <h3 className="text-xl font-black mb-4 tracking-tight text-black group-hover:text-blue-600 transition-colors tracking-[0.05em]">{feature.title}</h3>
                             <p className="text-sm font-medium text-zinc-500 leading-relaxed group-hover:text-zinc-600 transition-colors">
                                 {feature.description}
                             </p>

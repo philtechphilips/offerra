@@ -80,9 +80,9 @@ export default function DashboardLayout({
                         <button
                             onClick={handleResendVerification}
                             disabled={resending}
-                            className="w-full h-14 bg-[#1C4ED8] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-blue-600/20 hover:bg-[#1e40af] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                            className="w-full h-14 bg-[#1C4ED8] text-white rounded-2xl font-black text-xs shadow-2xl shadow-blue-600/20 hover:bg-[#1e40af] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                         >
-                            {resending ? "Sending..." : "Resend Verification Link"}
+                            {resending ? "Sending..." : "Resend verification link"}
                             <ArrowUpRight className="h-4 w-4" />
                         </button>
 
@@ -91,13 +91,13 @@ export default function DashboardLayout({
                                 localStorage.removeItem('offerra-auth');
                                 window.location.href = '/login';
                             }}
-                            className="w-full h-14 bg-zinc-50 text-blue-950 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-zinc-100 transition-all border border-zinc-100"
+                            className="w-full h-14 bg-zinc-50 text-blue-950 rounded-2xl font-black text-xs hover:bg-zinc-100 transition-all border border-zinc-100"
                         >
-                            Return to Login
+                            Return to login
                         </button>
                     </div>
 
-                    <p className="mt-10 text-[10px] font-bold text-zinc-300 uppercase tracking-widest text-center">
+                    <p className="mt-10 text-[11px] font-bold text-zinc-300 text-center">
                         Need help? hello@autofill.live
                     </p>
                 </motion.div>

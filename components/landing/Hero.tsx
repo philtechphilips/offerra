@@ -34,7 +34,7 @@ function FloatingBadge({ icon, label, value, className, delay = 0, yOffset = 10 
                 }
             }}
             className={cn(
-                "absolute hidden lg:flex items-center gap-4 rounded-2xl border border-white bg-white/60 p-4 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] backdrop-blur-xl z-20",
+                "absolute hidden lg:flex items-center gap-4 rounded-2xl border border-white bg-white/60 p-4 backdrop-blur-xl z-20",
                 className
             )}
         >
@@ -93,20 +93,20 @@ export function Hero() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.5 }}
-                        className="flex items-center gap-2 rounded-full border border-blue-100 bg-white/50 backdrop-blur-sm px-4 py-1.5 shadow-[0_4px_20px_rgba(28,78,216,0.05)] mb-10"
+                        className="flex items-center gap-2 rounded-full border border-blue-100 bg-white/50 backdrop-blur-sm px-4 py-1.5 mb-10"
                     >
                         <Sparkles className="h-3.5 w-3.5 text-blue-600 animate-pulse" />
                         <span className="text-[10px] font-black uppercase tracking-[0.25em] text-blue-600">The easiest way to find a job</span>
                     </motion.div>
 
                     <motion.h1
-                        className="text-[clamp(2.5rem,9vw,6.5rem)] font-black leading-[1.2] tracking-[-0.045em] text-black relative z-10 text-gradient text-center max-w-6xl"
+                        className="text-[clamp(2.2rem,8vw,5.5rem)] font-black leading-[1.2] tracking-[-0.045em] text-black relative z-10 text-gradient text-center max-w-6xl"
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
                     >
-                        Apply Faster. <br />
-                        Track <span className="text-blue-600 italic">Everything.</span>
+                        Apply faster. <br />
+                        Track <span className="text-blue-600 italic">everything.</span>
                     </motion.h1>
 
                     <motion.p
@@ -134,7 +134,7 @@ export function Hero() {
                         <div className="relative group">
                             <button 
                                 onClick={() => setIsExtensionModalOpen(true)}
-                                className="flex items-center gap-3 rounded-2xl border border-zinc-200 bg-white/50 px-8 h-16 text-[10px] font-black uppercase tracking-[0.2em] text-black transition-all hover:bg-white hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5 backdrop-blur-sm active:scale-95 group/btn"
+                                className="flex items-center gap-3 rounded-2xl border border-zinc-200 bg-white/50 px-8 h-16 text-[10px] font-black uppercase tracking-[0.2em] text-black transition-all hover:bg-white hover:border-blue-200 backdrop-blur-sm active:scale-95 group/btn"
                             >
                                 <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center group-hover/btn:scale-110 transition-transform">
                                     <Download className="h-4 w-4 text-blue-600" />

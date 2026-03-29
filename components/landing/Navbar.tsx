@@ -12,7 +12,7 @@ export function Navbar() {
 
     return (
         <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl px-0">
-            <div className="flex h-14 items-center justify-between rounded-2xl border border-white/20 bg-white/70 px-6 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all">
+            <div className="flex h-14 items-center justify-between rounded-2xl border border-white/20 bg-white/70 px-6 backdrop-blur-2xl transition-all">
                 <Link href="/" className="flex items-center gap-1.5 group cursor-pointer">
                     <div className="flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden shrink-0 group-hover:scale-110 transition-transform">
                         <img src="/logo.png" alt="Offerra Logo" className="h-full w-full object-contain p-1.5" />
@@ -45,7 +45,7 @@ export function Navbar() {
                     {isLoggedIn ? (
                         <Link
                             href="/dashboard"
-                            className="rounded-xl bg-[#1C4ED8] px-5 py-2 text-[10px] font-black text-white transition-all hover:bg-[#1e3a8a] hover:shadow-lg hover:shadow-blue-200 uppercase tracking-widest active:scale-95"
+                            className="rounded-xl bg-[#1C4ED8] px-5 py-2 text-[10px] font-black text-white transition-all hover:bg-[#1e3a8a] uppercase tracking-widest active:scale-95"
                         >
                             Dashboard
                         </Link>
@@ -56,7 +56,7 @@ export function Navbar() {
                             </Link>
                             <Link
                                 href="/signup"
-                                className="rounded-xl bg-blue-600 px-5 py-2 text-[10px] font-black text-white transition-all hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-200 uppercase tracking-widest active:scale-95"
+                                className="rounded-xl bg-blue-600 px-5 py-2 text-[10px] font-black text-white transition-all hover:bg-blue-700 uppercase tracking-widest active:scale-95"
                             >
                                 Get Started
                             </Link>
@@ -81,7 +81,7 @@ export function Navbar() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -20, scale: 0.95 }}
                         transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                        className="md:hidden mt-4 rounded-3xl border border-white/20 bg-white/95 backdrop-blur-3xl p-8 shadow-[0_24px_48px_rgba(0,0,0,0.15)] flex flex-col gap-2 relative z-50 overflow-hidden"
+                        className="md:hidden mt-4 rounded-3xl border border-white/20 bg-white/95 backdrop-blur-3xl p-8 flex flex-col gap-2 relative z-50 overflow-hidden"
                     >
                         {/* Decorative background element for mobile menu */}
                         <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -z-10" />
@@ -119,7 +119,7 @@ export function Navbar() {
                                 <Link
                                     href="/dashboard"
                                     onClick={() => setMobileOpen(false)}
-                                    className="w-full text-center rounded-2xl bg-blue-600 px-4 py-5 text-[10px] font-black text-white hover:bg-blue-700 transition-all uppercase tracking-[0.25em] shadow-xl shadow-blue-100 active:scale-95"
+                                    className="w-full text-center rounded-2xl bg-blue-600 px-4 py-5 text-[10px] font-black text-white hover:bg-blue-700 transition-all uppercase tracking-[0.25em] active:scale-95"
                                 >
                                     Open Dashboard
                                 </Link>
@@ -136,7 +136,7 @@ export function Navbar() {
                                         <Link 
                                             href="/signup" 
                                             onClick={() => setMobileOpen(false)} 
-                                            className="w-full text-center rounded-2xl bg-blue-600 px-4 py-5 text-[10px] font-black text-white hover:bg-blue-700 uppercase tracking-[0.2em] shadow-xl shadow-blue-100 active:scale-95 transition-all"
+                                            className="w-full text-center rounded-2xl bg-blue-600 px-4 py-5 text-[10px] font-black text-white hover:bg-blue-700 uppercase tracking-[0.2em] active:scale-95 transition-all"
                                         >
                                             Sign Up
                                         </Link>

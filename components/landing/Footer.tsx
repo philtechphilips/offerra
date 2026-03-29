@@ -80,7 +80,7 @@ export function Footer() {
             <div className="mt-24 pt-12 border-t border-zinc-50 flex flex-col sm:flex-row justify-between items-center gap-8">
               <div className="text-[9px] font-black text-zinc-300 uppercase tracking-[0.3em] flex items-center gap-2">
                 <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                © {new Date().getFullYear()} Offerra AI. System Operational.
+                © {new Date().getFullYear()} Offerra AI.
               </div>
             </div>
           </div>

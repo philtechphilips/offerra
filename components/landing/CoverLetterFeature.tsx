@@ -125,7 +125,7 @@ export function CoverLetterFeature() {
                             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600">Proposal Writer</span>
                         </motion.div>
 
-                        <h2 className="text-[clamp(2.5rem,5vw,5rem)] font-black tracking-tighter leading-[1.1] mb-10 text-black text-gradient">
+                        <h2 className="text-[clamp(2rem,4.5vw,4.2rem)] font-black tracking-tighter leading-[1.1] mb-10 text-black text-gradient">
                             Write perfect <br />
                             cover letters <span className="text-blue-600">in seconds.</span>
                         </h2>

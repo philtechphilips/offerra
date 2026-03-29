@@ -31,7 +31,7 @@ export function Testimonials() {
             <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-4 relative">
                 <div className="flex flex-col items-center text-center mb-24 max-w-2xl mx-auto">
                     <motion.div
-                        className="mb-8 flex items-center justify-center gap-2 rounded-full border border-blue-100 bg-blue-50/50 px-4 py-1.5 shadow-[0_4px_20px_rgba(28,78,216,0.05)]"
+                        className="mb-8 flex items-center justify-center gap-2 rounded-full border border-blue-100 bg-blue-50/50 px-4 py-1.5"
                         initial={{ opacity: 0, scale: 0.95 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
@@ -40,7 +40,7 @@ export function Testimonials() {
                         <span className="text-[10px] font-black uppercase tracking-[0.25em] text-blue-600">The Social Proof</span>
                     </motion.div>
                     <motion.h2
-                        className="text-[clamp(2.5rem,7vw,4.5rem)] font-black leading-[1.1] tracking-tighter mb-10 text-black text-gradient uppercase"
+                        className="text-[clamp(2rem,6vw,3.8rem)] font-black leading-[1.1] tracking-tighter mb-10 text-black text-gradient"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
@@ -63,7 +63,7 @@ export function Testimonials() {
                     {testimonials.map((test, idx) => (
                         <motion.div
                             key={idx}
-                            className="group relative flex flex-col p-10 rounded-[2.5rem] border border-zinc-100 bg-white hover:bg-zinc-50/50 transition-all duration-500 hover:border-blue-100 shadow-sm hover:shadow-xl"
+                            className="group relative flex flex-col p-10 rounded-[2.5rem] border border-zinc-100 bg-white hover:bg-zinc-50/50 transition-all duration-500 hover:border-blue-100"
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}

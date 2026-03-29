@@ -26,7 +26,7 @@ export function ExtensionFeature() {
                         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
                     >
                         {/* Browser Window Mockup - Light Theme */}
-                        <div className="relative rounded-[2.5rem] border border-zinc-100 bg-white p-3 shadow-[0_64px_120px_-20px_rgba(0,0,0,0.1)] overflow-hidden">
+                        <div className="relative rounded-[2.5rem] border border-zinc-100 bg-white p-3 overflow-hidden">
                             <div className="bg-zinc-50 rounded-t-[1.8rem] px-6 py-4 border-b border-zinc-100 flex items-center gap-4">
                                 <div className="flex gap-2">
                                     <div className="h-3 w-3 rounded-full bg-red-400/20 border border-red-400/30" />
@@ -52,13 +52,13 @@ export function ExtensionFeature() {
 
                                 {/* Extension Popup Overlay - Balanced Theme */}
                                 <motion.div 
-                                    className="absolute top-10 right-10 w-72 rounded-3xl border border-white bg-white shadow-[0_32px_64px_-12px_rgba(0,0,0,0.15)] p-6 z-20"
+                                    className="absolute top-10 right-10 w-72 rounded-3xl border border-white bg-white p-6 z-20"
                                     initial={{ y: 20, opacity: 0 }}
                                     whileInView={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 0.5 }}
                                 >
                                     <div className="flex items-center gap-3 mb-6">
-                                        <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-200">
+                                        <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center">
                                             <img src="/logo.png" className="h-6 w-6 brightness-0 invert" alt="" />
                                         </div>
                                         <div>
@@ -75,7 +75,7 @@ export function ExtensionFeature() {
                                         </div>
                                     </div>
 
-                                    <button className="w-full py-3 rounded-xl bg-blue-600 text-[10px] font-black uppercase tracking-widest text-white hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">
+                                    <button className="w-full py-3 rounded-xl bg-blue-600 text-[10px] font-black uppercase tracking-widest text-white hover:bg-blue-700 transition-colors">
                                         Auto-Track Job
                                     </button>
                                 </motion.div>
@@ -89,7 +89,7 @@ export function ExtensionFeature() {
                                     }}
                                     transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
                                 >
-                                    <MousePointer2 className="h-8 w-8 text-black fill-blue-600 drop-shadow-lg" />
+                                    <MousePointer2 className="h-8 w-8 text-black fill-blue-600" />
                                 </motion.div>
                             </div>
                         </div>
@@ -113,7 +113,7 @@ export function ExtensionFeature() {
                             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600">Free Extension</span>
                         </motion.div>
 
-                        <h2 className="text-[clamp(2.5rem,5vw,5rem)] font-black tracking-tighter leading-[1.1] mb-10 text-black uppercase">
+                        <h2 className="text-[clamp(2rem,4.5vw,4.2rem)] font-black tracking-tighter leading-[1.1] mb-10 text-black font-black">
                             The assistant that <br />
                             tracks jobs <span className="text-blue-600 italic">for you.</span>
                         </h2>
@@ -159,7 +159,7 @@ export function ExtensionFeature() {
                                 >
                                     <item.icon className={`h-6 w-6 ${item.color}`} />
                                     <div>
-                                        <h4 className="text-base font-black text-black tracking-tight mb-1 uppercase tracking-wider">{item.title}</h4>
+                                        <h4 className="text-base font-black text-black tracking-tight mb-1 tracking-wider">{item.title}</h4>
                                         <p className="text-xs font-medium text-zinc-500 leading-relaxed">{item.desc}</p>
                                     </div>
                                 </motion.div>
@@ -169,7 +169,7 @@ export function ExtensionFeature() {
                         <div className="flex flex-col sm:flex-row gap-4 items-center">
                             <button 
                                 onClick={() => setShowMenu(true)}
-                                className="group w-full sm:w-auto inline-flex items-center justify-center gap-4 rounded-3xl bg-blue-600 px-10 py-5 text-sm font-black text-white hover:bg-blue-700 transition-all uppercase tracking-[0.2em] shadow-2xl shadow-blue-200"
+                                className="group w-full sm:w-auto inline-flex items-center justify-center gap-4 rounded-3xl bg-blue-600 px-10 py-5 text-sm font-black text-white hover:bg-blue-700 transition-all uppercase tracking-[0.2em]"
                             >
                                 <Download className="h-4 w-4" />
                                 Download Extension

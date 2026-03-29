@@ -31,7 +31,7 @@ export function ResumeFeature() {
                             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600">Smart Resumes</span>
                         </motion.div>
 
-                        <h2 className="text-[clamp(2.5rem,5vw,5rem)] font-black tracking-tighter leading-[1.1] mb-10 text-black text-gradient">
+                        <h2 className="text-[clamp(2rem,4.5vw,4rem)] font-black tracking-tighter leading-[1.1] mb-10 text-black text-gradient">
                             Create the perfect <br />
                             resume <span className="text-blue-600">every time.</span>
                         </h2>
@@ -54,7 +54,7 @@ export function ResumeFeature() {
                                     viewport={{ once: true }}
                                     transition={{ delay: 0.2 + (idx * 0.1) }}
                                 >
-                                    <div className="mt-1 h-6 w-6 rounded-full bg-blue-600 flex items-center justify-center shrink-0 shadow-lg shadow-blue-200">
+                                    <div className="mt-1 h-6 w-6 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
                                         <CheckCircle2 className="h-3.5 w-3.5 text-white" />
                                     </div>
                                     <div>
@@ -67,7 +67,7 @@ export function ResumeFeature() {
 
                         <Link
                             href="/signup"
-                            className="group inline-flex items-center gap-4 rounded-3xl bg-blue-600 px-10 py-5 text-sm font-black text-white hover:bg-blue-700 transition-all uppercase tracking-[0.2em] shadow-2xl shadow-blue-200"
+                            className="group inline-flex items-center gap-4 rounded-3xl bg-blue-600 px-10 py-5 text-sm font-black text-white hover:bg-blue-700 transition-all uppercase tracking-[0.2em]"
                         >
                             Build My Resume
                         </Link>
@@ -84,12 +84,12 @@ export function ResumeFeature() {
                         {/* Soft Glow */}
                         <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 aspect-square bg-blue-100/30 blur-[140px] rounded-full -z-10" />
 
-                        <div className="relative rounded-[3rem] border border-white/80 bg-white/40 backdrop-blur-3xl p-4 lg:p-8 shadow-[0_64px_120px_-20px_rgba(0,0,0,0.12)] overflow-hidden">
+                        <div className="relative rounded-[3rem] border border-white/80 bg-white/40 backdrop-blur-3xl p-4 lg:p-8 overflow-hidden">
                             <div className="flex flex-col lg:flex-row gap-6">
 
                                 {/* Left: Job Description Scanner */}
                                 <div className="w-full lg:w-48 shrink-0 flex flex-col gap-4">
-                                    <div className="p-4 rounded-2xl bg-white border border-blue-100/50 text-blue-900 shadow-xl shadow-blue-500/5">
+                                    <div className="p-4 rounded-2xl bg-white border border-blue-100/50 text-blue-900">
                                         <div className="flex items-center gap-2 mb-3">
                                             <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
                                             <span className="text-[9px] font-black uppercase tracking-widest text-blue-600/60">Checking job</span>
@@ -107,7 +107,7 @@ export function ResumeFeature() {
                                         </div>
                                     </div>
 
-                                    <div className="p-4 rounded-2xl bg-white border border-zinc-100 shadow-sm flex-grow">
+                                    <div className="p-4 rounded-2xl bg-white border border-zinc-100 flex-grow">
                                         <div className="flex items-center justify-between mb-4">
                                             <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Match score</span>
                                             <span className="text-[12px] font-black text-blue-600">98%</span>
@@ -124,10 +124,10 @@ export function ResumeFeature() {
                                 </div>
 
                                 {/* Right: The Resume Canvas */}
-                                <div className="flex-grow rounded-3xl border border-zinc-100 bg-white p-8 shadow-inner min-h-[520px] relative">
+                                <div className="flex-grow rounded-3xl border border-zinc-100 bg-white p-8 min-h-[520px] relative">
                                     {/* Floating Match Indicators */}
                                     <motion.div
-                                        className="absolute -right-4 top-20 p-3 rounded-xl bg-emerald-500 text-white shadow-lg border border-emerald-400 z-30"
+                                        className="absolute -right-4 top-20 p-3 rounded-xl bg-emerald-500 text-white border border-emerald-400 z-30"
                                         animate={{ x: [0, 5, 0] }}
                                         transition={{ duration: 3, repeat: Infinity }}
                                     >
@@ -191,11 +191,11 @@ export function ResumeFeature() {
 
                                     {/* The "Brain" UI */}
                                     <motion.div
-                                        className="absolute bottom-6 right-6 p-5 rounded-2xl bg-white border border-blue-100 shadow-[0_20px_40px_rgba(28,78,216,0.12)] max-w-[220px] flex items-start gap-3 backdrop-blur-md"
+                                        className="absolute bottom-6 right-6 p-5 rounded-2xl bg-white border border-blue-100 max-w-[220px] flex items-start gap-3 backdrop-blur-md"
                                         animate={{ y: [0, -8, 0] }}
                                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                                     >
-                                        <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center shrink-0 shadow-lg shadow-blue-200">
+                                        <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center shrink-0">
                                             <Sparkles className="h-5 w-5 text-white" />
                                         </div>
                                         <div className="space-y-1">

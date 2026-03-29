@@ -46,7 +46,7 @@ export function FAQ() {
                         <div className="h-0.5 w-6 bg-blue-600 rounded-full" />
                     </motion.div>
                     <motion.h2
-                        className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tighter text-black uppercase mb-6"
+                        className="text-[clamp(1.8rem,4.5vw,2.8rem)] font-black tracking-tighter text-black mb-6"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
@@ -69,7 +69,7 @@ export function FAQ() {
                                 onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
                                 className="flex w-full items-center justify-between p-6 sm:p-8 text-left"
                             >
-                                <span className="text-lg font-black tracking-tight text-black group-hover:text-blue-600 transition-colors uppercase tracking-[0.05em]">{faq.question}</span>
+                                <span className="text-lg font-black tracking-tight text-black group-hover:text-blue-600 transition-colors tracking-[0.05em]">{faq.question}</span>
                                 <div className={`flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-50 transition-transform duration-300 ${openIndex === idx ? 'rotate-180 bg-blue-50 text-blue-600' : 'text-zinc-400'}`}>
                                     {openIndex === idx ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
                                 </div>
