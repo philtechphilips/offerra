@@ -79,7 +79,7 @@ export const metadata: Metadata = {
     apple: "/logo.png",
   },
   verification: {
-    google: "google-site-verification-placeholder", // User should update this
+    google: "wcbzgVdh-7GAVTelACLLebn8a8ep9QlXsv4usGEgSOU",
     yandex: "yandex-verification-placeholder",
   },
   alternates: {

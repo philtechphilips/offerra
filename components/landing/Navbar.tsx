@@ -32,7 +32,7 @@ export function Navbar() {
                         <Link
                             key={link.label}
                             href={link.href}
-                            className="relative text-[10px] font-black text-zinc-400 transition-colors hover:text-black uppercase tracking-[0.2em] group"
+                            className="relative text-[10px] font-black text-zinc-400 transition-colors hover:text-black tracking-[0.2em] group"
                         >
                             {link.label}
                             <span className="absolute -bottom-1 left-0 h-[1.5px] w-0 bg-blue-600 transition-all group-hover:w-full" />
@@ -45,18 +45,18 @@ export function Navbar() {
                     {isLoggedIn ? (
                         <Link
                             href="/dashboard"
-                            className="rounded-xl bg-[#1C4ED8] px-5 py-2 text-[10px] font-black text-white transition-all hover:bg-[#1e3a8a] uppercase tracking-widest active:scale-95"
+                            className="rounded-xl bg-[#1C4ED8] px-5 py-2 text-[10px] font-black text-white transition-all hover:bg-[#1e3a8a] tracking-widest active:scale-95"
                         >
                             Dashboard
                         </Link>
                     ) : (
                         <>
-                            <Link href="/login" className="text-[10px] font-black text-zinc-400 hover:text-black transition-colors uppercase tracking-[0.2em]">
+                            <Link href="/login" className="text-[10px] font-black text-zinc-400 hover:text-black transition-colors tracking-[0.2em]">
                                 Sign In
                             </Link>
                             <Link
                                 href="/signup"
-                                className="rounded-xl bg-blue-600 px-5 py-2 text-[10px] font-black text-white transition-all hover:bg-blue-700 uppercase tracking-widest active:scale-95"
+                                className="rounded-xl bg-blue-600 px-5 py-2 text-[10px] font-black text-white transition-all hover:bg-blue-700 tracking-widest active:scale-95"
                             >
                                 Get Started
                             </Link>
@@ -102,7 +102,7 @@ export function Navbar() {
                                 <Link 
                                     href={link.href} 
                                     onClick={() => setMobileOpen(false)} 
-                                    className="block text-center text-[10px] font-black text-zinc-400 hover:text-blue-600 transition-all uppercase tracking-[0.3em] py-4 rounded-2xl hover:bg-blue-50/50"
+                                    className="block text-center text-[10px] font-black text-zinc-400 hover:text-blue-600 transition-all tracking-[0.3em] py-4 rounded-2xl hover:bg-blue-50/50"
                                 >
                                     {link.label}
                                 </Link>
@@ -119,7 +119,7 @@ export function Navbar() {
                                 <Link
                                     href="/dashboard"
                                     onClick={() => setMobileOpen(false)}
-                                    className="w-full text-center rounded-2xl bg-blue-600 px-4 py-5 text-[10px] font-black text-white hover:bg-blue-700 transition-all uppercase tracking-[0.25em] active:scale-95"
+                                    className="w-full text-center rounded-2xl bg-blue-600 px-4 py-5 text-[10px] font-black text-white hover:bg-blue-700 transition-all tracking-[0.25em] active:scale-95"
                                 >
                                     Open Dashboard
                                 </Link>
@@ -129,19 +129,19 @@ export function Navbar() {
                                         <Link 
                                             href="/login" 
                                             onClick={() => setMobileOpen(false)} 
-                                            className="w-full text-center py-5 text-[10px] font-black text-zinc-500 hover:text-black uppercase tracking-[0.2em] border border-zinc-100 rounded-2xl bg-zinc-50 active:scale-95 transition-all"
+                                            className="w-full text-center py-5 text-[10px] font-black text-zinc-500 hover:text-black tracking-[0.2em] border border-zinc-100 rounded-2xl bg-zinc-50 active:scale-95 transition-all"
                                         >
                                             Sign In
                                         </Link>
                                         <Link 
                                             href="/signup" 
                                             onClick={() => setMobileOpen(false)} 
-                                            className="w-full text-center rounded-2xl bg-blue-600 px-4 py-5 text-[10px] font-black text-white hover:bg-blue-700 uppercase tracking-[0.2em] active:scale-95 transition-all"
+                                            className="w-full text-center rounded-2xl bg-blue-600 px-4 py-5 text-[10px] font-black text-white hover:bg-blue-700 tracking-[0.2em] active:scale-95 transition-all"
                                         >
                                             Sign Up
                                         </Link>
                                     </div>
-                                    <p className="text-[9px] font-black text-zinc-300 text-center uppercase tracking-widest mt-2">
+                                    <p className="text-[9px] font-black text-zinc-300 text-center tracking-widest mt-2">
                                         Free to use. No Credit Card Needed.
                                     </p>
                                 </>
