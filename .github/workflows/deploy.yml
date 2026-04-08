@@ -42,6 +42,9 @@ jobs:
             echo "--- Installing dependencies ---"
             npm install
 
+            echo "--- Ensure pm2 path ---"
+            export PATH=$PATH:$(npm bin -g)
+
             echo "--- Restarting app ---"
             pm2 restart offerra-ui || pm2 start npm --name "offerra-ui" -- start
 
