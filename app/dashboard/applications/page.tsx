@@ -15,7 +15,9 @@ import {
     Briefcase,
     Globe,
     Pencil,
-    Trash2
+    Trash2,
+    FileText,
+    Banknote
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import api from "@/app/lib/api";
@@ -81,6 +83,9 @@ export default function ApplicationsPage() {
     const [deletingJob, setDeletingJob] = useState<JobApplication | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
     const [showUrlField, setShowUrlField] = useState(false);
+
+    // Detail drawer
+    const [viewingJob, setViewingJob] = useState<JobApplication | null>(null);
 
     const observerTarget = useRef<HTMLTableRowElement>(null);
     const searchParams = useSearchParams();
@@ -152,6 +157,11 @@ export default function ApplicationsPage() {
 
     const openDeleteConfirm = (job: JobApplication) => {
         setDeletingJob(job);
+        setOpenDropdownId(null);
+    };
+
+    const openDetailDrawer = (job: JobApplication) => {
+        setViewingJob(job);
         setOpenDropdownId(null);
     };
 
@@ -450,6 +460,14 @@ export default function ApplicationsPage() {
                                 className="fixed z-[70] w-44 bg-white rounded-2xl border border-zinc-100 overflow-hidden"
                             >
                                 <button
+                                    onClick={() => openDetailDrawer(targetJob)}
+                                    className="flex w-full items-center gap-3 px-4 py-3 text-xs font-bold text-zinc-600 hover:bg-blue-50 hover:text-[#1C4ED8] transition-all"
+                                >
+                                    <FileText className="h-3.5 w-3.5" />
+                                    View Details
+                                </button>
+                                <div className="border-t border-zinc-50" />
+                                <button
                                     onClick={() => openEditModal(targetJob)}
                                     className="flex w-full items-center gap-3 px-4 py-3 text-xs font-bold text-zinc-600 hover:bg-blue-50 hover:text-[#1C4ED8] transition-all"
                                 >
@@ -682,6 +700,139 @@ export default function ApplicationsPage() {
                             </form>
                         </motion.div>
                     </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Job Detail Drawer */}
+            <AnimatePresence>
+                {viewingJob && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-50 bg-blue-950/30 backdrop-blur-sm"
+                            onClick={() => setViewingJob(null)}
+                        />
+                        <motion.div
+                            initial={{ x: "100%" }}
+                            animate={{ x: 0 }}
+                            exit={{ x: "100%" }}
+                            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+                            className="fixed right-0 top-0 h-full w-full max-w-xl z-50 bg-white border-l border-zinc-100 flex flex-col overflow-hidden"
+                        >
+                            {/* Drawer Header */}
+                            <div className="flex items-start justify-between p-8 pb-6 border-b border-zinc-50 shrink-0">
+                                <div className="flex items-center gap-4 min-w-0">
+                                    <div className="h-12 w-12 rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center justify-center shrink-0">
+                                        <Building2 className="h-5 w-5 text-zinc-400" />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <h2 className="text-base font-black text-brand-blue-black truncate">{viewingJob.title}</h2>
+                                        <p className="text-sm font-bold text-zinc-400 mt-0.5">{viewingJob.company}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setViewingJob(null)}
+                                    className="h-9 w-9 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-400 hover:bg-zinc-100 transition-all shrink-0 ml-4"
+                                >
+                                    <X className="h-4 w-4" />
+                                </button>
+                            </div>
+
+                            {/* Metadata chips */}
+                            <div className="flex flex-wrap gap-2 px-8 py-4 border-b border-zinc-50 shrink-0">
+                                <span className={cn("px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest", statusColors[viewingJob.status])}>
+                                    {viewingJob.status}
+                                </span>
+                                {viewingJob.is_remote && (
+                                    <span className="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-zinc-100 text-zinc-500">Remote</span>
+                                )}
+                                <span className="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-zinc-100 text-zinc-500">{viewingJob.type}</span>
+                                {viewingJob.location && (
+                                    <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-zinc-100 text-zinc-500">
+                                        <MapPin className="h-2.5 w-2.5" />{viewingJob.location}
+                                    </span>
+                                )}
+                                {viewingJob.salary && (
+                                    <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600">
+                                        <Banknote className="h-2.5 w-2.5" />{viewingJob.salary}
+                                    </span>
+                                )}
+                                {viewingJob.cv_match_score != null && (
+                                    <span className={cn(
+                                        "px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest",
+                                        viewingJob.cv_match_score >= 70 ? "bg-emerald-50 text-emerald-600" :
+                                            viewingJob.cv_match_score >= 40 ? "bg-amber-50 text-amber-600" : "bg-red-50 text-red-500"
+                                    )}>
+                                        {viewingJob.cv_match_score}% match
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Scrollable body */}
+                            <div className="flex-1 overflow-y-auto p-8 space-y-6">
+
+                                {/* Description */}
+                                {viewingJob.description ? (
+                                    <div>
+                                        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-3">Job Description</h3>
+                                        <div className="bg-zinc-50 rounded-2xl p-5 border border-zinc-100">
+                                            <p className="text-xs font-medium text-zinc-600 leading-relaxed whitespace-pre-wrap">
+                                                {viewingJob.description}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="bg-zinc-50 rounded-2xl p-6 border border-zinc-100 flex flex-col items-center gap-3 text-center">
+                                        <FileText className="h-8 w-8 text-zinc-300" />
+                                        <p className="text-xs font-bold text-zinc-400">No description was captured for this job.</p>
+                                        <p className="text-[10px] text-zinc-300 font-medium">Re-track the job from the extension to capture the description.</p>
+                                    </div>
+                                )}
+
+                                {/* CV Match Details */}
+                                {viewingJob.cv_match_details && (
+                                    <div>
+                                        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-3">CV Match Analysis</h3>
+                                        <div className="bg-zinc-50 rounded-2xl p-5 border border-zinc-100 space-y-3">
+                                            {(viewingJob.cv_match_details.strengths || []).map((s, i) => (
+                                                <p key={`s-${i}`} className="text-xs text-emerald-600 font-semibold leading-relaxed">✓ {s}</p>
+                                            ))}
+                                            {(viewingJob.cv_match_details.gaps || []).map((g, i) => (
+                                                <p key={`g-${i}`} className="text-xs text-red-400 font-semibold leading-relaxed">✗ {g}</p>
+                                            ))}
+                                            {viewingJob.cv_match_details.tip && (
+                                                <p className="text-xs text-blue-600 font-semibold leading-relaxed border-t border-zinc-100 pt-3">💡 {viewingJob.cv_match_details.tip}</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Footer actions */}
+                            <div className="shrink-0 border-t border-zinc-50 p-6 flex items-center gap-3">
+                                {viewingJob.job_url && (
+                                    <a
+                                        href={viewingJob.job_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex-1 btn-primary h-11 text-xs flex items-center justify-center gap-2"
+                                    >
+                                        <ExternalLink className="h-3.5 w-3.5" />
+                                        Open Job Posting
+                                    </a>
+                                )}
+                                <button
+                                    onClick={() => { setViewingJob(null); openEditModal(viewingJob); }}
+                                    className="flex-1 btn-secondary h-11 text-xs flex items-center justify-center gap-2"
+                                >
+                                    <Pencil className="h-3.5 w-3.5" />
+                                    Edit
+                                </button>
+                            </div>
+                        </motion.div>
+                    </>
                 )}
             </AnimatePresence>
 
