@@ -6,21 +6,21 @@ import { Quote, Sparkles } from "lucide-react";
 const testimonials = [
     {
         name: "Alex Rivera",
-        role: "Senior Frontend Engineer",
+        role: "Software Engineer",
         image: "https://api.uifaces.co/our-content/donated/x18pUX9Q.jpg",
-        text: "Offerra saved me at least 10 hours a week in tracking and re-tailoring my CV. I got 4 interviews in my first month using the AI Refactor tool alone."
+        text: "I was tracking applications in a spreadsheet before this. Offerra keeps everything in one place and the AI resume tips actually helped me tighten up my CV for each role."
     },
     {
         name: "Sarah Kim",
-        role: "Product Designer @ Stripe",
+        role: "Product Designer",
         image: "https://api.uifaces.co/our-content/donated/vY_H-H6A.jpg",
-        text: "The interview practice module is a game-changer. It predicted the exact STAR questions I faced in my design lead role at Stripe."
+        text: "The interview prep section gave me good questions to practice with before my last two interviews. It's a solid way to organize your prep without overthinking it."
     },
     {
         name: "Jameson Ward",
-        role: "DevOps specialist",
+        role: "DevOps Engineer",
         image: "https://api.uifaces.co/our-content/donated/uk99-m-P.jpg",
-        text: "Finally, a job-tracking tool that actually works in the background. No more messy spreadsheets or forgotten applications."
+        text: "I liked that it auto-fills job details from listings. Saves the copy-paste work and helps me stay on top of where I've applied without losing track."
     }
 ];
 
@@ -55,7 +55,7 @@ export function Testimonials() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
                     >
-                        Join 20,000+ professionals who land high-paying roles with Offerra's elite AI command center.
+                        See what job seekers are saying about Offerra — and how it changed their search.
                     </motion.p>
                 </div>
 
@@ -63,7 +63,7 @@ export function Testimonials() {
                     {testimonials.map((test, idx) => (
                         <motion.div
                             key={idx}
-                            className="group relative flex flex-col p-10 rounded-[2.5rem] border border-zinc-100 bg-white hover:bg-zinc-50/50 transition-all duration-500 hover:border-blue-100"
+                            className="group relative flex flex-col p-8 rounded-2xl border border-zinc-100 bg-white hover:bg-zinc-50/50 transition-all duration-500 hover:border-blue-100"
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}

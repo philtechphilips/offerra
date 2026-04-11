@@ -145,7 +145,7 @@ export default function Home() {
         {/* Pricing - Premium Tiers */}
         <section id="pricing" className="py-24 lg:py-32 relative bg-white">
           <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-4 text-center">
-            <div className="max-w-2xl mx-auto mb-32 text-center">
+            <div className="max-w-2xl mx-auto mb-16 text-center">
               <motion.h2
                 className="text-[clamp(2rem,4.5vw,4.2rem)] font-black tracking-tighter leading-[1.1] text-black text-gradient mb-10"
                 initial={{ opacity: 0, y: 20 }}
@@ -154,7 +154,7 @@ export default function Home() {
               >
                 Transparent plans.
               </motion.h2>
-              <p className="text-xl font-medium text-zinc-400 tracking-tight mb-16">Scale your career with the right tools.</p>
+              <p className="text-xl font-medium text-zinc-400 tracking-tight mb-10">Scale your career with the right tools.</p>
               
               {/* Currency Selector */}
               <div className="flex items-center justify-center mb-16">
@@ -188,7 +188,7 @@ export default function Home() {
                 <div
                   key={plan.id}
                   className={cn(
-                    "group relative border p-10 rounded-[2rem] text-left transition-all flex flex-col",
+                    "group relative border p-8 rounded-2xl text-left transition-all flex flex-col",
                     plan.is_popular
                       ? "border-2 border-[#1C4ED8] md:scale-110 z-10 hover:scale-[1.12] shimmer"
                       : "border-zinc-100 bg-white hover:border-blue-200 hover:-translate-y-2"
@@ -198,13 +198,13 @@ export default function Home() {
                     <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#1C4ED8] text-white px-6 py-2 rounded-full text-[11px] font-black">Most Popular</div>
                   )}
                   <div className={cn(
-                    "text-[10px] font-black uppercase tracking-[0.25em] mb-10",
+                    "text-[10px] font-black uppercase tracking-[0.25em] mb-5",
                     plan.is_popular ? "text-[#1C4ED8]" : "text-zinc-400"
                   )}>
                     {plan.name}
                   </div>
                   <div className={cn(
-                    "flex flex-col mb-10",
+                    "flex flex-col mb-6",
                     plan.is_popular ? "text-[#1C4ED8]" : "text-black"
                   )}>
                     <div className="flex items-baseline gap-2">
@@ -219,7 +219,7 @@ export default function Home() {
                     )}>{plan.credits} Application Credits</div>
                   </div>
                   <ul className={cn(
-                    "space-y-6 mb-12 text-sm font-black flex-grow",
+                    "space-y-4 mb-8 text-sm font-black grow",
                     plan.is_popular ? "text-black" : "text-zinc-500"
                   )}>
                     {COMMON_FEATURES.map((f, i) => (

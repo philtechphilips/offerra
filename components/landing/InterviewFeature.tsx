@@ -21,12 +21,12 @@ export function InterviewFeature() {
                         viewport={{ once: true }}
                         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
                     >
-                        <div className="relative rounded-[3rem] border border-white bg-white/60 backdrop-blur-2xl p-6 lg:p-10 shadow-[0_64px_120px_-20px_rgba(0,0,0,0.08)]">
+                        <div className="relative rounded-[3rem] border border-white bg-white/60 backdrop-blur-2xl p-6 lg:p-10">
                             <div className="space-y-6">
                                 {/* Header */}
                                 <div className="flex items-center justify-between pb-6 border-b border-zinc-100">
                                     <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                                        <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center text-white">
                                             <Zap className="h-5 w-5" />
                                         </div>
                                         <div>
@@ -54,7 +54,7 @@ export function InterviewFeature() {
 
                                     {/* Coach Insight */}
                                     <motion.div
-                                        className="ml-12 p-5 rounded-2xl bg-brand-blue-black text-white relative overflow-hidden shadow-xl"
+                                        className="ml-12 p-5 rounded-2xl bg-brand-blue-black text-white relative overflow-hidden"
                                         initial={{ opacity: 0, y: 10 }}
                                         whileInView={{ opacity: 1, y: 0 }}
                                         viewport={{ once: true }}
@@ -94,7 +94,7 @@ export function InterviewFeature() {
 
                         {/* Floating elements */}
                         <motion.div
-                            className="absolute -bottom-6 -right-6 p-4 rounded-2xl bg-white border border-zinc-100 shadow-2xl flex items-center gap-3"
+                            className="absolute -bottom-6 -right-6 p-4 rounded-2xl bg-white border border-zinc-100 flex items-center gap-3"
                             animate={{ y: [0, -10, 0] }}
                             transition={{ duration: 4, repeat: Infinity }}
                         >
@@ -149,7 +149,7 @@ export function InterviewFeature() {
                                     viewport={{ once: true }}
                                     transition={{ delay: 0.2 + (idx * 0.1) }}
                                 >
-                                    <div className="mt-1 h-6 w-6 rounded-full bg-blue-600 flex items-center justify-center shrink-0 shadow-lg shadow-blue-200">
+                                    <div className="mt-1 h-6 w-6 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
                                         <ShieldCheck className="h-3.5 w-3.5 text-white" />
                                     </div>
                                     <div>
@@ -162,7 +162,7 @@ export function InterviewFeature() {
 
                         <Link
                             href="/signup"
-                            className="group inline-flex items-center gap-4 rounded-3xl bg-blue-600 px-10 py-5 text-sm font-black text-white hover:bg-blue-700 transition-all uppercase tracking-[0.2em] shadow-2xl shadow-blue-200"
+                            className="group inline-flex items-center gap-4 rounded-3xl bg-blue-600 px-10 py-5 text-sm font-black text-white hover:bg-blue-700 transition-all uppercase tracking-[0.2em]"
                         >
                             Start Practicing
                         </Link>

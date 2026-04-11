@@ -88,26 +88,26 @@ export default function AdminSettings() {
     );
 
     return (
-        <div className="max-w-6xl mx-auto space-y-10 pb-20">
+        <div className="space-y-6 pb-20">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-black text-zinc-900 tracking-tight uppercase">Platform <span className="text-brand-blue">Logic.</span></h1>
-                    <p className="text-sm font-medium text-zinc-400 mt-1">Global feature costs, autonomous behavioral logic, and credit unit valuations.</p>
+                    <h1 className="text-2xl font-black text-zinc-900 tracking-tight">Platform <span className="text-blue-600">Logic</span></h1>
+                    <p className="text-sm text-zinc-400 mt-0.5">Global feature costs, autonomous behavioral logic, and credit unit valuations.</p>
                 </div>
                 <button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="h-14 px-10 bg-zinc-900 text-white rounded-[1.5rem] font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-black transition-all shadow-xl shadow-zinc-200 disabled:opacity-50"
+                    className="h-10 px-5 bg-blue-600 text-white rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-blue-700 transition-all disabled:opacity-50"
                 >
                     {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                     <span>Save Platform Logic</span>
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Information Panel */}
                 <div className="lg:col-span-1 space-y-6">
-                    <div className="bg-brand-blue rounded-[2.5rem] p-8 text-white shadow-xl shadow-blue-500/20">
+                    <div className="bg-brand-blue rounded-2xl p-5 text-white shadow-xl shadow-blue-500/20">
                         <Shield className="h-10 w-10 mb-6 opacity-80" />
                         <h3 className="text-xl font-black uppercase tracking-tight mb-2">Core Economy</h3>
                         <p className="text-xs font-bold opacity-80 leading-relaxed">
@@ -117,7 +117,7 @@ export default function AdminSettings() {
                         </p>
                     </div>
 
-                    <div className="bg-white border border-zinc-100 rounded-[2.5rem] p-8 space-y-4">
+                    <div className="bg-white border border-zinc-100 rounded-2xl p-5 space-y-4">
                         <div className="flex items-center gap-3 text-zinc-900 mb-2">
                             <Info className="h-5 w-5 text-brand-blue" />
                             <h4 className="text-[11px] font-black uppercase tracking-widest">Pricing Strategy</h4>
@@ -133,8 +133,8 @@ export default function AdminSettings() {
                 {/* Settings Editor */}
                 <div className="lg:col-span-2 space-y-8">
                     {/* Credit System Section */}
-                    <div className="bg-white border border-zinc-100 rounded-[3rem] p-10 shadow-sm">
-                        <div className="flex items-center gap-4 mb-10">
+                    <div className="bg-white border border-zinc-100 rounded-2xl p-6 shadow-sm">
+                        <div className="flex items-center gap-4 mb-5">
                             <div className="h-12 w-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600">
                                 <Zap className="h-6 w-6" />
                             </div>
@@ -146,7 +146,7 @@ export default function AdminSettings() {
 
                         <div className="space-y-8">
                             {creditSettings.map((setting) => (
-                                <div key={setting.id} className="grid md:grid-cols-2 gap-6 items-center bg-zinc-50/50 p-6 rounded-[2rem] border border-zinc-100/50 hover:border-zinc-200 transition-all">
+                                <div key={setting.id} className="grid md:grid-cols-2 gap-6 items-center bg-zinc-50/50 p-6 rounded-2xl border border-zinc-100/50 hover:border-zinc-200 transition-all">
                                     <div>
                                         <p className="text-sm font-black text-zinc-900 uppercase tracking-tight">{setting.display_name}</p>
                                         <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-1">Deducted per execution</p>
@@ -172,8 +172,8 @@ export default function AdminSettings() {
                     </div>
 
                     {generalSettings.length > 0 && (
-                        <div className="bg-white border border-zinc-100 rounded-[3rem] p-10 shadow-sm">
-                            <div className="flex items-center gap-4 mb-10">
+                        <div className="bg-white border border-zinc-100 rounded-2xl p-6 shadow-sm">
+                            <div className="flex items-center gap-4 mb-5">
                                 <div className="h-12 w-12 rounded-2xl bg-zinc-50 flex items-center justify-center text-zinc-500">
                                     <Settings className="h-6 w-6" />
                                 </div>

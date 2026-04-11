@@ -96,7 +96,7 @@ const showcaseFeatures = [
                 {/* Application Form Mockup */}
                 <div className="space-y-5">
                     <div className="flex items-center gap-3 pb-4 border-b border-zinc-100">
-                        <div className="h-10 w-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-200">
+                        <div className="h-10 w-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white">
                             <MousePointerClick className="h-5 w-5" />
                         </div>
                         <div>
@@ -156,10 +156,10 @@ const showcaseFeatures = [
         ],
         cta: "Write a Proposal",
         visual: (
-            <div className="rounded-[2.5rem] border border-zinc-100 bg-white/60 backdrop-blur-2xl p-6 lg:p-10 shadow-[0_64px_120px_-20px_rgba(0,0,0,0.08)] relative">
+            <div className="rounded-[2.5rem] border border-zinc-100 bg-white/60 backdrop-blur-2xl p-6 lg:p-10 relative">
                 <div className="space-y-5">
                     <div className="flex items-center gap-3 pb-4 border-b border-zinc-100">
-                        <div className="h-10 w-10 rounded-xl bg-violet-600 flex items-center justify-center text-white shadow-lg shadow-violet-200">
+                        <div className="h-10 w-10 rounded-xl bg-violet-600 flex items-center justify-center text-white">
                             <Mail className="h-5 w-5" />
                         </div>
                         <div>
@@ -258,7 +258,7 @@ export function MoreFeatures() {
                                             viewport={{ once: true }}
                                             transition={{ delay: 0.2 + (idx * 0.1) }}
                                         >
-                                            <div className="mt-1 h-6 w-6 rounded-full bg-blue-600 flex items-center justify-center shrink-0 shadow-lg shadow-blue-200">
+                                            <div className="mt-1 h-6 w-6 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
                                                 <CheckCircle2 className="h-3.5 w-3.5 text-white" />
                                             </div>
                                             <div>
@@ -271,7 +271,7 @@ export function MoreFeatures() {
 
                                 <Link
                                     href="/signup"
-                                    className="group inline-flex items-center gap-4 rounded-3xl bg-blue-600 px-10 py-5 text-sm font-black text-white hover:bg-blue-700 transition-all uppercase tracking-[0.2em] shadow-2xl shadow-blue-200"
+                                    className="group inline-flex items-center gap-4 rounded-3xl bg-blue-600 px-10 py-5 text-sm font-black text-white hover:bg-blue-700 transition-all uppercase tracking-[0.2em]"
                                 >
                                     {feature.cta}
                                 </Link>

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     PenTool, Sparkles, Loader2, Copy, CheckCircle2,
-    Briefcase, ArrowRight, Zap, Target, RefreshCw
+    FileText, Zap, RefreshCw
 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/app/lib/api";
@@ -44,17 +44,15 @@ export default function ProposalWriterPage() {
             toast.error("Please paste the job description first.");
             return;
         }
-
         setIsGenerating(true);
-        const loadingId = toast.loading("AI is crafting your irresistible proposal...");
+        const loadingId = toast.loading("AI is writing your proposal...");
         try {
             const res = await api.post('/cv/proposal', {
                 job_description: jobDescription,
                 cv_id: selectedCvId
             });
-
             setResult(res.data);
-            toast.success("Proposal ready to win!", { id: loadingId });
+            toast.success("Proposal ready!", { id: loadingId });
         } catch (err: any) {
             toast.error(err.response?.data?.error || "Failed to generate proposal.", { id: loadingId });
         } finally {
@@ -71,148 +69,163 @@ export default function ProposalWriterPage() {
     };
 
     return (
-        <div className="w-full space-y-12 pb-32 px-4 sm:px-8">
-            <header className="space-y-4">
-                <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-2xl bg-blue-50 flex items-center justify-center border border-blue-100">
-                        <PenTool className="h-5 w-5 text-blue-600" />
+        <div className="w-full min-h-full pb-20">
+
+            {/* Page header */}
+            <div className="mb-8">
+                <div className="flex items-center gap-2 mb-3">
+                    <div className="h-7 w-7 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center">
+                        <PenTool className="h-3.5 w-3.5 text-blue-600" />
                     </div>
-                    <span className="text-[11px] font-black text-blue-600">Proposal engine</span>
+                    <span className="text-xs font-black uppercase tracking-widest text-blue-600">AI-Powered</span>
                 </div>
-                <h1 className="text-4xl md:text-5xl font-black tracking-tight text-zinc-900">
-                    Win the <span className="text-blue-600">gig.</span>
-                </h1>
-                <p className="text-sm font-medium text-zinc-400 max-w-2xl leading-relaxed">
-                    Generate high-converting Upwork proposals in seconds. Using your background and the job's unique needs to craft a hook that clients can't ignore.
+                <h1 className="text-3xl font-black tracking-tight text-zinc-900">Proposal Writer</h1>
+                <p className="text-sm text-zinc-400 mt-1.5 max-w-xl">
+                    Generate high-converting Upwork proposals in seconds — tailored to the job post and your background.
                 </p>
-            </header>
+            </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                {/* Left: Input */}
-                <div className="lg:col-span-5 space-y-8">
-                    <section className="rounded-[2.5rem] border border-zinc-100 bg-white p-10 space-y-10">
-                        <div className="space-y-6">
-                            <h3 className="text-xs font-black text-zinc-900 flex items-center gap-2">
-                                <Briefcase className="h-4 w-4 text-blue-500" />
-                                Select source CV
-                            </h3>
-                            <div className="space-y-3">
-                                {cvs.map((cv) => (
-                                    <button
-                                        key={cv.id}
-                                        onClick={() => setSelectedCvId(cv.id)}
-                                        className={cn(
-                                            "w-full text-left p-4 rounded-2xl text-[11px] font-bold transition-all border",
-                                            selectedCvId === cv.id
-                                                ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200"
-                                                : "bg-zinc-50 text-zinc-500 border-zinc-100 hover:bg-zinc-100"
-                                        )}
-                                    >
-                                        {cv.profile_name || cv.filename}
-                                    </button>
-                                ))}
-                                {cvs.length === 0 && (
-                                    <p className="text-[10px] text-zinc-400 italic">No CVs found. Upload one in Profile first.</p>
-                                )}
-                            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
+
+                {/* Left: Controls */}
+                <div className="lg:col-span-2 space-y-4 lg:sticky lg:top-6">
+
+                    {/* Step 1: Select CV */}
+                    <div className="rounded-2xl border border-zinc-100 bg-white overflow-hidden">
+                        <div className="flex items-center gap-3 px-5 py-4 border-b border-zinc-50">
+                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-[10px] font-black text-white shrink-0">1</span>
+                            <span className="text-sm font-black text-zinc-900">Select Resume</span>
                         </div>
+                        <div className="p-4">
+                            {cvs.length === 0 ? (
+                                <div className="flex flex-col items-center py-6 text-center">
+                                    <p className="text-xs font-bold text-zinc-400 mb-3">No resumes found</p>
+                                    <a href="/dashboard/profile" className="inline-flex items-center gap-1.5 h-8 px-4 rounded-lg bg-blue-600 text-xs font-bold text-white hover:bg-blue-700 transition-all">
+                                        Go to Profile
+                                    </a>
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    {cvs.map((cv) => (
+                                        <button
+                                            key={cv.id}
+                                            onClick={() => setSelectedCvId(cv.id)}
+                                            className={cn(
+                                                "w-full text-left flex items-center gap-3 p-3 rounded-xl text-sm transition-all border",
+                                                selectedCvId === cv.id
+                                                    ? "bg-blue-600 text-white border-blue-600"
+                                                    : "bg-zinc-50 text-zinc-700 border-transparent hover:border-zinc-200 hover:bg-white"
+                                            )}
+                                        >
+                                            <div className={cn("h-7 w-7 shrink-0 rounded-lg flex items-center justify-center", selectedCvId === cv.id ? "bg-white/20" : "bg-white border border-zinc-100")}>
+                                                <FileText className={cn("h-3.5 w-3.5", selectedCvId === cv.id ? "text-white" : "text-blue-600")} />
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <p className="text-xs font-bold truncate">{cv.profile_name || cv.filename}</p>
+                                                {cv.is_active && <p className={cn("text-[10px]", selectedCvId === cv.id ? "text-blue-200" : "text-blue-500")}>Active</p>}
+                                            </div>
+                                            {selectedCvId === cv.id && <CheckCircle2 className="h-4 w-4 shrink-0 text-white" />}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
 
-                        <div className="space-y-6">
-                            <div className="flex items-center justify-between">
-                                <h3 className="text-xs font-black text-zinc-900 flex items-center gap-2">
-                                    <Target className="h-4 w-4 text-blue-500" />
-                                    Job description
-                                </h3>
+                    {/* Step 2: Job post */}
+                    <div className="rounded-2xl border border-zinc-100 bg-white overflow-hidden">
+                        <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-50">
+                            <div className="flex items-center gap-3">
+                                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-[10px] font-black text-white shrink-0">2</span>
+                                <span className="text-sm font-black text-zinc-900">Job / Gig Post</span>
                             </div>
+                            <span className="text-[10px] text-zinc-300 font-bold">{jobDescription.length} chars</span>
+                        </div>
+                        <div className="p-4">
                             <textarea
                                 value={jobDescription}
                                 onChange={(e) => setJobDescription(e.target.value)}
-                                placeholder="Paste the Upwork/Job post text here..."
-                                className="w-full h-80 p-6 rounded-3xl bg-zinc-50 border border-zinc-100 focus:bg-white focus:border-blue-600 transition-all outline-none font-medium text-sm text-zinc-600 leading-relaxed resize-none"
+                                placeholder="Paste the Upwork job post or job description here..."
+                                className="w-full h-56 p-3 rounded-xl bg-zinc-50 border border-zinc-100 focus:bg-white focus:border-blue-500 transition-all outline-none text-sm text-zinc-700 leading-relaxed resize-none"
                             />
                         </div>
+                    </div>
 
-                        <button
-                            onClick={handleGenerate}
-                            disabled={isGenerating || !jobDescription.trim() || !selectedCvId}
-                            className="w-full h-16 rounded-2xl bg-zinc-900 text-white text-[12px] font-black flex items-center justify-center gap-4 transition-all hover:bg-black hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 shadow-xl shadow-zinc-200"
-                        >
-                            {isGenerating ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
-                            Write proposal
-                        </button>
-                    </section>
+                    <button
+                        onClick={handleGenerate}
+                        disabled={isGenerating || !jobDescription.trim() || !selectedCvId}
+                        className="w-full h-12 rounded-xl bg-blue-600 text-white text-sm font-black flex items-center justify-center gap-2.5 transition-all hover:bg-blue-700 active:scale-[0.99] disabled:opacity-40"
+                    >
+                        {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                        {isGenerating ? "Writing your proposal..." : "Generate Proposal"}
+                    </button>
                 </div>
 
                 {/* Right: Output */}
-                <div className="lg:col-span-7">
+                <div className="lg:col-span-3">
                     <AnimatePresence mode="wait">
                         {result ? (
                             <motion.div
                                 key="result"
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                                className="space-y-8"
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -8 }}
+                                className="space-y-4"
                             >
-                                <div className="rounded-[2.5rem] border border-zinc-100 bg-white p-10 relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
-                                        <PenTool className="h-40 w-40 text-blue-600" />
+                                <div className="rounded-2xl border border-zinc-100 bg-white overflow-hidden">
+                                    {/* Action bar */}
+                                    <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-50">
+                                        <div>
+                                            <p className="text-sm font-black text-zinc-900">Your Proposal</p>
+                                            <p className="text-[11px] text-zinc-400">Ready to paste on Upwork</p>
+                                        </div>
+                                        <button
+                                            onClick={copyToClipboard}
+                                            className={cn(
+                                                "flex items-center gap-1.5 h-8 px-4 rounded-lg text-xs font-bold transition-all",
+                                                hasCopied
+                                                    ? "bg-emerald-500 text-white"
+                                                    : "bg-blue-600 text-white hover:bg-blue-700"
+                                            )}
+                                        >
+                                            {hasCopied ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                                            {hasCopied ? "Copied!" : "Copy to Upwork"}
+                                        </button>
                                     </div>
 
-                                    <div className="relative z-10 space-y-8">
-                                        <div className="flex items-center justify-between border-b border-zinc-50 pb-6">
-                                            <div>
-                                                <h3 className="text-lg font-black tracking-tight text-zinc-900">Your generated proposal</h3>
-                                                <p className="text-[11px] font-bold text-zinc-400 mt-1">Ready for copy & paste</p>
-                                            </div>
-                                            <button
-                                                onClick={copyToClipboard}
-                                                className={cn(
-                                                    "flex items-center gap-2 px-6 py-3 rounded-xl text-[11px] font-black transition-all",
-                                                    hasCopied ? "bg-emerald-500 text-white" : "bg-blue-50 text-blue-600 hover:bg-blue-100"
-                                                )}
-                                            >
-                                                {hasCopied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                                                {hasCopied ? "Copied!" : "Copy to Upwork"}
-                                            </button>
-                                        </div>
-
-                                        <div className="bg-zinc-50/50 rounded-3xl p-8 border border-zinc-100">
-                                            <textarea
-                                                readOnly
-                                                value={result.proposal}
-                                                className="w-full min-h-[400px] bg-transparent outline-none font-medium text-sm text-zinc-600 leading-[1.8] resize-none"
-                                            />
-                                        </div>
-
-                                        {result.strategy_used && (
-                                            <div className="p-6 rounded-2xl bg-blue-50/50 border border-blue-100">
-                                                <h4 className="text-[11px] font-black text-blue-600 mb-2 flex items-center gap-2">
-                                                    <Zap className="h-3 w-3" />
-                                                    AI strategy applied
-                                                </h4>
-                                                <p className="text-[11px] font-bold text-blue-900/70 leading-relaxed italic">
-                                                    "{result.strategy_used}"
-                                                </p>
-                                            </div>
-                                        )}
+                                    {/* Proposal body */}
+                                    <div className="p-6">
+                                        <textarea
+                                            readOnly
+                                            value={result.proposal}
+                                            className="w-full min-h-96 bg-zinc-50 border border-zinc-100 rounded-xl p-5 outline-none text-sm text-zinc-700 leading-relaxed resize-none"
+                                        />
                                     </div>
                                 </div>
+
+                                {/* Strategy note */}
+                                {result.strategy_used && (
+                                    <div className="rounded-2xl border border-zinc-100 bg-white p-5">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <Zap className="h-3.5 w-3.5 text-blue-600" />
+                                            <span className="text-xs font-black text-zinc-400 uppercase tracking-widest">Strategy applied</span>
+                                        </div>
+                                        <p className="text-sm text-zinc-600 leading-relaxed italic">"{result.strategy_used}"</p>
+                                    </div>
+                                )}
                             </motion.div>
                         ) : (
                             <motion.div
                                 key="placeholder"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                className="h-full min-h-[600px] rounded-[2.5rem] border-2 border-dashed border-zinc-100 flex flex-col items-center justify-center text-center p-12 text-zinc-300 bg-zinc-50/20"
+                                className="rounded-2xl border-2 border-dashed border-zinc-100 flex flex-col items-center justify-center text-center p-12 min-h-80 bg-zinc-50/30"
                             >
-                                <div className="h-24 w-24 rounded-full bg-white border border-zinc-50 flex items-center justify-center mb-8 shadow-sm">
-                                    <RefreshCw className="h-10 w-10 animate-pulse text-zinc-200" />
+                                <div className="h-12 w-12 rounded-2xl bg-white border border-zinc-100 flex items-center justify-center mb-4">
+                                    <PenTool className="h-5 w-5 text-zinc-200" />
                                 </div>
-                                <h3 className="text-xl font-bold text-zinc-400 mb-2 tracking-tighter">Ready for input</h3>
-                                <p className="text-sm font-medium max-w-sm">
-                                    Paste the job description on the left to generate your custom-tailored proposal.
-                                </p>
+                                <p className="text-sm font-bold text-zinc-300 mb-1">Your proposal will appear here</p>
+                                <p className="text-xs text-zinc-300 max-w-xs">Select a resume and paste a job post on the left, then click generate.</p>
                             </motion.div>
                         )}
                     </AnimatePresence>

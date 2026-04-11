@@ -14,13 +14,13 @@ export function DashboardPreview() {
         <div className="mx-auto mt-24 sm:mt-32 max-w-6xl px-4 lg:px-8 relative">
             <div className="absolute -inset-4 bg-blue-100/30 blur-3xl -z-10 rounded-[3rem]" />
             <motion.div
-                className="relative overflow-hidden rounded-[2rem] lg:rounded-[3rem] border border-white/50 bg-white/20 p-2 sm:p-4 backdrop-blur-sm shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)]"
+                className="relative overflow-hidden rounded-[2rem] lg:rounded-[3rem] border border-white/50 bg-white/20 p-2 sm:p-4 backdrop-blur-sm"
                 initial={{ opacity: 0, scale: 0.95, y: 60 }}
                 whileInView={{ opacity: 1, scale: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
             >
-                <div className="rounded-[1.5rem] lg:rounded-[2.5rem] bg-white border border-zinc-200/50 overflow-hidden shadow-2xl">
+                <div className="rounded-[1.5rem] lg:rounded-[2.5rem] bg-white border border-zinc-200/50 overflow-hidden">
                     {/* Header */}
                     <div className="flex flex-col border-b border-zinc-100/80">
                         <div className="flex h-12 sm:h-14 items-center justify-between px-6 sm:px-8 bg-zinc-50/30">

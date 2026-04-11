@@ -32,7 +32,7 @@ export function Navbar() {
                         <Link
                             key={link.label}
                             href={link.href}
-                            className="relative text-[10px] font-black text-zinc-400 transition-colors hover:text-black tracking-[0.2em] group"
+                            className="relative text-[10px] font-black text-zinc-400 transition-colors hover:text-black tracking-[0.2em] uppercase group"
                         >
                             {link.label}
                             <span className="absolute -bottom-1 left-0 h-[1.5px] w-0 bg-blue-600 transition-all group-hover:w-full" />
@@ -45,18 +45,18 @@ export function Navbar() {
                     {isLoggedIn ? (
                         <Link
                             href="/dashboard"
-                            className="rounded-xl bg-[#1C4ED8] px-5 py-2 text-[10px] font-black text-white transition-all hover:bg-[#1e3a8a] tracking-widest active:scale-95"
+                            className="rounded-xl bg-[#1C4ED8] uppercase px-5 py-2 text-[10px] font-black text-white transition-all hover:bg-[#1e3a8a] tracking-widest active:scale-95"
                         >
                             Dashboard
                         </Link>
                     ) : (
                         <>
-                            <Link href="/login" className="text-[10px] font-black text-zinc-400 hover:text-black transition-colors tracking-[0.2em]">
+                            <Link href="/login" className="text-[10px] uppercase font-black text-zinc-400 hover:text-black transition-colors tracking-[0.2em]">
                                 Sign In
                             </Link>
                             <Link
                                 href="/signup"
-                                className="rounded-xl bg-blue-600 px-5 py-2 text-[10px] font-black text-white transition-all hover:bg-blue-700 tracking-widest active:scale-95"
+                                className="rounded-xl bg-blue-600 px-5  uppercase py-2 text-[10px] font-black text-white transition-all hover:bg-blue-700 tracking-widest active:scale-95"
                             >
                                 Get Started
                             </Link>
@@ -102,7 +102,7 @@ export function Navbar() {
                                 <Link 
                                     href={link.href} 
                                     onClick={() => setMobileOpen(false)} 
-                                    className="block text-center text-[10px] font-black text-zinc-400 hover:text-blue-600 transition-all tracking-[0.3em] py-4 rounded-2xl hover:bg-blue-50/50"
+                                    className="block text-center text-[10px] font-black text-zinc-400 hover:text-blue-600 transition-all tracking-[0.3em] uppercase py-4 rounded-2xl hover:bg-blue-50/50"
                                 >
                                     {link.label}
                                 </Link>

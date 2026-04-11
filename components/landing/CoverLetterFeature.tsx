@@ -22,7 +22,7 @@ export function CoverLetterFeature() {
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-blue-50 rounded-full blur-[80px] -z-10 group-hover:bg-blue-100 transition-colors duration-700" />
                             
                             {/* Main Document UI */}
-                            <div className="w-full h-full rounded-[2.5rem] border border-zinc-100 bg-white shadow-2xl overflow-hidden flex flex-col p-8 lg:p-12 relative z-10 transition-transform duration-500 group-hover:-translate-y-2">
+                            <div className="w-full h-full rounded-[2.5rem] border border-zinc-100 bg-white overflow-hidden flex flex-col p-8 lg:p-12 relative z-10 transition-transform duration-500 group-hover:-translate-y-2">
                                 <div className="flex items-center justify-between mb-12">
                                     <div className="flex gap-2">
                                         <div className="h-3 w-3 rounded-full bg-red-400/20" />
@@ -82,7 +82,7 @@ export function CoverLetterFeature() {
                                 
                                 <div className="mt-auto pt-12 flex justify-end">
                                     <motion.div
-                                        className="h-12 w-12 rounded-2xl bg-black flex items-center justify-center shadow-lg shadow-black/10"
+                                        className="h-12 w-12 rounded-2xl bg-black flex items-center justify-center"
                                         whileHover={{ scale: 1.1 }}
                                     >
                                         <Send className="h-5 w-5 text-white" />
@@ -91,7 +91,7 @@ export function CoverLetterFeature() {
 
                                 {/* Floating AI Insight */}
                                 <motion.div
-                                    className="absolute top-1/3 -right-6 lg:-right-12 p-5 rounded-2xl bg-white border border-blue-100 shadow-[0_20px_40px_rgba(28,78,216,0.1)] max-w-[200px] flex gap-3 backdrop-blur-md"
+                                    className="absolute top-1/3 -right-6 lg:-right-12 p-5 rounded-2xl bg-white border border-blue-100 max-w-[200px] flex gap-3 backdrop-blur-md"
                                     animate={{ y: [0, -10, 0] }}
                                     transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                                 >
@@ -148,7 +148,7 @@ export function CoverLetterFeature() {
                                     viewport={{ once: true }}
                                     transition={{ delay: 0.2 + (idx * 0.1) }}
                                 >
-                                    <div className="mt-1 h-6 w-6 rounded-full bg-blue-600 flex items-center justify-center shrink-0 shadow-lg shadow-blue-200">
+                                    <div className="mt-1 h-6 w-6 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
                                         <CheckCircle2 className="h-3.5 w-3.5 text-white" />
                                     </div>
                                     <div className="sm:text-left">
@@ -161,7 +161,7 @@ export function CoverLetterFeature() {
 
                         <Link
                             href="/signup"
-                            className="group inline-flex items-center gap-4 rounded-3xl bg-blue-600 px-10 py-5 text-sm font-black text-white hover:bg-blue-700 transition-all uppercase tracking-[0.2em] shadow-2xl shadow-blue-200 active:scale-95"
+                            className="group inline-flex items-center gap-4 rounded-3xl bg-blue-600 px-10 py-5 text-sm font-black text-white hover:bg-blue-700 transition-all uppercase tracking-[0.2em] active:scale-95"
                         >
                             Start Writing
                         </Link>

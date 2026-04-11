@@ -47,11 +47,11 @@ export function Features() {
     return (
         <section id="features" className="py-24 lg:py-32 relative bg-white overflow-hidden">
             {/* Minimalist Top/Bottom Accents */}
-            <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-zinc-200/60 to-transparent" />
-            <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-zinc-200/60 to-transparent" />
+            <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-zinc-200/60 to-transparent" />
+            <div className="absolute bottom-0 left-0 w-full h-px bg-linear-to-r from-transparent via-zinc-200/60 to-transparent" />
 
-            <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-4 relative">
-                <div className="flex flex-col items-center lg:items-start text-center lg:text-left mb-32 max-w-3xl mx-auto lg:mx-0">
+            <div className="mx-auto max-w-360 px-4 sm:px-6 lg:px-4 relative">
+                <div className="flex flex-col items-center lg:items-start text-center lg:text-left mb-16 max-w-3xl mx-auto lg:mx-0">
                     <motion.div
                         className="mb-8 flex items-center gap-3"
                         initial={{ opacity: 0, x: -10 }}
@@ -88,20 +88,20 @@ export function Features() {
                     {features.map((feature, idx) => (
                         <motion.div
                             key={feature.title}
-                            className="group relative flex flex-col items-center lg:items-start text-center lg:text-left p-10 rounded-[2rem] border border-zinc-100 bg-white hover:bg-zinc-50/50 transition-all duration-500 overflow-hidden"
+                            className="group relative flex flex-col items-center lg:items-start text-center lg:text-left p-7 rounded-2xl border border-zinc-100 bg-white hover:bg-zinc-50/50 transition-all duration-500 overflow-hidden"
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.6, delay: idx * 0.1 }}
                         >
                             {/* Card Spotlight Background Glow */}
-                            <div className="absolute inset-x-0 -top-px h-px w-full bg-gradient-to-r from-transparent via-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                            <div className="absolute inset-x-0 -top-px h-px w-full bg-linear-to-r from-transparent via-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                            <div className="mb-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-white border border-zinc-100 shadow-sm transition-all duration-500 group-hover:scale-110 group-hover:shadow-xl group-hover:bg-blue-600 group-hover:text-white text-blue-600">
-                                <feature.icon className="h-6 w-6" />
+                            <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-xl bg-white border border-zinc-100 transition-all duration-500 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white text-blue-600">
+                                <feature.icon className="h-5 w-5" />
                             </div>
 
-                            <h3 className="text-xl font-black mb-4 tracking-tight text-black group-hover:text-blue-600 transition-colors tracking-[0.05em]">{feature.title}</h3>
+                            <h3 className="text-xl font-black mb-4 tracking-tight text-black group-hover:text-blue-600 transition-colors">{feature.title}</h3>
                             <p className="text-sm font-medium text-zinc-500 leading-relaxed group-hover:text-zinc-600 transition-colors">
                                 {feature.description}
                             </p>

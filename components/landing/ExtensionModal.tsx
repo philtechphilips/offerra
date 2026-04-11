@@ -58,12 +58,12 @@ export function ExtensionModal({ isOpen, onClose }: ExtensionModalProps) {
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-[0_64px_128px_-32px_rgba(0,0,0,0.3)] overflow-hidden border border-zinc-100"
+                        className="relative w-full max-w-2xl bg-white rounded-[3rem] overflow-hidden border border-zinc-100"
                     >
                         {/* Header Area */}
                         <div className="p-8 pb-0 flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-200">
+                                <div className="h-10 w-10 rounded-2xl bg-blue-600 flex items-center justify-center">
                                     <Download className="h-5 w-5 text-white" />
                                 </div>
                                 <div>
@@ -92,7 +92,7 @@ export function ExtensionModal({ isOpen, onClose }: ExtensionModalProps) {
                                     rel="noopener noreferrer"
                                     className={cn(
                                         "group block p-6 rounded-3xl border transition-all duration-300",
-                                        "bg-white border-zinc-100 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5",
+                                        "bg-white border-zinc-100 hover:border-blue-200",
                                         "hover:-translate-y-1"
                                     )}
                                     initial={{ opacity: 0, x: -20 }}
@@ -113,7 +113,7 @@ export function ExtensionModal({ isOpen, onClose }: ExtensionModalProps) {
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="h-10 w-10 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-300 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-lg shadow-transparent group-hover:shadow-blue-200" />
+                                        <div className="h-10 w-10 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-300 group-hover:bg-blue-600 group-hover:text-white transition-all" />
                                     </div>
                                 </motion.a>
                             ))}
@@ -122,7 +122,7 @@ export function ExtensionModal({ isOpen, onClose }: ExtensionModalProps) {
                         {/* Footer Area */}
                         <div className="px-8 py-6 bg-zinc-50/50 border-t border-zinc-100 flex items-center justify-center gap-4">
                             <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] text-center">
-                                Trusted by <span className="text-black">10,000+</span> job seekers worldwide.
+                                Used by job seekers <span className="text-black">worldwide.</span>
                             </p>
                         </div>
                     </motion.div>

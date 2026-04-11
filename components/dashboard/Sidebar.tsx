@@ -86,30 +86,30 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 )}
             </div>
 
-            <div className="flex flex-1 flex-col gap-y-10 px-6 py-8 overflow-y-auto">
+            <div className="flex flex-1 flex-col gap-y-7 px-4 py-6 overflow-y-auto">
                 <div>
-                    <span className="px-3 text-[11px] font-black text-zinc-300">Your jobs</span>
-                    <nav className="mt-6 space-y-1.5">
+                    <span className="px-3 text-[11px] font-semibold text-zinc-400">Your jobs</span>
+                    <nav className="mt-3 space-y-0.5">
                         {navigation.map((item) => (
                             <Link
                                 key={item.name}
                                 href={item.href}
                                 className={cn(
-                                    "group flex items-center gap-3.5 rounded-2xl px-4 py-3 text-[13px] font-bold transition-all relative overflow-hidden",
+                                    "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-medium transition-all",
                                     pathname === item.href
-                                        ? "bg-brand-blue text-white"
-                                        : "text-zinc-400 hover:bg-zinc-50 hover:text-brand-blue"
+                                        ? "bg-blue-600 text-white"
+                                        : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
                                 )}
                             >
                                 <item.icon className={cn(
                                     "h-4 w-4 shrink-0 transition-colors",
-                                    pathname === item.href ? "text-white/70" : "text-zinc-300 group-hover:text-brand-blue"
+                                    pathname === item.href ? "text-white/80" : "text-zinc-400 group-hover:text-zinc-600"
                                 )} />
                                 {item.name === 'Overview' ? 'Summary' : item.name}
                                 {item.name === 'Applications' && jobs.length > 0 && (
                                     <span className={cn(
-                                        "ml-auto h-5 min-w-[20px] px-1.5 rounded-full flex items-center justify-center text-[9px] font-black",
-                                        pathname === item.href ? "bg-white/10 text-white" : "bg-brand-blue-light text-brand-blue"
+                                        "ml-auto h-5 min-w-5 px-1 rounded-full flex items-center justify-center text-[9px] font-black",
+                                        pathname === item.href ? "bg-white/20 text-white" : "bg-blue-50 text-blue-600"
                                     )}>
                                         {jobs.length}
                                     </span>
@@ -120,35 +120,36 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </div>
 
                 <div>
-                    <span className="px-3 text-[11px] font-black text-zinc-300">Tools</span>
-                    <nav className="mt-6 space-y-1.5">
+                    <span className="px-3 text-[11px] font-semibold text-zinc-400">Tools</span>
+                    <nav className="mt-3 space-y-0.5">
                         {strategy.map((item) => (
                             <Link
                                 key={item.name}
                                 href={item.href}
                                 className={cn(
-                                    "group flex items-center gap-3.5 rounded-2xl px-4 py-3 text-[13px] font-bold transition-all",
+                                    "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-medium transition-all",
                                     pathname === item.href
-                                        ? "bg-brand-blue text-white"
-                                        : "text-zinc-400 hover:bg-zinc-50 hover:text-brand-blue"
+                                        ? "bg-blue-600 text-white"
+                                        : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
                                 )}
                             >
                                 <item.icon className={cn(
                                     "h-4 w-4 shrink-0 transition-colors",
-                                    pathname === item.href ? "text-white/70" : "text-zinc-300 group-hover:text-brand-blue"
+                                    pathname === item.href ? "text-white/80" : "text-zinc-400 group-hover:text-zinc-600"
                                 )} />
                                 {item.name}
                             </Link>
                         ))}
                     </nav>
                 </div>
+
                 {user?.role === 'admin' && (
                     <div>
-                        <span className="px-3 text-[11px] font-black text-zinc-300">Management</span>
-                        <nav className="mt-6 space-y-1.5">
+                        <span className="px-3 text-[11px] font-semibold text-zinc-400">Management</span>
+                        <nav className="mt-3 space-y-0.5">
                             <Link
                                 href="/admin"
-                                className="group flex items-center gap-3.5 rounded-2xl px-4 py-3 text-[13px] font-bold transition-all bg-indigo-50/50 text-indigo-600 hover:bg-indigo-600 hover:text-white"
+                                className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-medium transition-all bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white"
                             >
                                 <ShieldCheck className="h-4 w-4 shrink-0" />
                                 Admin Portal
@@ -186,19 +187,19 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     </Link>
                 </div>
 
-                <div className="mt-4 px-2 space-y-0.5">
+                <div className="mt-3 px-1 space-y-0.5">
                     <Link
                         href="/dashboard/settings"
-                        className="flex items-center gap-3.5 rounded-xl px-3 py-2.5 text-[13px] font-medium text-zinc-400 hover:bg-zinc-50 hover:text-blue-600 transition-all"
+                        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-medium text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 transition-all"
                     >
-                        <Settings className="h-4 w-4" />
+                        <Settings className="h-4 w-4 text-zinc-400" />
                         Settings
                     </Link>
                     <button
                         onClick={logout}
-                        className="flex w-full items-center gap-3.5 rounded-xl px-3 py-2.5 text-[13px] font-medium text-zinc-400 hover:bg-red-50 hover:text-red-500 transition-all"
+                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-medium text-zinc-500 hover:bg-red-50 hover:text-red-500 transition-all"
                     >
-                        <LogOut className="h-4 w-4" />
+                        <LogOut className="h-4 w-4 text-zinc-400" />
                         Sign out
                     </button>
                 </div>

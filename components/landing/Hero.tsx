@@ -170,7 +170,7 @@ export function Hero() {
                     >
                         <X className="h-8 w-8" />
                     </button>
-                    <div className="w-full max-w-5xl aspect-video bg-zinc-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl relative">
+                    <div className="w-full max-w-5xl aspect-video bg-zinc-900 rounded-[2.5rem] border border-white/10 overflow-hidden relative">
                          <div className="absolute inset-0 flex items-center justify-center">
                             <p className="text-zinc-600 font-black tracking-widest uppercase">Video Placeholder</p>
                         </div>

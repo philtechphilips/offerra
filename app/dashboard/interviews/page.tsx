@@ -3,22 +3,10 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    Clock,
-    Search,
-    Building2,
-    Calendar,
-    MapPin,
-    ExternalLink,
-    Zap,
-    Briefcase,
-    TrendingUp,
-    CheckCircle2,
-    AlertCircle,
-    Loader2,
-    Video,
-    Users,
-    ChevronRight,
-    Sparkles
+    Clock, Search, Building2, Calendar, MapPin,
+    Zap, Briefcase, TrendingUp, CheckCircle2,
+    AlertCircle, Loader2, Video, Users,
+    ChevronRight, Sparkles
 } from "lucide-react";
 import { useJobStore } from "@/app/store/jobStore";
 import { cn } from "@/app/lib/utils";
@@ -46,16 +34,13 @@ export default function InterviewsPage() {
         const interviewList = jobs.filter(j => j.status === 'interview');
         const total = interviewList.length;
         const higherMatch = interviewList.filter(j => j.cv_match_score && j.cv_match_score >= 70).length;
-
-        // Calculate average match score for prep confidence
         const avgMatch = total > 0
             ? Math.round(interviewList.reduce((acc, curr) => acc + (curr.cv_match_score || 0), 0) / total)
             : 0;
-
         return [
             { label: 'Active Interviews', val: total.toString(), icon: Clock, color: "text-amber-500", bg: "bg-amber-50" },
-            { label: 'High Match Jobs', val: higherMatch.toString(), icon: Zap, color: "text-blue-600", bg: "bg-blue-50" },
-            { label: 'Avg. Match Score', val: `${avgMatch}%`, icon: TrendingUp, color: "text-emerald-500", bg: "bg-emerald-50" },
+            { label: 'High Match', val: higherMatch.toString(), icon: Zap, color: "text-blue-600", bg: "bg-blue-50" },
+            { label: 'Avg. Match', val: `${avgMatch}%`, icon: TrendingUp, color: "text-emerald-500", bg: "bg-emerald-50" },
             { label: 'Success Rate', val: "🚀", icon: Sparkles, color: "text-indigo-600", bg: "bg-indigo-50" },
         ];
     }, [jobs]);
@@ -69,234 +54,206 @@ export default function InterviewsPage() {
     };
 
     return (
-        <div className="space-y-10 pb-20">
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="w-full min-h-full pb-20 space-y-6">
+
+            {/* Page header */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-black tracking-tight text-brand-blue-black uppercase">
-                        Interviews.
-                    </h1>
-                    <p className="mt-2 text-sm font-medium text-zinc-400">
-                        Manage your interviews, get ready for calls, and track your success.
-                    </p>
+                    <h1 className="text-2xl font-black tracking-tight text-zinc-900">Interviews</h1>
+                    <p className="text-sm text-zinc-400 mt-0.5">Manage your active rounds and get ready for calls.</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => router.push('/dashboard/prep')}
-                        className="btn-secondary h-12 px-6"
+                        className="inline-flex items-center gap-2 h-10 px-4 rounded-lg border border-zinc-200 bg-white text-xs font-bold text-zinc-700 hover:bg-zinc-50 transition-all"
                     >
-                        <Zap className="h-4 w-4 shrink-0" />
+                        <Zap className="h-3.5 w-3.5" />
                         Practice
                     </button>
                     <button
                         onClick={() => router.push('/dashboard/applications')}
-                        className="btn-primary h-12 px-6"
+                        className="inline-flex items-center gap-2 h-10 px-4 rounded-lg bg-blue-600 text-xs font-bold text-white hover:bg-blue-700 transition-all"
                     >
-                        <Briefcase className="h-4 w-4 shrink-0" />
-                        View All Jobs
+                        <Briefcase className="h-3.5 w-3.5" />
+                        All Applications
                     </button>
                 </div>
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Stats row */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {stats.map((stat, i) => (
-                    <motion.div
-                        key={stat.label}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.1 }}
-                        className="group bg-white border border-zinc-100 p-6 rounded-[2rem] hover:border-blue-200 transition-all"
-                    >
-                        <div className="flex items-center justify-between mb-4">
-                            <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110", stat.bg)}>
-                                <stat.icon className={cn("h-6 w-6", stat.color)} />
+                    <div key={stat.label} className="bg-white border border-zinc-100 rounded-2xl p-4">
+                        <div className="flex items-center justify-between mb-3">
+                            <div className={cn("h-9 w-9 rounded-xl flex items-center justify-center", stat.bg)}>
+                                <stat.icon className={cn("h-4 w-4", stat.color)} />
                             </div>
-                            <span className="text-[10px] font-black text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-full">+12%</span>
                         </div>
-                        <div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 block mb-1">{stat.label}</span>
-                            <div className="text-3xl font-black tracking-tight text-brand-blue-black">{stat.val}</div>
-                        </div>
-                    </motion.div>
+                        <p className="text-2xl font-black text-zinc-900">{stat.val}</p>
+                        <p className="text-[11px] text-zinc-400 mt-0.5">{stat.label}</p>
+                    </div>
                 ))}
             </div>
 
-            {/* AI Insights & Prep Card */}
-            <motion.div
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="grid grid-cols-1 lg:grid-cols-3 gap-6"
-            >
-                <div className="lg:col-span-2 relative overflow-hidden rounded-[2.5rem] bg-brand-blue-black p-8 text-white group border border-white/5">
-                    <div className="absolute top-0 right-0 p-12 opacity-10 group-hover:scale-110 transition-transform duration-1000">
-                        <Sparkles className="h-48 w-48 text-blue-500" />
+            {/* AI banner + readiness */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div className="lg:col-span-2 rounded-2xl bg-zinc-900 p-6 text-white relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+                        <Sparkles className="h-40 w-40" />
                     </div>
-                    <div className="relative z-10 space-y-6">
-                        <div className="flex items-center gap-3">
-                            <span className="px-3 py-1 rounded-full bg-blue-600/20 text-[9px] font-black uppercase tracking-widest text-blue-400 border border-blue-500/20">
-                                AI Strategy
-                            </span>
-                        </div>
-                        <h2 className="text-2xl font-black tracking-tight leading-tight max-w-xl">
+                    <div className="relative z-10 space-y-4">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-600/20 text-[10px] font-black text-blue-400 border border-blue-500/20 uppercase tracking-widest">
+                            AI Strategy
+                        </span>
+                        <p className="text-base font-bold text-white/90 leading-relaxed max-w-lg">
                             {interviewJobs.length > 0
-                                ? `You have ${interviewJobs.length} active interview rounds. Focus on the STAR method for ${interviewJobs[0].company} today.`
-                                : "No active interviews. Apply for more jobs to start practicing your pitch."}
-                        </h2>
+                                ? `You have ${interviewJobs.length} active interview round${interviewJobs.length > 1 ? 's' : ''}. Focus on the STAR method for ${interviewJobs[0].company} today.`
+                                : "No active interviews yet. Update your application statuses to track them here."}
+                        </p>
                         {interviewJobs.length > 0 && (
-                            <div className="flex flex-wrap gap-4 pt-4">
+                            <div className="flex flex-wrap gap-3 pt-1">
                                 <button
                                     onClick={handleGeneratePrep}
-                                    className="btn-secondary h-11 px-6 bg-white border-none hover:bg-blue-50 text-brand-blue-black"
+                                    className="inline-flex items-center gap-2 h-9 px-4 rounded-lg bg-white text-xs font-bold text-zinc-900 hover:bg-zinc-100 transition-all"
                                 >
+                                    <Zap className="h-3.5 w-3.5" />
                                     Generate Prep Sheet
-                                </button>
-                                <button className="h-11 px-6 bg-white/5 border border-white/10 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-colors">
-                                    Latest Tips
                                 </button>
                             </div>
                         )}
                     </div>
                 </div>
 
-                <div className="rounded-[2.5rem] border border-zinc-100 bg-white p-8 flex flex-col justify-between">
-                    <div>
-                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-6 flex items-center gap-2">
-                            <Users className="h-4 w-4 text-blue-500" />
-                            Readiness Level
-                        </h3>
-                        <div className="space-y-6 text-center py-4">
-                            <div className="relative inline-flex items-center justify-center">
-                                <svg className="h-28 w-28 -rotate-90">
-                                    <circle className="text-zinc-50" strokeWidth="8" stroke="currentColor" fill="transparent" r="48" cx="56" cy="56" />
-                                    <circle
-                                        className="text-blue-600 transition-all duration-1000"
-                                        strokeWidth="8"
-                                        strokeDasharray={301.59}
-                                        strokeDashoffset={301.59 * (1 - (interviewJobs.length > 0 ? 0.85 : 0.2))}
-                                        strokeLinecap="round"
-                                        stroke="currentColor"
-                                        fill="transparent"
-                                        r="48"
-                                        cx="56"
-                                        cy="56"
-                                    />
-                                </svg>
-                                <span className="absolute text-2xl font-black text-brand-blue-black">{interviewJobs.length > 0 ? "85%" : "20%"}</span>
-                            </div>
-                            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Confidence Score</p>
-                        </div>
+                <div className="rounded-2xl border border-zinc-100 bg-white p-5 flex flex-col items-center justify-center gap-4">
+                    <div className="relative inline-flex items-center justify-center">
+                        <svg className="h-24 w-24 -rotate-90">
+                            <circle className="text-zinc-100" strokeWidth="6" stroke="currentColor" fill="transparent" r="42" cx="48" cy="48" />
+                            <circle
+                                className="text-blue-600 transition-all duration-700"
+                                strokeWidth="6"
+                                strokeDasharray={263.9}
+                                strokeDashoffset={263.9 * (1 - (interviewJobs.length > 0 ? 0.85 : 0.2))}
+                                strokeLinecap="round"
+                                stroke="currentColor"
+                                fill="transparent"
+                                r="42"
+                                cx="48"
+                                cy="48"
+                            />
+                        </svg>
+                        <span className="absolute text-xl font-black text-zinc-900">{interviewJobs.length > 0 ? "85%" : "20%"}</span>
+                    </div>
+                    <div className="text-center">
+                        <p className="text-sm font-black text-zinc-900">Readiness Score</p>
+                        <p className="text-xs text-zinc-400 mt-0.5">Based on active interviews</p>
                     </div>
                     <button
                         onClick={() => router.push('/dashboard/prep')}
-                        className="btn-secondary w-full py-4 text-zinc-500"
+                        className="w-full h-9 rounded-lg border border-zinc-200 text-xs font-bold text-zinc-600 hover:bg-zinc-50 transition-all"
                     >
-                        Boost My Score
+                        Boost Score
                     </button>
                 </div>
-            </motion.div>
+            </div>
 
-            {/* Active Interviews List */}
-            <div className="space-y-6">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
-                    <div className="flex items-center gap-3">
-                        <h2 className="text-lg font-black tracking-tight text-brand-blue-black uppercase text-[12px] tracking-widest">Active Rounds</h2>
-                        <span className="h-5 w-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-[10px] font-black">{interviewJobs.length}</span>
+            {/* Active interviews list */}
+            <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                        <h2 className="text-sm font-black text-zinc-900">Active Rounds</h2>
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-50 text-[10px] font-black text-blue-600">{interviewJobs.length}</span>
                     </div>
-
-                    <div className="relative w-full md:w-80">
-                        <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-300" />
+                    <div className="relative w-full sm:w-64">
+                        <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-300" />
                         <input
                             type="text"
-                            placeholder="Filter your rounds..."
+                            placeholder="Filter by title or company..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="h-11 w-full rounded-2xl bg-white border border-zinc-100 pl-11 pr-4 text-[11px] font-bold focus:border-blue-200 transition-all placeholder:text-zinc-300 outline-none"
+                            className="h-9 w-full rounded-xl bg-white border border-zinc-100 pl-9 pr-4 text-xs focus:border-blue-200 transition-all placeholder:text-zinc-300 outline-none"
                         />
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                     {isLoading ? (
                         Array.from({ length: 3 }).map((_, i) => (
-                            <div key={i} className="h-64 rounded-[2rem] bg-zinc-50 border border-zinc-100 animate-pulse" />
+                            <div key={i} className="h-52 rounded-2xl bg-zinc-50 border border-zinc-100 animate-pulse" />
                         ))
                     ) : interviewJobs.length > 0 ? (
                         interviewJobs.map((job, idx) => (
                             <motion.div
                                 key={job.id}
-                                initial={{ opacity: 0, y: 20 }}
+                                initial={{ opacity: 0, y: 16 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: idx * 0.05 }}
-                                className="group bg-white border border-zinc-100 rounded-[2.5rem] p-8 hover:border-blue-200 transition-all relative overflow-hidden"
+                                transition={{ delay: idx * 0.04 }}
+                                className="group bg-white border border-zinc-100 rounded-2xl p-5 hover:border-blue-200 transition-all relative overflow-hidden"
                             >
-                                {/* Match Score Tag */}
-                                <div className="absolute top-6 right-6">
-                                    <div className={cn(
-                                        "px-2.5 py-1 rounded-lg text-[10px] font-black tabular-nums border",
-                                        job.cv_match_score && job.cv_match_score >= 70 ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
-                                            job.cv_match_score && job.cv_match_score >= 40 ? "bg-amber-50 text-amber-600 border-amber-100" :
-                                                "bg-zinc-50 text-zinc-400 border-zinc-100"
-                                    )}>
-                                        {job.cv_match_score ? `${job.cv_match_score}% Match` : 'No Match Data'}
+                                {/* Match badge */}
+                                {job.cv_match_score != null && (
+                                    <div className="absolute top-4 right-4">
+                                        <span className={cn(
+                                            "px-2 py-0.5 rounded-lg text-[10px] font-black border",
+                                            job.cv_match_score >= 70 ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
+                                            job.cv_match_score >= 40 ? "bg-amber-50 text-amber-600 border-amber-100" :
+                                            "bg-zinc-50 text-zinc-400 border-zinc-100"
+                                        )}>
+                                            {job.cv_match_score}% match
+                                        </span>
                                     </div>
-                                </div>
+                                )}
 
-                                <div className="flex flex-col h-full">
-                                    <div className="mb-8">
-                                        <div className="h-14 w-14 rounded-2xl bg-zinc-50 flex items-center justify-center border border-zinc-100 group-hover:border-blue-100 transition-all mb-6">
-                                            <Building2 className="h-7 w-7 text-zinc-300 group-hover:text-blue-500 transition-all" />
+                                <div className="flex flex-col h-full gap-4">
+                                    <div>
+                                        <div className="h-10 w-10 rounded-xl bg-zinc-50 border border-zinc-100 flex items-center justify-center mb-3 group-hover:border-blue-100 transition-all">
+                                            <Building2 className="h-5 w-5 text-zinc-300 group-hover:text-blue-500 transition-colors" />
                                         </div>
-                                        <h3 className="text-xl font-black text-brand-blue-black tracking-tight group-hover:text-blue-600 transition-colors line-clamp-1">{job.title}</h3>
-                                        <p className="text-sm font-bold text-zinc-400 mt-1">{job.company}</p>
+                                        <h3 className="text-sm font-black text-zinc-900 group-hover:text-blue-600 transition-colors line-clamp-1 pr-16">{job.title}</h3>
+                                        <p className="text-xs text-zinc-400 mt-0.5">{job.company}</p>
                                     </div>
 
-                                    <div className="space-y-4 mb-8">
-                                        <div className="flex items-center gap-3 text-zinc-500">
-                                            <div className="h-8 w-8 rounded-xl bg-zinc-50 flex items-center justify-center">
-                                                <MapPin className="h-4 w-4" />
+                                    <div className="space-y-2">
+                                        {job.location && (
+                                            <div className="flex items-center gap-2 text-zinc-400">
+                                                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                                                <span className="text-xs">{job.location}</span>
                                             </div>
-                                            <span className="text-xs font-bold">{job.location}</span>
-                                        </div>
-                                        <div className="flex items-center gap-3 text-zinc-500">
-                                            <div className="h-8 w-8 rounded-xl bg-blue-50 flex items-center justify-center">
-                                                <Calendar className="h-4 w-4 text-blue-500" />
-                                            </div>
-                                            <span className="text-xs font-bold">Round scheduled soon</span>
+                                        )}
+                                        <div className="flex items-center gap-2 text-zinc-400">
+                                            <Calendar className="h-3.5 w-3.5 shrink-0 text-blue-400" />
+                                            <span className="text-xs">Round scheduled soon</span>
                                         </div>
                                     </div>
 
-                                    <div className="mt-auto grid grid-cols-2 gap-3">
+                                    <div className="mt-auto grid grid-cols-2 gap-2">
                                         <button
                                             onClick={() => router.push(`/dashboard/prep?job=${job.id}`)}
-                                            className="btn-primary h-12"
+                                            className="h-9 rounded-xl bg-blue-600 text-white text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-blue-700 transition-all"
                                         >
-                                            <Zap className="h-3.5 w-3.5 shrink-0" />
-                                            Prep Now
+                                            <Zap className="h-3.5 w-3.5" />
+                                            Prep
                                         </button>
                                         <button
-                                            onClick={() => router.push(`/dashboard/applications`)}
-                                            className="btn-secondary h-12"
+                                            onClick={() => router.push('/dashboard/applications')}
+                                            className="h-9 rounded-xl border border-zinc-200 text-xs font-bold text-zinc-600 flex items-center justify-center gap-1.5 hover:bg-zinc-50 transition-all"
                                         >
                                             Details
-                                            <ChevronRight className="h-3.5 w-3.5 shrink-0" />
+                                            <ChevronRight className="h-3.5 w-3.5" />
                                         </button>
                                     </div>
                                 </div>
                             </motion.div>
                         ))
                     ) : (
-                        <div className="col-span-full py-20 bg-white border border-zinc-100 rounded-[3rem] text-center">
-                            <div className="h-20 w-20 rounded-[2rem] bg-zinc-50 flex items-center justify-center mx-auto mb-6">
-                                <Clock className="h-10 w-10 text-zinc-200" />
+                        <div className="col-span-full py-16 bg-white border border-zinc-100 rounded-2xl text-center">
+                            <div className="h-12 w-12 rounded-2xl bg-zinc-50 flex items-center justify-center mx-auto mb-4">
+                                <Clock className="h-5 w-5 text-zinc-200" />
                             </div>
-                            <h3 className="text-xl font-black text-brand-blue-black tracking-tight mb-2 uppercase">No active interviews found</h3>
-                            <p className="text-sm font-medium text-zinc-400 max-w-xs mx-auto mb-8">
-                                Update application statuses in your pipeline to track them here.
-                            </p>
+                            <p className="text-sm font-black text-zinc-400 mb-1">No active interviews</p>
+                            <p className="text-xs text-zinc-400 max-w-xs mx-auto mb-6">Update your application statuses in the pipeline to track them here.</p>
                             <button
                                 onClick={() => router.push('/dashboard/applications')}
-                                className="btn-primary h-12 px-8"
+                                className="inline-flex items-center gap-2 h-9 px-5 rounded-xl bg-blue-600 text-xs font-bold text-white hover:bg-blue-700 transition-all"
                             >
                                 Manage Applications
                             </button>
@@ -305,29 +262,25 @@ export default function InterviewsPage() {
                 </div>
             </div>
 
-            {/* Tips Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-8 rounded-[2.5rem] bg-white border border-zinc-100">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="h-10 w-10 rounded-xl bg-emerald-50 flex items-center justify-center">
-                            <Video className="h-5 w-5 text-emerald-500" />
-                        </div>
-                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400">Video Setup Tip</h3>
+            {/* Tips */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-5 rounded-2xl bg-white border border-zinc-100 flex gap-4">
+                    <div className="h-9 w-9 shrink-0 rounded-xl bg-emerald-50 flex items-center justify-center">
+                        <Video className="h-4 w-4 text-emerald-500" />
                     </div>
-                    <p className="text-sm font-bold text-zinc-600 leading-relaxed">
-                        Ensure your camera is at eye level and lighting is coming from the front. A clean background increases professional trust by 35%.
-                    </p>
+                    <div>
+                        <p className="text-xs font-black text-zinc-900 mb-1">Video Setup</p>
+                        <p className="text-xs text-zinc-500 leading-relaxed">Camera at eye level, light from the front, clean background. Increases perceived professionalism significantly.</p>
+                    </div>
                 </div>
-                <div className="p-8 rounded-[2.5rem] bg-white border border-zinc-100">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="h-10 w-10 rounded-xl bg-amber-50 flex items-center justify-center">
-                            <AlertCircle className="h-5 w-5 text-amber-500" />
-                        </div>
-                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400">Follow-up Rule</h3>
+                <div className="p-5 rounded-2xl bg-white border border-zinc-100 flex gap-4">
+                    <div className="h-9 w-9 shrink-0 rounded-xl bg-amber-50 flex items-center justify-center">
+                        <AlertCircle className="h-4 w-4 text-amber-500" />
                     </div>
-                    <p className="text-sm font-bold text-zinc-600 leading-relaxed">
-                        Always send a thank-you note within 12 hours of the interview. Mention a specific part of the conversation to stand out.
-                    </p>
+                    <div>
+                        <p className="text-xs font-black text-zinc-900 mb-1">Follow-up Rule</p>
+                        <p className="text-xs text-zinc-500 leading-relaxed">Send a thank-you note within 12 hours. Reference something specific from the conversation to stand out.</p>
+                    </div>
                 </div>
             </div>
         </div>

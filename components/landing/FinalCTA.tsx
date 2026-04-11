@@ -14,7 +14,7 @@ export function FinalCTA() {
         <section className="py-24 lg:py-32 px-4 relative overflow-hidden bg-white">
             
             <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-4 relative">
-                <div className="rounded-[3rem] bg-black p-12 lg:p-24 text-center text-white relative z-10 overflow-hidden">
+                <div className="rounded-3xl bg-black p-10 lg:p-16 text-center text-white relative z-10 overflow-hidden">
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(28,78,216,0.1)_0%,transparent_50%)]" />
                     
                     <motion.div
