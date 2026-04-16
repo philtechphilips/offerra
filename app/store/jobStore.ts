@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import api from '@/app/lib/api';
 
-interface JobApplication {
+export interface JobApplication {
     id: string;
     title: string;
     company: string;
@@ -16,6 +16,8 @@ interface JobApplication {
     cv_match_details: { strengths?: string[]; gaps?: string[]; tip?: string } | null;
     created_at: string;
     description: string | null;
+    follow_up_date: string | null;
+    follow_up_note: string | null;
 }
 
 interface PaginationMeta {
@@ -37,6 +39,7 @@ interface JobState {
     loadMore: () => Promise<void>;
     setSearch: (search: string) => void;
     setStatusFilter: (status: string) => void;
+    updateJobStatus: (jobId: string, newStatus: JobApplication['status']) => Promise<void>;
 }
 
 export const useJobStore = create<JobState>()((set, get) => ({
@@ -99,5 +102,23 @@ export const useJobStore = create<JobState>()((set, get) => ({
 
     setStatusFilter: (status: string) => {
         set({ statusFilter: status });
+    },
+
+    updateJobStatus: async (jobId: string, newStatus: JobApplication['status']) => {
+        const previousJobs = get().jobs;
+
+        // Optimistic update
+        set({
+            jobs: previousJobs.map(j =>
+                j.id === jobId ? { ...j, status: newStatus } : j
+            ),
+        });
+
+        try {
+            await api.put(`/jobs/${jobId}`, { status: newStatus });
+        } catch (err) {
+            // Revert on failure
+            set({ jobs: previousJobs });
+        }
     },
 }));

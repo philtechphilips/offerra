@@ -133,7 +133,23 @@ export default function ProfilePage() {
 
     useEffect(() => {
         fetchCVs();
-        refreshUser();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const success = urlParams.get('success');
+        const error = urlParams.get('error');
+
+        if (success || error) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        (async () => {
+            await refreshUser();
+            if (success === 'google_connected') {
+                toast.success("Gmail connected successfully!");
+            } else if (error) {
+                toast.error(`Connection failed: ${error.replace(/_/g, ' ')}`);
+            }
+        })();
     }, []);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -262,20 +278,6 @@ export default function ProfilePage() {
         }
     };
 
-    useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const success = urlParams.get('success');
-        const error = urlParams.get('error');
-
-        if (success === 'google_connected') {
-            toast.success("Gmail connected successfully!");
-            refreshUser();
-            window.history.replaceState({}, document.title, window.location.pathname);
-        } else if (error) {
-            toast.error(`Connection failed: ${error.replace(/_/g, ' ')}`);
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }
-    }, []);
 
     const getInitials = (name?: string) => {
         if (!name) return "U";

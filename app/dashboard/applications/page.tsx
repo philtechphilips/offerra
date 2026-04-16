@@ -17,30 +17,17 @@ import {
     Pencil,
     Trash2,
     FileText,
-    Banknote
+    Banknote,
+    Bell,
+    LayoutList,
+    Columns3,
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import api from "@/app/lib/api";
 import { cn } from "@/app/lib/utils";
 import { toast } from "sonner";
-import { useJobStore } from "@/app/store/jobStore";
-
-interface JobApplication {
-    id: string;
-    title: string;
-    company: string;
-    location: string;
-    status: 'applied' | 'tracking' | 'interview' | 'rejected' | 'offer';
-    job_url: string;
-    company_url: string | null;
-    salary: string | null;
-    type: string;
-    is_remote: boolean;
-    cv_match_score: number | null;
-    cv_match_details: { strengths?: string[]; gaps?: string[]; tip?: string } | null;
-    created_at: string;
-    description: string | null;
-}
+import { useJobStore, type JobApplication } from "@/app/store/jobStore";
+import KanbanBoard from "@/components/dashboard/KanbanBoard";
 
 const statusColors: Record<JobApplication['status'], string> = {
     tracking: "bg-zinc-100 text-zinc-500",
@@ -59,7 +46,35 @@ const emptyForm = {
     type: "Full-time",
     is_remote: false,
     status: "applied" as JobApplication['status'],
+    follow_up_date: "",
+    follow_up_note: "",
 };
+
+function FollowUpBadge({ date }: { date: string }) {
+    const followUp = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    followUp.setHours(0, 0, 0, 0);
+    const diff = Math.round((followUp.getTime() - today.getTime()) / 86400000);
+
+    const label =
+        diff === 0 ? "Follow up today" :
+        diff === 1 ? "Follow up tomorrow" :
+        diff < 0 ? `Follow up ${Math.abs(diff)}d overdue` :
+        `Follow up in ${diff}d`;
+
+    const color =
+        diff <= 0 ? "bg-red-50 text-red-500 border-red-100" :
+        diff <= 2 ? "bg-amber-50 text-amber-600 border-amber-100" :
+        "bg-blue-50 text-blue-500 border-blue-100";
+
+    return (
+        <span className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border text-[9px] font-black uppercase tracking-wide", color)}>
+            <Bell className="h-2.5 w-2.5" />
+            {label}
+        </span>
+    );
+}
 
 export default function ApplicationsPage() {
     const {
@@ -68,11 +83,14 @@ export default function ApplicationsPage() {
         fetchJobs, loadMore, setSearch, setStatusFilter
     } = useJobStore();
 
+    const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
+
     // Modal states
     const [showModal, setShowModal] = useState(false);
     const [editingJob, setEditingJob] = useState<JobApplication | null>(null);
     const [formData, setFormData] = useState({ ...emptyForm });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showFollowUpFields, setShowFollowUpFields] = useState(false);
 
     // Dropdown state
     const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
@@ -90,54 +108,35 @@ export default function ApplicationsPage() {
     const observerTarget = useRef<HTMLTableRowElement>(null);
     const searchParams = useSearchParams();
 
-    // Sync status from URL if present
     useEffect(() => {
         const status = searchParams.get('status');
-        if (status) {
-            setStatusFilter(status);
-        }
+        if (status) setStatusFilter(status);
     }, [searchParams, setStatusFilter]);
 
-    // Debounced fetch when search or filter changes
     useEffect(() => {
-        const timeoutId = setTimeout(() => {
-            fetchJobs();
-        }, 300);
+        const timeoutId = setTimeout(() => { fetchJobs(); }, 300);
         return () => clearTimeout(timeoutId);
     }, [search, statusFilter, fetchJobs]);
 
-    // Infinite scroll observer
     useEffect(() => {
         const observer = new IntersectionObserver(
             entries => {
-                if (entries[0].isIntersecting && meta?.has_more && !isLoadingMore) {
-                    loadMore();
-                }
+                if (entries[0].isIntersecting && meta?.has_more && !isLoadingMore) loadMore();
             },
             { rootMargin: "100px", threshold: 0.1 }
         );
-
-        if (observerTarget.current) {
-            observer.observe(observerTarget.current);
-        }
-
-        return () => {
-            if (observerTarget.current) {
-                observer.unobserve(observerTarget.current);
-            }
-        };
+        if (observerTarget.current) observer.observe(observerTarget.current);
+        return () => { if (observerTarget.current) observer.unobserve(observerTarget.current); };
     }, [meta?.has_more, isLoadingMore, loadMore]);
 
     const resetForm = () => {
         setFormData({ ...emptyForm });
         setEditingJob(null);
         setShowUrlField(false);
+        setShowFollowUpFields(false);
     };
 
-    const openAddModal = () => {
-        resetForm();
-        setShowModal(true);
-    };
+    const openAddModal = () => { resetForm(); setShowModal(true); };
 
     const openEditModal = (job: JobApplication) => {
         setEditingJob(job);
@@ -150,61 +149,44 @@ export default function ApplicationsPage() {
             type: job.type,
             is_remote: job.is_remote,
             status: job.status,
+            follow_up_date: job.follow_up_date || "",
+            follow_up_note: job.follow_up_note || "",
         });
+        setShowFollowUpFields(!!(job.follow_up_date || job.follow_up_note));
         setOpenDropdownId(null);
         setShowModal(true);
     };
 
-    const openDeleteConfirm = (job: JobApplication) => {
-        setDeletingJob(job);
-        setOpenDropdownId(null);
-    };
-
-    const openDetailDrawer = (job: JobApplication) => {
-        setViewingJob(job);
-        setOpenDropdownId(null);
-    };
+    const openDeleteConfirm = (job: JobApplication) => { setDeletingJob(job); setOpenDropdownId(null); };
+    const openDetailDrawer = (job: JobApplication) => { setViewingJob(job); setOpenDropdownId(null); };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        if (!formData.title || !formData.company) {
-            toast.error("Please fill in the required fields.");
-            return;
-        }
+        if (!formData.title || !formData.company) { toast.error("Please fill in the required fields."); return; }
 
         let jobUrl = formData.url;
-        if (jobUrl && !jobUrl.startsWith("http://") && !jobUrl.startsWith("https://")) {
-            jobUrl = "https://" + jobUrl;
-        }
+        if (jobUrl && !jobUrl.startsWith("http://") && !jobUrl.startsWith("https://")) jobUrl = "https://" + jobUrl;
 
         setIsSubmitting(true);
         try {
+            const payload = {
+                title: formData.title,
+                company: formData.company,
+                location: formData.location || "Not specified",
+                url: jobUrl,
+                salary: formData.salary || null,
+                type: formData.type,
+                is_remote: formData.is_remote,
+                status: formData.status,
+                follow_up_date: formData.follow_up_date || null,
+                follow_up_note: formData.follow_up_note || null,
+            };
+
             if (editingJob) {
-                // UPDATE
-                await api.put(`/jobs/${editingJob.id}`, {
-                    title: formData.title,
-                    company: formData.company,
-                    location: formData.location || "Not specified",
-                    url: jobUrl,
-                    salary: formData.salary || null,
-                    type: formData.type,
-                    is_remote: formData.is_remote,
-                    status: formData.status,
-                });
+                await api.put(`/jobs/${editingJob.id}`, payload);
                 toast.success("Application updated successfully!");
             } else {
-                // CREATE
-                await api.post("/jobs", {
-                    title: formData.title,
-                    company: formData.company,
-                    location: formData.location || "Not specified",
-                    url: jobUrl,
-                    salary: formData.salary || null,
-                    type: formData.type,
-                    is_remote: formData.is_remote,
-                    status: formData.status,
-                });
+                await api.post("/jobs", payload);
                 toast.success("Application added successfully!");
             }
             resetForm();
@@ -242,13 +224,35 @@ export default function ApplicationsPage() {
                         {meta ? `You have ${meta.total} jobs you are currently tracking.` : 'Loading your jobs...'}
                     </p>
                 </div>
-                <button
-                    className="btn-primary h-12 px-6"
-                    onClick={openAddModal}
-                >
-                    <Plus className="h-4 w-4 shrink-0" />
-                    Add Job
-                </button>
+                <div className="flex items-center gap-3">
+                    {/* View toggle */}
+                    <div className="flex items-center bg-zinc-100 rounded-xl p-1">
+                        <button
+                            onClick={() => setViewMode('list')}
+                            className={cn(
+                                "flex items-center gap-1.5 px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
+                                viewMode === 'list' ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-400 hover:text-zinc-600"
+                            )}
+                        >
+                            <LayoutList className="h-3.5 w-3.5" />
+                            List
+                        </button>
+                        <button
+                            onClick={() => setViewMode('kanban')}
+                            className={cn(
+                                "flex items-center gap-1.5 px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
+                                viewMode === 'kanban' ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-400 hover:text-zinc-600"
+                            )}
+                        >
+                            <Columns3 className="h-3.5 w-3.5" />
+                            Kanban
+                        </button>
+                    </div>
+                    <button className="btn-primary h-12 px-6" onClick={openAddModal}>
+                        <Plus className="h-4 w-4 shrink-0" />
+                        Add Job
+                    </button>
+                </div>
             </div>
 
             {/* Filters & Search */}
@@ -281,174 +285,185 @@ export default function ApplicationsPage() {
                 </div>
             </div>
 
-            {/* Applications Table */}
-            <div className="bg-white border border-zinc-100 rounded-2xl overflow-hidden transition-all hover:border-blue-100/50">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="border-b border-zinc-50 bg-zinc-50/50">
-                                <th className="px-8 py-5 text-[11px] font-black text-zinc-400 w-[200px] min-w-[200px]">Company & role</th>
-                                <th className="px-8 py-5 text-[11px] font-black text-zinc-400">Location</th>
-                                <th className="px-8 py-5 text-[11px] font-black text-zinc-400">Status</th>
-                                <th className="px-8 py-5 text-[11px] font-black text-zinc-400">Match</th>
-                                <th className="px-8 py-5 text-[11px] font-black text-zinc-400">Salary</th>
-                                <th className="px-8 py-5 text-[11px] font-black text-zinc-400 text-right">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-zinc-50">
-                            {isLoading ? (
-                                <tr>
-                                    <td colSpan={6} className="px-8 py-32 text-center">
-                                        <div className="flex flex-col items-center gap-4">
-                                            <Loader2 className="h-10 w-10 text-blue-600 animate-spin" />
-                                            <p className="text-sm font-bold text-zinc-500 uppercase tracking-widest">Loading your pipeline...</p>
-                                        </div>
-                                    </td>
+            {/* Kanban or List view */}
+            {viewMode === 'kanban' ? (
+                <KanbanBoard
+                    onEdit={openEditModal}
+                    onDelete={openDeleteConfirm}
+                    onView={openDetailDrawer}
+                />
+            ) : (
+                /* Applications Table */
+                <div className="bg-white border border-zinc-100 rounded-2xl overflow-hidden transition-all hover:border-blue-100/50">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="border-b border-zinc-50 bg-zinc-50/50">
+                                    <th className="px-8 py-5 text-[11px] font-black text-zinc-400 w-[200px] min-w-[200px]">Company & role</th>
+                                    <th className="px-8 py-5 text-[11px] font-black text-zinc-400">Location</th>
+                                    <th className="px-8 py-5 text-[11px] font-black text-zinc-400">Status</th>
+                                    <th className="px-8 py-5 text-[11px] font-black text-zinc-400">Follow-up</th>
+                                    <th className="px-8 py-5 text-[11px] font-black text-zinc-400">Match</th>
+                                    <th className="px-8 py-5 text-[11px] font-black text-zinc-400">Salary</th>
+                                    <th className="px-8 py-5 text-[11px] font-black text-zinc-400 text-right">Action</th>
                                 </tr>
-                            ) : jobs.length > 0 ? (
-                                <>
-                                    {jobs.map((job) => (
-                                        <motion.tr
-                                            key={job.id}
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            className="group hover:bg-blue-50/10 transition-colors"
-                                        >
-                                            <td className="px-8 py-6 w-[200px] min-w-[200px]">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="h-12 w-12 rounded-2xl bg-zinc-50 flex items-center justify-center border border-zinc-100 group-hover:border-blue-200 transition-all shrink-0">
-                                                        <Building2 className="h-6 w-6 text-zinc-400 group-hover:text-blue-500 transition-colors" />
+                            </thead>
+                            <tbody className="divide-y divide-zinc-50">
+                                {isLoading ? (
+                                    <tr>
+                                        <td colSpan={7} className="px-8 py-32 text-center">
+                                            <div className="flex flex-col items-center gap-4">
+                                                <Loader2 className="h-10 w-10 text-blue-600 animate-spin" />
+                                                <p className="text-sm font-bold text-zinc-500 uppercase tracking-widest">Loading your pipeline...</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ) : jobs.length > 0 ? (
+                                    <>
+                                        {jobs.map((job) => (
+                                            <motion.tr
+                                                key={job.id}
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                className="group hover:bg-blue-50/10 transition-colors"
+                                            >
+                                                <td className="px-8 py-6 w-[200px] min-w-[200px]">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="h-12 w-12 rounded-2xl bg-zinc-50 flex items-center justify-center border border-zinc-100 group-hover:border-blue-200 transition-all shrink-0">
+                                                            <Building2 className="h-6 w-6 text-zinc-400 group-hover:text-blue-500 transition-colors" />
+                                                        </div>
+                                                        <div className="flex flex-col min-w-0">
+                                                            <span className="text-sm font-black text-brand-blue-black truncate group-hover:text-brand-blue transition-colors">{job.title}</span>
+                                                            <span className="text-xs font-bold text-zinc-400 mt-0.5">{job.company}</span>
+                                                        </div>
                                                     </div>
-                                                    <div className="flex flex-col min-w-0">
-                                                        <span className="text-sm font-black text-brand-blue-black truncate group-hover:text-brand-blue transition-colors">{job.title}</span>
-                                                        <span className="text-xs font-bold text-zinc-400 mt-0.5">{job.company}</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-8 py-6">
-                                                <div className="flex items-center gap-2 text-zinc-500">
-                                                    <MapPin className="h-3.5 w-3.5 opacity-50" />
-                                                    <span className="text-xs font-bold leading-none">{job.location}</span>
-                                                    {job.is_remote && (
-                                                        <span className="ml-1 px-1.5 py-0.5 rounded bg-zinc-100 text-[8px] font-black uppercase text-zinc-400">Remote</span>
-                                                    )}
-                                                </div>
-                                            </td>
-                                            <td className="px-8 py-6">
-                                                <span className={cn(
-                                                    "px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest",
-                                                    statusColors[job.status]
-                                                )}>
-                                                    {job.status}
-                                                </span>
-                                            </td>
-                                            <td className="px-8 py-6">
-                                                {job.cv_match_score != null ? (
-                                                    <div className="group/match relative inline-flex">
-                                                        <span className={cn(
-                                                            "px-2.5 py-1 rounded-lg text-[10px] font-black tabular-nums cursor-default",
-                                                            job.cv_match_score >= 70 ? "bg-emerald-50 text-emerald-600" :
-                                                                job.cv_match_score >= 40 ? "bg-amber-50 text-amber-600" :
-                                                                    "bg-red-50 text-red-500"
-                                                        )}>
-                                                            {job.cv_match_score}%
-                                                        </span>
-                                                        {job.cv_match_details && (
-                                                            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-56 bg-white rounded-xl border border-zinc-100 p-3 opacity-0 invisible group-hover/match:opacity-100 group-hover/match:visible transition-all z-20 pointer-events-none">
-                                                                {(job.cv_match_details.strengths || []).slice(0, 2).map((s, i) => (
-                                                                    <p key={`s-${i}`} className="text-[10px] text-emerald-600 font-semibold leading-relaxed">✓ {s}</p>
-                                                                ))}
-                                                                {(job.cv_match_details.gaps || []).slice(0, 2).map((g, i) => (
-                                                                    <p key={`g-${i}`} className="text-[10px] text-red-400 font-semibold leading-relaxed">✗ {g}</p>
-                                                                ))}
-                                                                {job.cv_match_details.tip && (
-                                                                    <p className="text-[10px] text-blue-600 font-semibold mt-1 leading-relaxed">💡 {job.cv_match_details.tip}</p>
-                                                                )}
-                                                            </div>
+                                                </td>
+                                                <td className="px-8 py-6">
+                                                    <div className="flex items-center gap-2 text-zinc-500">
+                                                        <MapPin className="h-3.5 w-3.5 opacity-50" />
+                                                        <span className="text-xs font-bold leading-none">{job.location}</span>
+                                                        {job.is_remote && (
+                                                            <span className="ml-1 px-1.5 py-0.5 rounded bg-zinc-100 text-[8px] font-black uppercase text-zinc-400">Remote</span>
                                                         )}
                                                     </div>
-                                                ) : (
-                                                    <span className="text-xs font-bold text-zinc-300">—</span>
-                                                )}
-                                            </td>
-                                            <td className="px-8 py-6">
-                                                <span className="text-xs font-bold text-zinc-600">
-                                                    {job.salary || "—"}
-                                                </span>
-                                            </td>
-                                            <td className="px-8 py-6 text-right">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    <a
-                                                        href={job.job_url}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="p-2.5 rounded-xl bg-white border border-zinc-100 text-zinc-400 hover:text-blue-600 hover:border-blue-100 transition-all"
-                                                    >
-                                                        <ExternalLink className="h-4 w-4" />
-                                                    </a>
-
-                                                    {/* Actions Dropdown Trigger */}
-                                                    <button
-                                                        onClick={(e) => {
-                                                            if (openDropdownId === job.id) {
-                                                                setOpenDropdownId(null);
-                                                            } else {
-                                                                const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                                                                setDropdownPos({ top: rect.bottom + 8, left: rect.right - 176 });
-                                                                setOpenDropdownId(job.id);
-                                                            }
-                                                        }}
-                                                        className="p-2.5 rounded-xl bg-white border border-zinc-100 text-zinc-400 hover:text-blue-600 hover:border-blue-300 transition-all"
-                                                    >
-                                                        <MoreVertical className="h-4 w-4" />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </motion.tr>
-                                    ))}
-
-                                    {/* Loading / End of list indicator */}
-                                    {(meta?.has_more || isLoadingMore) && (
-                                        <tr ref={observerTarget}>
-                                            <td colSpan={6} className="px-8 py-8 text-center text-zinc-400">
-                                                {isLoadingMore ? (
-                                                    <div className="flex justify-center items-center gap-3">
-                                                        <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
-                                                        <span className="text-xs font-bold uppercase tracking-widest">Loading more...</span>
+                                                </td>
+                                                <td className="px-8 py-6">
+                                                    <span className={cn(
+                                                        "px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest",
+                                                        statusColors[job.status]
+                                                    )}>
+                                                        {job.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-8 py-6">
+                                                    {job.follow_up_date ? (
+                                                        <FollowUpBadge date={job.follow_up_date} />
+                                                    ) : (
+                                                        <span className="text-xs font-bold text-zinc-300">—</span>
+                                                    )}
+                                                </td>
+                                                <td className="px-8 py-6">
+                                                    {job.cv_match_score != null ? (
+                                                        <div className="group/match relative inline-flex">
+                                                            <span className={cn(
+                                                                "px-2.5 py-1 rounded-lg text-[10px] font-black tabular-nums cursor-default",
+                                                                job.cv_match_score >= 70 ? "bg-emerald-50 text-emerald-600" :
+                                                                    job.cv_match_score >= 40 ? "bg-amber-50 text-amber-600" :
+                                                                        "bg-red-50 text-red-500"
+                                                            )}>
+                                                                {job.cv_match_score}%
+                                                            </span>
+                                                            {job.cv_match_details && (
+                                                                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-56 bg-white rounded-xl border border-zinc-100 p-3 opacity-0 invisible group-hover/match:opacity-100 group-hover/match:visible transition-all z-20 pointer-events-none">
+                                                                    {(job.cv_match_details.strengths || []).slice(0, 2).map((s, i) => (
+                                                                        <p key={`s-${i}`} className="text-[10px] text-emerald-600 font-semibold leading-relaxed">✓ {s}</p>
+                                                                    ))}
+                                                                    {(job.cv_match_details.gaps || []).slice(0, 2).map((g, i) => (
+                                                                        <p key={`g-${i}`} className="text-[10px] text-red-400 font-semibold leading-relaxed">✗ {g}</p>
+                                                                    ))}
+                                                                    {job.cv_match_details.tip && (
+                                                                        <p className="text-[10px] text-blue-600 font-semibold mt-1 leading-relaxed">💡 {job.cv_match_details.tip}</p>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-xs font-bold text-zinc-300">—</span>
+                                                    )}
+                                                </td>
+                                                <td className="px-8 py-6">
+                                                    <span className="text-xs font-bold text-zinc-600">{job.salary || "—"}</span>
+                                                </td>
+                                                <td className="px-8 py-6 text-right">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <a
+                                                            href={job.job_url}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="p-2.5 rounded-xl bg-white border border-zinc-100 text-zinc-400 hover:text-blue-600 hover:border-blue-100 transition-all"
+                                                        >
+                                                            <ExternalLink className="h-4 w-4" />
+                                                        </a>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                if (openDropdownId === job.id) {
+                                                                    setOpenDropdownId(null);
+                                                                } else {
+                                                                    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                                                                    setDropdownPos({ top: rect.bottom + 8, left: rect.right - 176 });
+                                                                    setOpenDropdownId(job.id);
+                                                                }
+                                                            }}
+                                                            className="p-2.5 rounded-xl bg-white border border-zinc-100 text-zinc-400 hover:text-blue-600 hover:border-blue-300 transition-all"
+                                                        >
+                                                            <MoreVertical className="h-4 w-4" />
+                                                        </button>
                                                     </div>
-                                                ) : (
-                                                    <div className="h-10"></div>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    )}
-                                </>
-                            ) : (
-                                <tr>
-                                    <td colSpan={6} className="px-8 py-32 text-center">
-                                        <div className="flex flex-col items-center gap-6 opacity-40">
-                                            <Building2 className="h-12 w-12" />
-                                            <div>
-                                                <p className="text-sm font-bold uppercase tracking-widest">No applications found</p>
-                                                <p className="text-xs font-medium text-zinc-400 mt-2">Click "New Application" to add your first one.</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                                                </td>
+                                            </motion.tr>
+                                        ))}
 
-            {/* Fixed-Position Actions Dropdown (rendered outside table to avoid overflow clipping) */}
+                                        {(meta?.has_more || isLoadingMore) && (
+                                            <tr ref={observerTarget}>
+                                                <td colSpan={7} className="px-8 py-8 text-center text-zinc-400">
+                                                    {isLoadingMore ? (
+                                                        <div className="flex justify-center items-center gap-3">
+                                                            <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
+                                                            <span className="text-xs font-bold uppercase tracking-widest">Loading more...</span>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="h-10"></div>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </>
+                                ) : (
+                                    <tr>
+                                        <td colSpan={7} className="px-8 py-32 text-center">
+                                            <div className="flex flex-col items-center gap-6 opacity-40">
+                                                <Building2 className="h-12 w-12" />
+                                                <div>
+                                                    <p className="text-sm font-bold uppercase tracking-widest">No applications found</p>
+                                                    <p className="text-xs font-medium text-zinc-400 mt-2">Click "Add Job" to track your first one.</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {/* Actions Dropdown */}
             <AnimatePresence>
                 {openDropdownId !== null && (() => {
                     const targetJob = jobs.find(j => j.id === openDropdownId);
                     if (!targetJob) return null;
                     return (
                         <>
-                            {/* Invisible backdrop to close dropdown */}
                             <div className="fixed inset-0 z-[60]" onClick={() => setOpenDropdownId(null)} />
                             <motion.div
                                 ref={dropdownRef}
@@ -459,28 +474,16 @@ export default function ApplicationsPage() {
                                 style={{ top: dropdownPos.top, left: dropdownPos.left }}
                                 className="fixed z-[70] w-44 bg-white rounded-2xl border border-zinc-100 overflow-hidden"
                             >
-                                <button
-                                    onClick={() => openDetailDrawer(targetJob)}
-                                    className="flex w-full items-center gap-3 px-4 py-3 text-xs font-bold text-zinc-600 hover:bg-blue-50 hover:text-[#1C4ED8] transition-all"
-                                >
-                                    <FileText className="h-3.5 w-3.5" />
-                                    View Details
+                                <button onClick={() => openDetailDrawer(targetJob)} className="flex w-full items-center gap-3 px-4 py-3 text-xs font-bold text-zinc-600 hover:bg-blue-50 hover:text-[#1C4ED8] transition-all">
+                                    <FileText className="h-3.5 w-3.5" />View Details
                                 </button>
                                 <div className="border-t border-zinc-50" />
-                                <button
-                                    onClick={() => openEditModal(targetJob)}
-                                    className="flex w-full items-center gap-3 px-4 py-3 text-xs font-bold text-zinc-600 hover:bg-blue-50 hover:text-[#1C4ED8] transition-all"
-                                >
-                                    <Pencil className="h-3.5 w-3.5" />
-                                    Edit Application
+                                <button onClick={() => openEditModal(targetJob)} className="flex w-full items-center gap-3 px-4 py-3 text-xs font-bold text-zinc-600 hover:bg-blue-50 hover:text-[#1C4ED8] transition-all">
+                                    <Pencil className="h-3.5 w-3.5" />Edit Application
                                 </button>
                                 <div className="border-t border-zinc-50" />
-                                <button
-                                    onClick={() => openDeleteConfirm(targetJob)}
-                                    className="flex w-full items-center gap-3 px-4 py-3 text-xs font-bold text-red-500 hover:bg-red-50 transition-all"
-                                >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                    Delete
+                                <button onClick={() => openDeleteConfirm(targetJob)} className="flex w-full items-center gap-3 px-4 py-3 text-xs font-bold text-red-500 hover:bg-red-50 transition-all">
+                                    <Trash2 className="h-3.5 w-3.5" />Delete
                                 </button>
                             </motion.div>
                         </>
@@ -492,15 +495,11 @@ export default function ApplicationsPage() {
             <AnimatePresence>
                 {showModal && (
                     <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                         className="fixed inset-0 z-50 flex items-center justify-center p-4"
                     >
                         <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                             className="absolute inset-0 bg-blue-950/40 backdrop-blur-sm"
                             onClick={() => { setShowModal(false); resetForm(); }}
                         />
@@ -509,9 +508,9 @@ export default function ApplicationsPage() {
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="relative w-full max-w-lg bg-white rounded-2xl border border-zinc-100 overflow-hidden"
+                            className="relative w-full max-w-lg bg-white rounded-2xl border border-zinc-100 overflow-hidden max-h-[90vh] flex flex-col"
                         >
-                            <div className="flex items-center justify-between p-8 pb-0">
+                            <div className="flex items-center justify-between p-8 pb-0 shrink-0">
                                 <div>
                                     <h2 className="text-xl font-black tracking-tight text-brand-blue-black">
                                         {editingJob ? "Edit Application" : "Add Application"}
@@ -528,67 +527,35 @@ export default function ApplicationsPage() {
                                 </button>
                             </div>
 
-                            <form onSubmit={handleSubmit} className="p-8 space-y-5">
+                            <form onSubmit={handleSubmit} className="p-8 space-y-5 overflow-y-auto">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">
-                                            Job Title <span className="text-red-400">*</span>
-                                        </label>
+                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">Job Title <span className="text-red-400">*</span></label>
                                         <div className="relative">
                                             <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-300" />
-                                            <input
-                                                type="text"
-                                                value={formData.title}
-                                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                                placeholder="Frontend Engineer"
-                                                required
-                                                className="w-full h-12 pl-11 pr-4 rounded-xl bg-zinc-50 border border-zinc-100 focus:border-[#1C4ED8] focus:ring-4 focus:ring-blue-50 transition-all outline-none font-bold text-xs placeholder:text-zinc-300"
-                                            />
+                                            <input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} placeholder="Frontend Engineer" required className="w-full h-12 pl-11 pr-4 rounded-xl bg-zinc-50 border border-zinc-100 focus:border-[#1C4ED8] focus:ring-4 focus:ring-blue-50 transition-all outline-none font-bold text-xs placeholder:text-zinc-300" />
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">
-                                            Company <span className="text-red-400">*</span>
-                                        </label>
+                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">Company <span className="text-red-400">*</span></label>
                                         <div className="relative">
                                             <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-300" />
-                                            <input
-                                                type="text"
-                                                value={formData.company}
-                                                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                                                placeholder="Google"
-                                                required
-                                                className="w-full h-12 pl-11 pr-4 rounded-xl bg-zinc-50 border border-zinc-100 focus:border-[#1C4ED8] focus:ring-4 focus:ring-blue-50 transition-all outline-none font-bold text-xs placeholder:text-zinc-300"
-                                            />
+                                            <input type="text" value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} placeholder="Google" required className="w-full h-12 pl-11 pr-4 rounded-xl bg-zinc-50 border border-zinc-100 focus:border-[#1C4ED8] focus:ring-4 focus:ring-blue-50 transition-all outline-none font-bold text-xs placeholder:text-zinc-300" />
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* URL — hidden by default, toggle to show */}
                                 {(formData.url || showUrlField) ? (
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">
-                                            Job Posting URL
-                                        </label>
+                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">Job Posting URL</label>
                                         <div className="relative">
                                             <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-300" />
-                                            <input
-                                                type="text"
-                                                value={formData.url}
-                                                onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                                                placeholder="https://careers.google.com/jobs/123"
-                                                className="w-full h-12 pl-11 pr-4 rounded-xl bg-zinc-50 border border-zinc-100 focus:border-[#1C4ED8] focus:ring-4 focus:ring-blue-50 transition-all outline-none font-bold text-xs placeholder:text-zinc-300"
-                                            />
+                                            <input type="text" value={formData.url} onChange={(e) => setFormData({ ...formData, url: e.target.value })} placeholder="https://careers.google.com/jobs/123" className="w-full h-12 pl-11 pr-4 rounded-xl bg-zinc-50 border border-zinc-100 focus:border-[#1C4ED8] focus:ring-4 focus:ring-blue-50 transition-all outline-none font-bold text-xs placeholder:text-zinc-300" />
                                         </div>
                                     </div>
                                 ) : (
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowUrlField(true)}
-                                        className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-400 hover:text-[#1C4ED8] transition-colors ml-1"
-                                    >
-                                        <Plus className="h-3 w-3" />
-                                        Add job posting URL
+                                    <button type="button" onClick={() => setShowUrlField(true)} className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-400 hover:text-[#1C4ED8] transition-colors ml-1">
+                                        <Plus className="h-3 w-3" />Add job posting URL
                                     </button>
                                 )}
 
@@ -597,35 +564,19 @@ export default function ApplicationsPage() {
                                         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">Location</label>
                                         <div className="relative">
                                             <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-300" />
-                                            <input
-                                                type="text"
-                                                value={formData.location}
-                                                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                                placeholder="San Francisco, CA"
-                                                className="w-full h-12 pl-11 pr-4 rounded-xl bg-zinc-50 border border-zinc-100 focus:border-[#1C4ED8] focus:ring-4 focus:ring-blue-50 transition-all outline-none font-bold text-xs placeholder:text-zinc-300"
-                                            />
+                                            <input type="text" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} placeholder="San Francisco, CA" className="w-full h-12 pl-11 pr-4 rounded-xl bg-zinc-50 border border-zinc-100 focus:border-[#1C4ED8] focus:ring-4 focus:ring-blue-50 transition-all outline-none font-bold text-xs placeholder:text-zinc-300" />
                                         </div>
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">Salary</label>
-                                        <input
-                                            type="text"
-                                            value={formData.salary}
-                                            onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
-                                            placeholder="$120k - $180k"
-                                            className="w-full h-12 px-4 rounded-xl bg-zinc-50 border border-zinc-100 focus:border-[#1C4ED8] focus:ring-4 focus:ring-blue-50 transition-all outline-none font-bold text-xs placeholder:text-zinc-300"
-                                        />
+                                        <input type="text" value={formData.salary} onChange={(e) => setFormData({ ...formData, salary: e.target.value })} placeholder="$120k - $180k" className="w-full h-12 px-4 rounded-xl bg-zinc-50 border border-zinc-100 focus:border-[#1C4ED8] focus:ring-4 focus:ring-blue-50 transition-all outline-none font-bold text-xs placeholder:text-zinc-300" />
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">Job Type</label>
-                                        <select
-                                            value={formData.type}
-                                            onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                                            className="w-full h-12 px-4 rounded-xl bg-zinc-50 border border-zinc-100 focus:border-[#1C4ED8] focus:ring-4 focus:ring-blue-50 transition-all outline-none font-bold text-xs text-zinc-700 appearance-none cursor-pointer"
-                                        >
+                                        <select value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} className="w-full h-12 px-4 rounded-xl bg-zinc-50 border border-zinc-100 focus:border-[#1C4ED8] focus:ring-4 focus:ring-blue-50 transition-all outline-none font-bold text-xs text-zinc-700 appearance-none cursor-pointer">
                                             <option value="Full-time">Full-time</option>
                                             <option value="Part-time">Part-time</option>
                                             <option value="Contract">Contract</option>
@@ -635,11 +586,7 @@ export default function ApplicationsPage() {
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">Status</label>
-                                        <select
-                                            value={formData.status}
-                                            onChange={(e) => setFormData({ ...formData, status: e.target.value as JobApplication['status'] })}
-                                            className="w-full h-12 px-4 rounded-xl bg-zinc-50 border border-zinc-100 focus:border-[#1C4ED8] focus:ring-4 focus:ring-blue-50 transition-all outline-none font-bold text-xs text-zinc-700 appearance-none cursor-pointer"
-                                        >
+                                        <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value as JobApplication['status'] })} className="w-full h-12 px-4 rounded-xl bg-zinc-50 border border-zinc-100 focus:border-[#1C4ED8] focus:ring-4 focus:ring-blue-50 transition-all outline-none font-bold text-xs text-zinc-700 appearance-none cursor-pointer">
                                             <option value="applied">Applied</option>
                                             <option value="tracking">Tracking</option>
                                             <option value="interview">Interview</option>
@@ -654,46 +601,48 @@ export default function ApplicationsPage() {
                                         <Globe className="h-4 w-4 text-zinc-400" />
                                         <span className="text-xs font-bold text-zinc-600">Remote position</span>
                                     </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => setFormData({ ...formData, is_remote: !formData.is_remote })}
-                                        className={cn(
-                                            "relative h-7 w-12 rounded-full transition-colors duration-200",
-                                            formData.is_remote ? "bg-[#1C4ED8]" : "bg-zinc-200"
-                                        )}
-                                    >
-                                        <span className={cn(
-                                            "absolute top-1 left-1 h-5 w-5 rounded-full bg-white transition-transform duration-200",
-                                            formData.is_remote && "translate-x-5"
-                                        )} />
+                                    <button type="button" onClick={() => setFormData({ ...formData, is_remote: !formData.is_remote })} className={cn("relative h-7 w-12 rounded-full transition-colors duration-200", formData.is_remote ? "bg-[#1C4ED8]" : "bg-zinc-200")}>
+                                        <span className={cn("absolute top-1 left-1 h-5 w-5 rounded-full bg-white transition-transform duration-200", formData.is_remote && "translate-x-5")} />
                                     </button>
                                 </div>
 
-                                <div className="border-t border-zinc-100" />
+                                {/* Follow-up section */}
+                                <div className="border-t border-zinc-100 pt-4">
+                                    {!showFollowUpFields ? (
+                                        <button type="button" onClick={() => setShowFollowUpFields(true)} className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-400 hover:text-[#1C4ED8] transition-colors ml-1">
+                                            <Bell className="h-3 w-3" />Set follow-up reminder
+                                        </button>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <Bell className="h-4 w-4 text-blue-500" />
+                                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-700">Follow-up Reminder</span>
+                                                </div>
+                                                <button type="button" onClick={() => { setShowFollowUpFields(false); setFormData({ ...formData, follow_up_date: "", follow_up_note: "" }); }} className="text-[10px] font-bold text-zinc-400 hover:text-red-500 transition-colors">Remove</button>
+                                            </div>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">Reminder Date</label>
+                                                    <input type="date" value={formData.follow_up_date} onChange={(e) => setFormData({ ...formData, follow_up_date: e.target.value })} min={new Date().toISOString().split('T')[0]} className="w-full h-12 px-4 rounded-xl bg-zinc-50 border border-zinc-100 focus:border-[#1C4ED8] focus:ring-4 focus:ring-blue-50 transition-all outline-none font-bold text-xs text-zinc-700" />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">Note (optional)</label>
+                                                    <input type="text" value={formData.follow_up_note} onChange={(e) => setFormData({ ...formData, follow_up_note: e.target.value })} placeholder="Ask about timeline..." className="w-full h-12 px-4 rounded-xl bg-zinc-50 border border-zinc-100 focus:border-[#1C4ED8] focus:ring-4 focus:ring-blue-50 transition-all outline-none font-bold text-xs placeholder:text-zinc-300" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
 
+                                <div className="border-t border-zinc-100" />
                                 <div className="flex items-center justify-end gap-3 pt-1">
-                                    <button
-                                        type="button"
-                                        onClick={() => { setShowModal(false); resetForm(); }}
-                                        className="btn-secondary h-12 px-6 border-none hover:bg-zinc-50 text-zinc-400"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={isSubmitting}
-                                        className="btn-primary h-12 px-8"
-                                    >
+                                    <button type="button" onClick={() => { setShowModal(false); resetForm(); }} className="btn-secondary h-12 px-6 border-none hover:bg-zinc-50 text-zinc-400">Cancel</button>
+                                    <button type="submit" disabled={isSubmitting} className="btn-primary h-12 px-8">
                                         {isSubmitting ? (
-                                            <>
-                                                <Loader2 className="h-4 w-4 animate-spin shrink-0" />
-                                                {editingJob ? "Saving..." : "Adding..."}
-                                            </>
+                                            <><Loader2 className="h-4 w-4 animate-spin shrink-0" />{editingJob ? "Saving..." : "Adding..."}</>
                                         ) : (
-                                            <>
-                                                {editingJob ? <Pencil className="h-4 w-4 shrink-0" /> : <Plus className="h-4 w-4 shrink-0" />}
-                                                {editingJob ? "Save Changes" : "Add Application"}
-                                            </>
+                                            <>{editingJob ? <Pencil className="h-4 w-4 shrink-0" /> : <Plus className="h-4 w-4 shrink-0" />}{editingJob ? "Save Changes" : "Add Application"}</>
                                         )}
                                     </button>
                                 </div>
@@ -707,21 +656,12 @@ export default function ApplicationsPage() {
             <AnimatePresence>
                 {viewingJob && (
                     <>
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-blue-950/30 backdrop-blur-sm" onClick={() => setViewingJob(null)} />
                         <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-50 bg-blue-950/30 backdrop-blur-sm"
-                            onClick={() => setViewingJob(null)}
-                        />
-                        <motion.div
-                            initial={{ x: "100%" }}
-                            animate={{ x: 0 }}
-                            exit={{ x: "100%" }}
+                            initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
                             transition={{ type: "spring", damping: 30, stiffness: 300 }}
                             className="fixed right-0 top-0 h-full w-full max-w-xl z-50 bg-white border-l border-zinc-100 flex flex-col overflow-hidden"
                         >
-                            {/* Drawer Header */}
                             <div className="flex items-start justify-between p-8 pb-6 border-b border-zinc-50 shrink-0">
                                 <div className="flex items-center gap-4 min-w-0">
                                     <div className="h-12 w-12 rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center justify-center shrink-0">
@@ -732,103 +672,68 @@ export default function ApplicationsPage() {
                                         <p className="text-sm font-bold text-zinc-400 mt-0.5">{viewingJob.company}</p>
                                     </div>
                                 </div>
-                                <button
-                                    onClick={() => setViewingJob(null)}
-                                    className="h-9 w-9 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-400 hover:bg-zinc-100 transition-all shrink-0 ml-4"
-                                >
+                                <button onClick={() => setViewingJob(null)} className="h-9 w-9 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-400 hover:bg-zinc-100 transition-all shrink-0 ml-4">
                                     <X className="h-4 w-4" />
                                 </button>
                             </div>
 
-                            {/* Metadata chips */}
                             <div className="flex flex-wrap gap-2 px-8 py-4 border-b border-zinc-50 shrink-0">
-                                <span className={cn("px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest", statusColors[viewingJob.status])}>
-                                    {viewingJob.status}
-                                </span>
-                                {viewingJob.is_remote && (
-                                    <span className="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-zinc-100 text-zinc-500">Remote</span>
-                                )}
+                                <span className={cn("px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest", statusColors[viewingJob.status])}>{viewingJob.status}</span>
+                                {viewingJob.is_remote && <span className="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-zinc-100 text-zinc-500">Remote</span>}
                                 <span className="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-zinc-100 text-zinc-500">{viewingJob.type}</span>
-                                {viewingJob.location && (
-                                    <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-zinc-100 text-zinc-500">
-                                        <MapPin className="h-2.5 w-2.5" />{viewingJob.location}
-                                    </span>
-                                )}
-                                {viewingJob.salary && (
-                                    <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600">
-                                        <Banknote className="h-2.5 w-2.5" />{viewingJob.salary}
-                                    </span>
-                                )}
+                                {viewingJob.location && <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-zinc-100 text-zinc-500"><MapPin className="h-2.5 w-2.5" />{viewingJob.location}</span>}
+                                {viewingJob.salary && <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600"><Banknote className="h-2.5 w-2.5" />{viewingJob.salary}</span>}
+                                {viewingJob.follow_up_date && <FollowUpBadge date={viewingJob.follow_up_date} />}
                                 {viewingJob.cv_match_score != null && (
-                                    <span className={cn(
-                                        "px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest",
-                                        viewingJob.cv_match_score >= 70 ? "bg-emerald-50 text-emerald-600" :
-                                            viewingJob.cv_match_score >= 40 ? "bg-amber-50 text-amber-600" : "bg-red-50 text-red-500"
-                                    )}>
+                                    <span className={cn("px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest", viewingJob.cv_match_score >= 70 ? "bg-emerald-50 text-emerald-600" : viewingJob.cv_match_score >= 40 ? "bg-amber-50 text-amber-600" : "bg-red-50 text-red-500")}>
                                         {viewingJob.cv_match_score}% match
                                     </span>
                                 )}
                             </div>
 
-                            {/* Scrollable body */}
                             <div className="flex-1 overflow-y-auto p-8 space-y-6">
-
-                                {/* Description */}
+                                {viewingJob.follow_up_note && (
+                                    <div>
+                                        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-3">Follow-up Note</h3>
+                                        <div className="bg-blue-50 rounded-2xl p-4 border border-blue-100 flex items-start gap-3">
+                                            <Bell className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" />
+                                            <p className="text-xs font-medium text-blue-700 leading-relaxed">{viewingJob.follow_up_note}</p>
+                                        </div>
+                                    </div>
+                                )}
                                 {viewingJob.description ? (
                                     <div>
                                         <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-3">Job Description</h3>
                                         <div className="bg-zinc-50 rounded-2xl p-5 border border-zinc-100">
-                                            <p className="text-xs font-medium text-zinc-600 leading-relaxed whitespace-pre-wrap">
-                                                {viewingJob.description}
-                                            </p>
+                                            <p className="text-xs font-medium text-zinc-600 leading-relaxed whitespace-pre-wrap">{viewingJob.description}</p>
                                         </div>
                                     </div>
                                 ) : (
                                     <div className="bg-zinc-50 rounded-2xl p-6 border border-zinc-100 flex flex-col items-center gap-3 text-center">
                                         <FileText className="h-8 w-8 text-zinc-300" />
                                         <p className="text-xs font-bold text-zinc-400">No description was captured for this job.</p>
-                                        <p className="text-[10px] text-zinc-300 font-medium">Re-track the job from the extension to capture the description.</p>
                                     </div>
                                 )}
-
-                                {/* CV Match Details */}
                                 {viewingJob.cv_match_details && (
                                     <div>
                                         <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-3">CV Match Analysis</h3>
                                         <div className="bg-zinc-50 rounded-2xl p-5 border border-zinc-100 space-y-3">
-                                            {(viewingJob.cv_match_details.strengths || []).map((s, i) => (
-                                                <p key={`s-${i}`} className="text-xs text-emerald-600 font-semibold leading-relaxed">✓ {s}</p>
-                                            ))}
-                                            {(viewingJob.cv_match_details.gaps || []).map((g, i) => (
-                                                <p key={`g-${i}`} className="text-xs text-red-400 font-semibold leading-relaxed">✗ {g}</p>
-                                            ))}
-                                            {viewingJob.cv_match_details.tip && (
-                                                <p className="text-xs text-blue-600 font-semibold leading-relaxed border-t border-zinc-100 pt-3">💡 {viewingJob.cv_match_details.tip}</p>
-                                            )}
+                                            {(viewingJob.cv_match_details.strengths || []).map((s, i) => <p key={`s-${i}`} className="text-xs text-emerald-600 font-semibold leading-relaxed">✓ {s}</p>)}
+                                            {(viewingJob.cv_match_details.gaps || []).map((g, i) => <p key={`g-${i}`} className="text-xs text-red-400 font-semibold leading-relaxed">✗ {g}</p>)}
+                                            {viewingJob.cv_match_details.tip && <p className="text-xs text-blue-600 font-semibold leading-relaxed border-t border-zinc-100 pt-3">💡 {viewingJob.cv_match_details.tip}</p>}
                                         </div>
                                     </div>
                                 )}
                             </div>
 
-                            {/* Footer actions */}
                             <div className="shrink-0 border-t border-zinc-50 p-6 flex items-center gap-3">
                                 {viewingJob.job_url && (
-                                    <a
-                                        href={viewingJob.job_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex-1 btn-primary h-11 text-xs flex items-center justify-center gap-2"
-                                    >
-                                        <ExternalLink className="h-3.5 w-3.5" />
-                                        Open Job Posting
+                                    <a href={viewingJob.job_url} target="_blank" rel="noopener noreferrer" className="flex-1 btn-primary h-11 text-xs flex items-center justify-center gap-2">
+                                        <ExternalLink className="h-3.5 w-3.5" />Open Job Posting
                                     </a>
                                 )}
-                                <button
-                                    onClick={() => { setViewingJob(null); openEditModal(viewingJob); }}
-                                    className="flex-1 btn-secondary h-11 text-xs flex items-center justify-center gap-2"
-                                >
-                                    <Pencil className="h-3.5 w-3.5" />
-                                    Edit
+                                <button onClick={() => { setViewingJob(null); openEditModal(viewingJob); }} className="flex-1 btn-secondary h-11 text-xs flex items-center justify-center gap-2">
+                                    <Pencil className="h-3.5 w-3.5" />Edit
                                 </button>
                             </div>
                         </motion.div>
@@ -839,52 +744,20 @@ export default function ApplicationsPage() {
             {/* Delete Confirmation Modal */}
             <AnimatePresence>
                 {deletingJob && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4"
-                    >
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                            onClick={() => setDeletingJob(null)}
-                        />
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            className="relative w-full max-w-sm bg-white rounded-2xl border border-zinc-100 p-8 text-center"
-                        >
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setDeletingJob(null)} />
+                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative w-full max-w-sm bg-white rounded-2xl border border-zinc-100 p-8 text-center">
                             <div className="h-16 w-16 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-6">
                                 <Trash2 className="h-8 w-8 text-red-500" />
                             </div>
                             <h3 className="text-lg font-black tracking-tight text-brand-blue-black mb-2">Delete Application?</h3>
                             <p className="text-xs font-medium text-zinc-400 mb-8 leading-relaxed">
-                                This will permanently remove <span className="text-brand-blue-black font-bold">{deletingJob.company} — {deletingJob.title}</span> from your pipeline. This action cannot be undone.
+                                This will permanently remove <span className="text-brand-blue-black font-bold">{deletingJob.company} — {deletingJob.title}</span> from your pipeline.
                             </p>
                             <div className="flex items-center gap-3">
-                                <button
-                                    onClick={() => setDeletingJob(null)}
-                                    className="btn-secondary flex-1 h-12 text-zinc-400 border-zinc-100 hover:bg-zinc-50"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleDelete}
-                                    disabled={isDeleting}
-                                    className="flex-1 h-12 bg-red-500 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-red-600 transition-all flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.98]"
-                                >
-                                    {isDeleting ? (
-                                        <>
-                                            <Loader2 className="h-4 w-4 animate-spin" />
-                                            Deleting...
-                                        </>
-                                    ) : (
-                                        "Delete"
-                                    )}
+                                <button onClick={() => setDeletingJob(null)} className="btn-secondary flex-1 h-12 text-zinc-400 border-zinc-100 hover:bg-zinc-50">Cancel</button>
+                                <button onClick={handleDelete} disabled={isDeleting} className="flex-1 h-12 bg-red-500 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-red-600 transition-all flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.98]">
+                                    {isDeleting ? <><Loader2 className="h-4 w-4 animate-spin" />Deleting...</> : "Delete"}
                                 </button>
                             </div>
                         </motion.div>
