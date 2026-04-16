@@ -598,10 +598,13 @@ export default function ProfilePage() {
                                     <button
                                         onClick={handleConnectGmail}
                                         disabled={isConnectingGmail}
-                                        className="w-full h-10 rounded-lg border border-zinc-200 bg-white text-xs font-bold text-zinc-700 hover:bg-zinc-50 transition-all flex items-center justify-center gap-2.5 disabled:opacity-40"
+                                        className="w-full h-10 rounded-lg border border-zinc-200 bg-white text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition-all flex items-center justify-center gap-3 disabled:opacity-40"
+                                        style={{ fontFamily: 'Roboto, Arial, sans-serif' }}
                                     >
-                                        {isConnectingGmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
-                                        {isGmailExpired ? "Reconnect with Google" : "Connect with Google"}
+                                        <GoogleIcon />
+                                        {isConnectingGmail
+                                            ? <><Loader2 className="h-4 w-4 animate-spin inline mr-1" />Connecting...</>
+                                            : "Sign in with Google"}
                                     </button>
                                 ) : (
                                     <button
