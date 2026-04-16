@@ -18,6 +18,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/app/lib/utils";
 import { toast } from "sonner";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 interface Plan {
     id: string;
@@ -39,6 +40,8 @@ export default function AdminBilling() {
     const [loading, setLoading] = useState(true);
     const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
     const [isSaving, setIsSaving] = useState(false);
+    const [isDeletingPlan, setIsDeletingPlan] = useState(false);
+    const [confirmModal, setConfirmModal] = useState<{ title: string; description: string; confirmLabel?: string; onConfirm: () => void } | null>(null);
 
     const fetchPlans = async () => {
         setLoading(true);
@@ -78,15 +81,27 @@ export default function AdminBilling() {
         }
     };
 
-    const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this plan?")) return;
+    const doDeletePlan = async (id: string) => {
+        setConfirmModal(null);
+        setIsDeletingPlan(true);
         try {
             await api.delete(`/admin/plans/${id}`);
             toast.success("Plan deleted");
             fetchPlans();
         } catch (err) {
             toast.error("Failed to delete plan");
+        } finally {
+            setIsDeletingPlan(false);
         }
+    };
+
+    const handleDelete = (id: string) => {
+        setConfirmModal({
+            title: "Delete Plan",
+            description: "Are you sure you want to delete this plan? This action cannot be undone.",
+            confirmLabel: "Delete Plan",
+            onConfirm: () => doDeletePlan(id),
+        });
     };
 
     const toggleStatus = async (plan: Plan) => {
@@ -106,6 +121,7 @@ export default function AdminBilling() {
     );
 
     return (
+        <>
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
@@ -363,5 +379,15 @@ export default function AdminBilling() {
                 </div>
             </div>
         </div>
+        <ConfirmModal
+            isOpen={!!confirmModal}
+            onClose={() => setConfirmModal(null)}
+            onConfirm={() => confirmModal?.onConfirm()}
+            title={confirmModal?.title ?? ""}
+            description={confirmModal?.description ?? ""}
+            confirmLabel={confirmModal?.confirmLabel}
+            isLoading={isDeletingPlan}
+        />
+        </>
     );
 }

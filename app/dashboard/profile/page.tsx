@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import api from "@/app/lib/api";
 import { useAuthStore } from "@/app/store/authStore";
 import { cn } from "@/app/lib/utils";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 interface CVData {
     id: string;
@@ -29,7 +30,7 @@ const GmailLogo = ({ className }: { className?: string }) => (
 );
 
 const GoogleIcon = () => (
-    <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24">
+    <svg className="shrink-0" width="18" height="18" viewBox="0 0 24 24">
         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
         <path d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" fill="#FBBC05"/>
@@ -114,6 +115,7 @@ export default function ProfilePage() {
     const [isBiosModalOpen, setIsBiosModalOpen] = useState(false);
     const [isConnectingGmail, setIsConnectingGmail] = useState(false);
     const [cvToDelete, setCvToDelete] = useState<CVData | null>(null);
+    const [confirmModal, setConfirmModal] = useState<{ title: string; description: string; confirmLabel?: string; onConfirm: () => void } | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const fetchCVs = async () => {
@@ -247,7 +249,7 @@ export default function ProfilePage() {
     };
 
     const handleDisconnectGmail = async () => {
-        if (!confirm("Are you sure you want to disconnect your Google account?")) return;
+        setConfirmModal(null);
         setIsConnectingGmail(true);
         try {
             const res = await api.post('/auth/google/disconnect');
@@ -578,7 +580,12 @@ export default function ProfilePage() {
                                             </p>
                                         </div>
                                         <button
-                                            onClick={handleDisconnectGmail}
+                                            onClick={() => setConfirmModal({
+                                                title: "Disconnect Google",
+                                                description: "Are you sure you want to disconnect your Google account? Email syncing will stop until you reconnect.",
+                                                confirmLabel: "Disconnect",
+                                                onConfirm: handleDisconnectGmail,
+                                            })}
                                             disabled={isConnectingGmail}
                                             className="h-8 w-8 flex items-center justify-center rounded-lg text-zinc-300 hover:text-red-500 hover:bg-red-50 transition-all disabled:opacity-40"
                                             title="Disconnect"
@@ -598,8 +605,17 @@ export default function ProfilePage() {
                                     <button
                                         onClick={handleConnectGmail}
                                         disabled={isConnectingGmail}
-                                        className="w-full h-10 rounded-lg border border-zinc-200 bg-white text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition-all flex items-center justify-center gap-3 disabled:opacity-40"
-                                        style={{ fontFamily: 'Roboto, Arial, sans-serif' }}
+                                        className="w-full h-10 rounded-lg bg-white flex items-center justify-center disabled:opacity-40 transition-opacity"
+                                        style={{
+                                            border: '1px solid #747775',
+                                            fontFamily: 'Roboto, Arial, sans-serif',
+                                            fontSize: '14px',
+                                            fontWeight: 500,
+                                            color: '#1F1F1F',
+                                            paddingLeft: '12px',
+                                            paddingRight: '12px',
+                                            gap: '10px',
+                                        }}
                                     >
                                         <GoogleIcon />
                                         {isConnectingGmail
@@ -901,6 +917,16 @@ export default function ProfilePage() {
                     </div>
                 )}
             </AnimatePresence>
+
+            <ConfirmModal
+                isOpen={!!confirmModal}
+                onClose={() => setConfirmModal(null)}
+                onConfirm={() => confirmModal?.onConfirm()}
+                title={confirmModal?.title ?? ""}
+                description={confirmModal?.description ?? ""}
+                confirmLabel={confirmModal?.confirmLabel}
+                isLoading={isConnectingGmail}
+            />
         </div>
     );
 }

@@ -25,6 +25,7 @@ import { cn } from "@/app/lib/utils";
 import { toast } from "sonner";
 import api from "@/app/lib/api";
 import { useRouter } from "next/navigation";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 type Tab = "account" | "integrations" | "ai" | "notifications";
 
@@ -33,6 +34,8 @@ export default function SettingsPage() {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<Tab>("account");
     const [isSaving, setIsSaving] = useState(false);
+    const [confirmModal, setConfirmModal] = useState<{ title: string; description: string; confirmLabel?: string; onConfirm: () => void } | null>(null);
+    const [isDeletingAccount, setIsDeletingAccount] = useState(false);
     
     // Form States
     const [name, setName] = useState(user?.name || "");
@@ -75,8 +78,8 @@ export default function SettingsPage() {
     };
 
     const handleDeleteAccount = async () => {
-        if (!confirm("Are you sure? This will permanently delete your account and all data. This action cannot be undone.")) return;
-        
+        setConfirmModal(null);
+        setIsDeletingAccount(true);
         try {
             await api.delete("/user");
             toast.success("Account deleted. Good luck with your journey!");
@@ -84,6 +87,8 @@ export default function SettingsPage() {
             router.push("/");
         } catch (err: any) {
             toast.error("Failed to delete account");
+        } finally {
+            setIsDeletingAccount(false);
         }
     };
 
@@ -205,8 +210,13 @@ export default function SettingsPage() {
                                     <div className="p-8 rounded-[2.5rem] border border-red-100 bg-red-50/20 text-center space-y-4">
                                         <h3 className="text-sm font-black text-red-600 uppercase tracking-widest">Danger Zone</h3>
                                         <p className="text-[11px] font-medium text-zinc-500 max-w-sm mx-auto">Once you delete your account, all your AI-optimized resumes and tracking history will be permanently removed.</p>
-                                        <button 
-                                            onClick={handleDeleteAccount}
+                                        <button
+                                            onClick={() => setConfirmModal({
+                                                title: "Delete Account",
+                                                description: "This will permanently delete your account and all data including resumes and tracking history. This action cannot be undone.",
+                                                confirmLabel: "Delete Account",
+                                                onConfirm: handleDeleteAccount,
+                                            })}
                                             className="flex items-center gap-2 mx-auto px-6 py-3 rounded-2xl bg-red-600 text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-700 transition-all"
                                         >
                                             <Trash2 className="h-4 w-4" />
@@ -266,6 +276,16 @@ export default function SettingsPage() {
                 </div>
             </div>
         </div>
+
+        <ConfirmModal
+            isOpen={!!confirmModal}
+            onClose={() => setConfirmModal(null)}
+            onConfirm={() => confirmModal?.onConfirm()}
+            title={confirmModal?.title ?? ""}
+            description={confirmModal?.description ?? ""}
+            confirmLabel={confirmModal?.confirmLabel}
+            isLoading={isDeletingAccount}
+        />
     );
 }
 
