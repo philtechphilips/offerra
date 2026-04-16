@@ -114,6 +114,7 @@ export default function SettingsPage() {
     };
 
     return (
+        <>
         <div className="w-full max-w-6xl mx-auto space-y-10">
             {/* Page Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2">
@@ -276,7 +277,6 @@ export default function SettingsPage() {
                 </div>
             </div>
         </div>
-
         <ConfirmModal
             isOpen={!!confirmModal}
             onClose={() => setConfirmModal(null)}
@@ -286,6 +286,7 @@ export default function SettingsPage() {
             confirmLabel={confirmModal?.confirmLabel}
             isLoading={isDeletingAccount}
         />
+        </>
     );
 }
 

@@ -18,6 +18,7 @@ import {
 import { motion } from "framer-motion";
 import { cn } from "@/app/lib/utils";
 import { toast } from "sonner";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 interface User {
     id: string;
@@ -42,6 +43,8 @@ export default function UserManagement() {
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
     const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
+    const [isDeletingUser, setIsDeletingUser] = useState(false);
+    const [confirmModal, setConfirmModal] = useState<{ title: string; description: string; confirmLabel?: string; onConfirm: () => void } | null>(null);
 
     const fetchUsers = async () => {
         setLoading(true);
@@ -96,15 +99,27 @@ export default function UserManagement() {
         }
     };
 
-    const handleDeleteUser = async (userId: string) => {
-        if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) return;
+    const doDeleteUser = async (userId: string) => {
+        setConfirmModal(null);
+        setIsDeletingUser(true);
         try {
             await api.delete(`/admin/users/${userId}`);
             setUsers(users.filter(u => u.id !== userId));
             toast.success("User deleted successfully");
         } catch (err) {
             toast.error("Failed to delete user");
+        } finally {
+            setIsDeletingUser(false);
         }
+    };
+
+    const handleDeleteUser = (userId: string) => {
+        setConfirmModal({
+            title: "Delete User",
+            description: "Are you sure you want to delete this user? This action cannot be undone.",
+            confirmLabel: "Delete User",
+            onConfirm: () => doDeleteUser(userId),
+        });
     };
 
     return (
@@ -274,6 +289,15 @@ export default function UserManagement() {
                     </div>
                 )}
             </div>
+            <ConfirmModal
+                isOpen={!!confirmModal}
+                onClose={() => setConfirmModal(null)}
+                onConfirm={() => confirmModal?.onConfirm()}
+                title={confirmModal?.title ?? ""}
+                description={confirmModal?.description ?? ""}
+                confirmLabel={confirmModal?.confirmLabel}
+                isLoading={isDeletingUser}
+            />
         </div>
     );
 }
