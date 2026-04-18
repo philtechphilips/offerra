@@ -15,17 +15,19 @@ import { FinalCTA } from "@/components/landing/FinalCTA";
 import { Footer } from "@/components/landing/Footer";
 import { ExtensionFeature } from "@/components/landing/ExtensionFeature";
 import { CoverLetterFeature } from "@/components/landing/CoverLetterFeature";
+import { DocSignFeature } from "@/components/landing/DocSignFeature";
+import { KanbanFeature } from "@/components/landing/KanbanFeature";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, CheckCircle2, Globe, MapPin, Twitter, Linkedin, Github, MessageCircle } from "lucide-react";
 import { cn } from "@/app/lib/utils";
 
 const COMMON_FEATURES = [
   "Automated Job Tracking",
+  "DocSign Pro Signature Suite",
+  "Kanban Job Command Center",
   "AI Resume Optimization",
   "Interview Practice Coach",
-  "Smart Gmail Sync",
-  "Browser Companion",
-  "Priority Support"
+  "Smart Gmail Sync"
 ];
 
 interface Plan {
@@ -81,6 +83,8 @@ export default function Home() {
       <main>
         <Hero />
         <ExtensionFeature />
+        <KanbanFeature />
+        <DocSignFeature />
         <Features />
         {/* How it Works - Refined Flow */}
         <section id="how-it-works" className="py-24 lg:py-32 bg-[#F9FBFF]/50 border-y border-zinc-100 relative overflow-hidden">

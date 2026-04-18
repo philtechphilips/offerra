@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
     Upload, FileText, Trash2, CheckCircle2, Loader2, Sparkles,
     Briefcase, X, Copy, Zap, Linkedin, Twitter, Github,
-    Mail, Plus, ShieldCheck, ExternalLink, Search
+    Mail, Plus, ShieldCheck, ExternalLink, Search,
+    Globe, Link2, ToggleLeft, ToggleRight, MapPin
 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/app/lib/api";
@@ -117,6 +118,34 @@ export default function ProfilePage() {
     const [cvToDelete, setCvToDelete] = useState<CVData | null>(null);
     const [confirmModal, setConfirmModal] = useState<{ title: string; description: string; confirmLabel?: string; onConfirm: () => void } | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const [profileSettings, setProfileSettings] = useState({
+        username: '',
+        public_profile_enabled: false,
+        location: '',
+        linkedin_url: '',
+        github_url: '',
+        twitter_url: '',
+        portfolio_url: '',
+    });
+    const [usernameAvailable, setUsernameAvailable] = useState<null | boolean>(null);
+    const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+    const [isSavingProfile, setIsSavingProfile] = useState(false);
+    const usernameDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        if (user) {
+            setProfileSettings({
+                username: (user as any).username ?? '',
+                public_profile_enabled: (user as any).public_profile_enabled ?? false,
+                location: (user as any).location ?? '',
+                linkedin_url: (user as any).linkedin_url ?? '',
+                github_url: (user as any).github_url ?? '',
+                twitter_url: (user as any).twitter_url ?? '',
+                portfolio_url: (user as any).portfolio_url ?? '',
+            });
+        }
+    }, [user?.id]);
 
     const fetchCVs = async () => {
         setIsLoading(true);
@@ -278,6 +307,38 @@ export default function ProfilePage() {
         }
     };
 
+
+    const handleUsernameChange = (value: string) => {
+        const sanitized = value.toLowerCase().replace(/[^a-z0-9\-]/g, '');
+        setProfileSettings(prev => ({ ...prev, username: sanitized }));
+        setUsernameAvailable(null);
+        if (usernameDebounceRef.current) clearTimeout(usernameDebounceRef.current);
+        if (sanitized.length < 3) return;
+        usernameDebounceRef.current = setTimeout(async () => {
+            setIsCheckingUsername(true);
+            try {
+                const res = await api.get('/profile/check-username', { params: { username: sanitized } });
+                setUsernameAvailable(res.data.available);
+            } catch {
+                setUsernameAvailable(null);
+            } finally {
+                setIsCheckingUsername(false);
+            }
+        }, 500);
+    };
+
+    const saveProfileSettings = async () => {
+        setIsSavingProfile(true);
+        try {
+            const res = await api.put('/profile/settings', profileSettings);
+            setUser(res.data.user);
+            toast.success("Public profile saved!");
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || "Failed to save profile.");
+        } finally {
+            setIsSavingProfile(false);
+        }
+    };
 
     const getInitials = (name?: string) => {
         if (!name) return "U";
@@ -656,6 +717,135 @@ export default function ProfilePage() {
                                 >
                                     {isGeneratingBios ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
                                     {biosData ? "View generated bios" : "Generate bios"}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Public Profile card */}
+                        <div className="rounded-2xl border border-zinc-100 bg-white overflow-hidden">
+                            <div className="flex items-center gap-3 px-6 py-4 border-b border-zinc-50">
+                                <Globe className="h-4 w-4 text-blue-600" />
+                                <span className="text-sm font-black text-zinc-900">Public Profile</span>
+                                {profileSettings.public_profile_enabled && profileSettings.username && (
+                                    <span className="ml-auto h-2 w-2 rounded-full bg-emerald-500" />
+                                )}
+                            </div>
+                            <div className="p-5 space-y-4">
+                                {/* Toggle */}
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-xs font-bold text-zinc-700">Enable public page</p>
+                                        <p className="text-[11px] text-zinc-400 mt-0.5">Share your profile with anyone</p>
+                                    </div>
+                                    <button
+                                        onClick={() => setProfileSettings(prev => ({ ...prev, public_profile_enabled: !prev.public_profile_enabled }))}
+                                        className="transition-colors"
+                                    >
+                                        {profileSettings.public_profile_enabled
+                                            ? <ToggleRight className="h-7 w-7 text-blue-600" />
+                                            : <ToggleLeft className="h-7 w-7 text-zinc-300" />}
+                                    </button>
+                                </div>
+
+                                {/* Username */}
+                                <div className="space-y-1.5">
+                                    <label className="text-[11px] font-black text-zinc-400">Username</label>
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-zinc-400 font-bold select-none">@</span>
+                                        <input
+                                            type="text"
+                                            value={profileSettings.username}
+                                            onChange={(e) => handleUsernameChange(e.target.value)}
+                                            placeholder="yourname"
+                                            maxLength={30}
+                                            className="w-full h-9 pl-7 pr-8 rounded-lg border border-zinc-200 text-xs font-bold text-zinc-900 focus:outline-none focus:border-blue-400 transition-colors bg-white"
+                                        />
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                            {isCheckingUsername ? (
+                                                <Loader2 className="h-3 w-3 animate-spin text-zinc-300" />
+                                            ) : usernameAvailable === true ? (
+                                                <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+                                            ) : usernameAvailable === false ? (
+                                                <X className="h-3 w-3 text-red-400" />
+                                            ) : null}
+                                        </div>
+                                    </div>
+                                    {usernameAvailable === false && (
+                                        <p className="text-[11px] text-red-500">Username is taken</p>
+                                    )}
+                                    {usernameAvailable === true && (
+                                        <p className="text-[11px] text-emerald-500">Username is available!</p>
+                                    )}
+                                </div>
+
+                                {/* Location */}
+                                <div className="space-y-1.5">
+                                    <label className="text-[11px] font-black text-zinc-400">Location</label>
+                                    <div className="relative">
+                                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 text-zinc-400" />
+                                        <input
+                                            type="text"
+                                            value={profileSettings.location}
+                                            onChange={(e) => setProfileSettings(prev => ({ ...prev, location: e.target.value }))}
+                                            placeholder="Lagos, Nigeria"
+                                            className="w-full h-9 pl-8 pr-3 rounded-lg border border-zinc-200 text-xs text-zinc-700 focus:outline-none focus:border-blue-400 transition-colors bg-white"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Social links */}
+                                <div className="space-y-2">
+                                    <label className="text-[11px] font-black text-zinc-400">Social Links</label>
+                                    {([
+                                        { key: 'linkedin_url', Icon: Linkedin, placeholder: 'linkedin.com/in/...' },
+                                        { key: 'github_url', Icon: Github, placeholder: 'github.com/...' },
+                                        { key: 'twitter_url', Icon: Twitter, placeholder: 'x.com/...' },
+                                        { key: 'portfolio_url', Icon: Link2, placeholder: 'yourportfolio.com' },
+                                    ] as const).map(({ key, Icon, placeholder }) => (
+                                        <div key={key} className="relative">
+                                            <Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 text-zinc-400" />
+                                            <input
+                                                type="url"
+                                                value={profileSettings[key]}
+                                                onChange={(e) => setProfileSettings(prev => ({ ...prev, [key]: e.target.value }))}
+                                                placeholder={placeholder}
+                                                className="w-full h-9 pl-8 pr-3 rounded-lg border border-zinc-200 text-xs text-zinc-600 focus:outline-none focus:border-blue-400 transition-colors bg-white"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Share link preview */}
+                                {profileSettings.username && profileSettings.public_profile_enabled && (
+                                    <div className="p-3 rounded-xl bg-blue-50 border border-blue-100 flex items-center gap-2">
+                                        <Globe className="h-3 w-3 text-blue-500 shrink-0" />
+                                        <a
+                                            href={`/u/${profileSettings.username}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-[11px] font-bold text-blue-600 truncate hover:underline"
+                                        >
+                                            offerra.click/u/{profileSettings.username}
+                                        </a>
+                                        <button
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(`https://offerra.click/u/${profileSettings.username}`);
+                                                toast.success("Link copied!");
+                                            }}
+                                            className="ml-auto shrink-0 text-blue-400 hover:text-blue-600 transition-colors"
+                                        >
+                                            <Copy className="h-3 w-3" />
+                                        </button>
+                                    </div>
+                                )}
+
+                                <button
+                                    onClick={saveProfileSettings}
+                                    disabled={isSavingProfile}
+                                    className="w-full h-10 rounded-lg bg-blue-600 text-xs font-bold text-white hover:bg-blue-700 transition-all flex items-center justify-center gap-2 disabled:opacity-40"
+                                >
+                                    {isSavingProfile && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                                    Save Profile
                                 </button>
                             </div>
                         </div>

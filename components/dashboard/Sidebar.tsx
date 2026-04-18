@@ -35,8 +35,9 @@ const strategy = [
     { name: 'Profile', href: '/dashboard/profile', icon: FileText },
     { name: 'Optimize CV', href: '/dashboard/optimizer', icon: Sparkles },
     { name: 'Cover Letter', href: '/dashboard/cover-letter', icon: Command },
-    { name: 'Proposals', href: '/dashboard/proposals', icon: PenTool },
+    { name: 'Proposals', href: '/dashboard/proposals', icon: FileText },
     { name: 'Practice', href: '/dashboard/prep', icon: Zap },
+    { name: 'DocSign', href: '/dashboard/docsign', icon: PenTool },
     { name: 'Billing', href: '/dashboard/billing', icon: CreditCard },
 ];
 
