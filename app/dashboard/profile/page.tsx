@@ -127,7 +127,10 @@ export default function ProfilePage() {
         github_url: '',
         twitter_url: '',
         portfolio_url: '',
+        professional_headline: '',
+        profile_theme: 'modern',
     });
+    const [isDeducing, setIsDeducing] = useState(false);
     const [usernameAvailable, setUsernameAvailable] = useState<null | boolean>(null);
     const [isCheckingUsername, setIsCheckingUsername] = useState(false);
     const [isSavingProfile, setIsSavingProfile] = useState(false);
@@ -143,6 +146,8 @@ export default function ProfilePage() {
                 github_url: (user as any).github_url ?? '',
                 twitter_url: (user as any).twitter_url ?? '',
                 portfolio_url: (user as any).portfolio_url ?? '',
+                professional_headline: (user as any).professional_headline ?? '',
+                profile_theme: (user as any).profile_theme ?? 'modern',
             });
         }
     }, [user?.id]);
@@ -337,6 +342,29 @@ export default function ProfilePage() {
             toast.error(err.response?.data?.message || "Failed to save profile.");
         } finally {
             setIsSavingProfile(false);
+        }
+    };
+
+    const handleDeduceFromCV = async () => {
+        setIsDeducing(true);
+        const loadingId = toast.loading("AI is analyzing your resume to deduce profile details...");
+        try {
+            const res = await api.post('/profile/deduce');
+            const deduced = res.data.deduced;
+            setProfileSettings(prev => ({
+                ...prev,
+                location: deduced.location || prev.location,
+                linkedin_url: deduced.linkedin_url || prev.linkedin_url,
+                github_url: deduced.github_url || prev.github_url,
+                twitter_url: deduced.twitter_url || prev.twitter_url,
+                portfolio_url: deduced.portfolio_url || prev.portfolio_url,
+                professional_headline: deduced.professional_headline || prev.professional_headline,
+            }));
+            toast.success("Profile fields autofilled! Don't forget to save.", { id: loadingId });
+        } catch (err: any) {
+            toast.error(err.response?.data?.error || "Failed to deduce profile from CV.", { id: loadingId });
+        } finally {
+            setIsDeducing(false);
         }
     };
 
@@ -729,6 +757,18 @@ export default function ProfilePage() {
                                 {profileSettings.public_profile_enabled && profileSettings.username && (
                                     <span className="ml-auto h-2 w-2 rounded-full bg-emerald-500" />
                                 )}
+                                <button
+                                    onClick={handleDeduceFromCV}
+                                    disabled={isDeducing || cvs.length === 0}
+                                    className={cn(
+                                        "ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black transition-all",
+                                        "bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-100 disabled:opacity-50"
+                                    )}
+                                    title="Autofill from your active CV"
+                                >
+                                    {isDeducing ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                                    AI Deduced
+                                </button>
                             </div>
                             <div className="p-5 space-y-4">
                                 {/* Toggle */}
@@ -745,6 +785,21 @@ export default function ProfilePage() {
                                             ? <ToggleRight className="h-7 w-7 text-blue-600" />
                                             : <ToggleLeft className="h-7 w-7 text-zinc-300" />}
                                     </button>
+                                </div>
+
+                                {/* Headline */}
+                                <div className="space-y-1.5">
+                                    <label className="text-[11px] font-black text-zinc-400">Professional Headline</label>
+                                    <div className="relative">
+                                        <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+                                        <input
+                                            type="text"
+                                            value={profileSettings.professional_headline}
+                                            onChange={(e) => setProfileSettings(prev => ({ ...prev, professional_headline: e.target.value }))}
+                                            placeholder="Senior Software Engineer"
+                                            className="w-full h-9 pl-8 pr-3 rounded-lg border border-zinc-200 text-xs text-zinc-700 focus:outline-none focus:border-blue-400 transition-colors bg-white"
+                                        />
+                                    </div>
                                 </div>
 
                                 {/* Username */}
@@ -790,6 +845,35 @@ export default function ProfilePage() {
                                             placeholder="Lagos, Nigeria"
                                             className="w-full h-9 pl-8 pr-3 rounded-lg border border-zinc-200 text-xs text-zinc-700 focus:outline-none focus:border-blue-400 transition-colors bg-white"
                                         />
+                                    </div>
+                                </div>
+
+                                {/* Theme Selector */}
+                                <div className="space-y-2">
+                                    <label className="text-[11px] font-black text-zinc-400 uppercase tracking-wider">Interface Theme</label>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {[
+                                            { id: 'modern', label: 'Modern', desc: 'SaaS style' },
+                                            { id: 'minimalist', label: 'Minimalist', desc: 'Reader' },
+                                            { id: 'bento', label: 'Bento', desc: 'Elite Grid' },
+                                        ].map((theme) => (
+                                            <button
+                                                key={theme.id}
+                                                onClick={() => setProfileSettings(prev => ({ ...prev, profile_theme: theme.id as any }))}
+                                                className={cn(
+                                                    "flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all text-center",
+                                                    profileSettings.profile_theme === theme.id
+                                                        ? "border-blue-600 bg-blue-50/50"
+                                                        : "border-zinc-100 bg-zinc-50/50 hover:border-zinc-200"
+                                                )}
+                                            >
+                                                <span className={cn(
+                                                    "text-[10px] font-black",
+                                                    profileSettings.profile_theme === theme.id ? "text-blue-700" : "text-zinc-600"
+                                                )}>{theme.label}</span>
+                                                <span className="text-[9px] text-zinc-400 font-bold">{theme.desc}</span>
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
 
