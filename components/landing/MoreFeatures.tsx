@@ -147,10 +147,10 @@ const showcaseFeatures = [
     {
         badge: "Proposal Writer",
         icon: Mail,
-        title: <>Win freelance gigs<br />with <span className="text-blue-600 italic">killer proposals.</span></>,
-        description: "Whether it's Upwork, Fiverr, or a direct client pitch — generate professional proposals that highlight your strengths and close deals faster.",
+        title: <>Win more interviews<br />with <span className="text-blue-600 italic">strong proposals.</span></>,
+        description: "Whether it is a job board, a referral, or a direct outreach — generate professional proposals that highlight your strengths and move you forward faster.",
         points: [
-            { title: "Platform-aware", desc: "Proposals are formatted and toned specifically for each freelance platform." },
+            { title: "Role-aware", desc: "Proposals are structured and toned for the role and channel you are applying through." },
             { title: "From your portfolio", desc: "AI pulls from your CV and past projects to build credibility automatically." },
             { title: "Win rate insights", desc: "Learn what works — our AI tells you which proposal strategies convert best." }
         ],

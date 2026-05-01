@@ -7,18 +7,19 @@ import {
     Trash2,
     Mail,
     Calendar,
-    ChevronLeft,
-    ChevronRight,
     SearchX,
     UserCircle,
     CheckCircle2,
     ShieldCheck,
-    Coins
+    Coins,
+    Activity
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/app/lib/utils";
 import { toast } from "sonner";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { PaginationMeta } from "@/app/lib/pagination";
+import { useInfiniteScroll } from "@/app/lib/useInfiniteScroll";
 
 interface User {
     id: string;
@@ -30,46 +31,68 @@ interface User {
     job_applications_count: number;
 }
 
-interface PaginationData {
-    current_page: number;
-    last_page: number;
-    total: number;
+interface ActivityItem {
+    type: string;
+    title: string;
+    description: string;
+    created_at: string;
+    meta?: Record<string, any>;
 }
 
 export default function UserManagement() {
     const [users, setUsers] = useState<User[]>([]);
-    const [pagination, setPagination] = useState<PaginationData | null>(null);
+    const [pagination, setPagination] = useState<PaginationMeta | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
     const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
     const [isDeletingUser, setIsDeletingUser] = useState(false);
+    const [isActivityOpen, setIsActivityOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [userTimeline, setUserTimeline] = useState<ActivityItem[]>([]);
+    const [isLoadingActivity, setIsLoadingActivity] = useState(false);
     const [confirmModal, setConfirmModal] = useState<{ title: string; description: string; confirmLabel?: string; onConfirm: () => void } | null>(null);
 
-    const fetchUsers = async () => {
-        setLoading(true);
+    const fetchUsers = async (targetPage = 1, reset = false) => {
+        if (reset || targetPage === 1) setLoading(true);
+        else setIsLoadingMore(true);
+
         try {
-            const response = await api.get(`/admin/users?page=${page}&search=${search}`);
-            setUsers(response.data.data);
+            const response = await api.get(`/admin/users?page=${targetPage}&per_page=20&search=${search}`);
+            const fetchedUsers = response.data.data || [];
+            setUsers(prev => (targetPage === 1 ? fetchedUsers : [...prev, ...fetchedUsers]));
             setPagination({
                 current_page: response.data.current_page,
                 last_page: response.data.last_page,
                 total: response.data.total
             });
+            setHasMore(response.data.current_page < response.data.last_page);
         } catch (err) {
             console.error("Failed to fetch users", err);
             toast.error("Error loading users");
         } finally {
             setLoading(false);
+            setIsLoadingMore(false);
         }
     };
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            fetchUsers();
+            fetchUsers(page, page === 1);
         }, 500);
         return () => clearTimeout(timer);
     }, [page, search]);
+
+    const { sentinelRef } = useInfiniteScroll({
+        hasMore,
+        isLoading: loading || isLoadingMore,
+        onLoadMore: () => {
+            if (!pagination || !hasMore) return;
+            setPage(prev => prev + 1);
+        },
+    });
 
     const handleUpdateRole = async (userId: string, currentRole: string) => {
         const nextRole = currentRole === 'admin' ? 'user' : 'admin';
@@ -120,6 +143,21 @@ export default function UserManagement() {
             confirmLabel: "Delete User",
             onConfirm: () => doDeleteUser(userId),
         });
+    };
+
+    const openUserActivity = async (user: User) => {
+        setSelectedUser(user);
+        setIsActivityOpen(true);
+        setIsLoadingActivity(true);
+        setUserTimeline([]);
+        try {
+            const response = await api.get(`/admin/users/${user.id}/activity`);
+            setUserTimeline(response.data.timeline || []);
+        } catch (err) {
+            toast.error("Failed to load user activity");
+        } finally {
+            setIsLoadingActivity(false);
+        }
     };
 
     return (
@@ -228,6 +266,12 @@ export default function UserManagement() {
                                     <td className="px-5 py-4 text-right">
                                         <div className="flex items-center justify-end gap-2">
                                             <button
+                                                onClick={() => openUserActivity(u)}
+                                                className="h-8 px-3 bg-white border border-zinc-100 rounded-lg text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-emerald-600 hover:border-emerald-100 hover:bg-emerald-50 transition-all"
+                                            >
+                                                Activity
+                                            </button>
+                                            <button
                                                 onClick={() => handleUpdateRole(u.id, u.role)}
                                                 disabled={updatingUserId === u.id}
                                                 className="h-8 px-3 bg-white border border-zinc-100 rounded-lg text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-blue-600 hover:border-blue-100 hover:bg-blue-50 transition-all disabled:opacity-50"
@@ -264,28 +308,9 @@ export default function UserManagement() {
                     </table>
                 </div>
 
-                {/* Pagination */}
-                {pagination && pagination.last_page > 1 && (
-                    <div className="px-5 py-4 border-t border-zinc-50 bg-white flex items-center justify-between">
-                        <p className="text-[11px] font-black text-zinc-400 uppercase tracking-widest">
-                            Page <span className="text-zinc-900">{pagination.current_page}</span> of {pagination.last_page} ({pagination.total} users)
-                        </p>
-                        <div className="flex items-center gap-2">
-                            <button
-                                disabled={page === 1}
-                                onClick={() => setPage(page - 1)}
-                                className="h-9 w-9 flex items-center justify-center bg-white border border-zinc-100 rounded-xl text-zinc-400 hover:text-blue-600 hover:border-blue-100 disabled:opacity-30 transition-all"
-                            >
-                                <ChevronLeft className="h-4 w-4" />
-                            </button>
-                            <button
-                                disabled={page === pagination.last_page}
-                                onClick={() => setPage(page + 1)}
-                                className="h-9 w-9 flex items-center justify-center bg-white border border-zinc-100 rounded-xl text-zinc-400 hover:text-blue-600 hover:border-blue-100 disabled:opacity-30 transition-all"
-                            >
-                                <ChevronRight className="h-4 w-4" />
-                            </button>
-                        </div>
+                {hasMore && (
+                    <div ref={sentinelRef} className="py-6 flex items-center justify-center border-t border-zinc-50">
+                        {isLoadingMore && <div className="h-6 w-6 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />}
                     </div>
                 )}
             </div>
@@ -298,6 +323,65 @@ export default function UserManagement() {
                 confirmLabel={confirmModal?.confirmLabel}
                 isLoading={isDeletingUser}
             />
+
+            {isActivityOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div
+                        className="absolute inset-0 bg-zinc-900/40"
+                        onClick={() => setIsActivityOpen(false)}
+                    />
+                    <div className="relative w-full max-w-3xl max-h-[85vh] overflow-hidden rounded-2xl border border-zinc-100 bg-white">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
+                            <div className="flex items-center gap-3">
+                                <div className="h-9 w-9 rounded-xl bg-emerald-50 flex items-center justify-center">
+                                    <Activity className="h-4 w-4 text-emerald-600" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-black text-zinc-900">
+                                        Activity: {selectedUser?.name}
+                                    </p>
+                                    <p className="text-[11px] text-zinc-400">{selectedUser?.email}</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setIsActivityOpen(false)}
+                                className="h-8 px-3 rounded-lg border border-zinc-100 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:bg-zinc-50"
+                            >
+                                Close
+                            </button>
+                        </div>
+
+                        <div className="p-5 overflow-y-auto max-h-[65vh]">
+                            {isLoadingActivity ? (
+                                <div className="flex items-center justify-center py-16">
+                                    <div className="h-7 w-7 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+                                </div>
+                            ) : userTimeline.length === 0 ? (
+                                <div className="py-14 text-center">
+                                    <p className="text-sm font-black text-zinc-900">No recent activity</p>
+                                    <p className="text-xs text-zinc-400 mt-1">No logs found for this user yet.</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {userTimeline.map((item, idx) => (
+                                        <div key={`${item.type}-${idx}`} className="rounded-xl border border-zinc-100 p-4">
+                                            <div className="flex items-start justify-between gap-3">
+                                                <div>
+                                                    <p className="text-xs font-black uppercase tracking-widest text-zinc-500">{item.title}</p>
+                                                    <p className="text-sm font-bold text-zinc-900 mt-1">{item.description}</p>
+                                                </div>
+                                                <span className="text-[10px] font-black text-zinc-400 whitespace-nowrap">
+                                                    {new Date(item.created_at).toLocaleString()}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

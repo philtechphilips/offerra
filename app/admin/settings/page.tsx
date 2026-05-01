@@ -187,12 +187,23 @@ export default function AdminSettings() {
                                 {generalSettings.map((setting) => (
                                     <div key={setting.id} className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 px-2">{setting.display_name}</label>
-                                        <input
-                                            type="text"
-                                            value={editedSettings[setting.key] || ''}
-                                            onChange={(e) => handleChange(setting.key, e.target.value)}
-                                            className="w-full h-14 bg-zinc-50 border border-zinc-100 rounded-2xl px-6 text-sm font-bold text-zinc-900 focus:outline-none focus:border-brand-blue transition-all"
-                                        />
+                                        {setting.type === "boolean" ? (
+                                            <select
+                                                value={editedSettings[setting.key] || '0'}
+                                                onChange={(e) => handleChange(setting.key, e.target.value)}
+                                                className="w-full h-14 bg-zinc-50 border border-zinc-100 rounded-2xl px-6 text-sm font-bold text-zinc-900 focus:outline-none focus:border-brand-blue transition-all"
+                                            >
+                                                <option value="1">Enabled</option>
+                                                <option value="0">Disabled</option>
+                                            </select>
+                                        ) : (
+                                            <input
+                                                type="text"
+                                                value={editedSettings[setting.key] || ''}
+                                                onChange={(e) => handleChange(setting.key, e.target.value)}
+                                                className="w-full h-14 bg-zinc-50 border border-zinc-100 rounded-2xl px-6 text-sm font-bold text-zinc-900 focus:outline-none focus:border-brand-blue transition-all"
+                                            />
+                                        )}
                                     </div>
                                 ))}
                             </div>

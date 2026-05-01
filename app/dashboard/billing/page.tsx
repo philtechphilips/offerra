@@ -56,6 +56,7 @@ function BillingContent() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [idempotencyKey, setIdempotencyKey] = useState<string>('');
     const [activeHistoryTab, setActiveHistoryTab] = useState<"payments" | "usage">("payments");
+    const [isFreeMode, setIsFreeMode] = useState(false);
 
     useEffect(() => {
         setIdempotencyKey(`pay_${crypto.randomUUID()}`);
@@ -120,6 +121,11 @@ function BillingContent() {
                 }
             });
 
+            if (response.data.status === 'disabled') {
+                toast.info(response.data.message || "Offerra is fully free for now.");
+                return;
+            }
+
             if (response.data.authorization_url) {
                 window.location.href = response.data.authorization_url;
             } else if (response.data.status === 'success') {
@@ -152,9 +158,19 @@ function BillingContent() {
         }
     };
 
+    const fetchBillingStatus = async () => {
+        try {
+            const response = await api.get("/settings/billing-status");
+            setIsFreeMode(!response.data?.billing_enabled);
+        } catch (err) {
+            console.error("Failed to fetch billing status", err);
+        }
+    };
+
     useEffect(() => {
         fetchPlans();
         fetchTransactions();
+        fetchBillingStatus();
 
         const detectLocation = async () => {
             try {
@@ -193,6 +209,13 @@ function BillingContent() {
                     <p className="mt-2 text-sm font-medium text-zinc-400">
                         Purchase credits to power your job search. Use credits for AI status detection and CV optimizations.
                     </p>
+                    {isFreeMode && (
+                        <div className="mt-3 inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700">
+                                Free Mode Active
+                            </span>
+                        </div>
+                    )}
                 </div>
 
                 <div className="flex bg-zinc-100 p-1 rounded-2xl border border-zinc-200 shadow-inner">

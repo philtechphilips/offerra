@@ -98,6 +98,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${outfit.variable} ${geistMono.variable} antialiased font-sans`}
+        suppressHydrationWarning
       >
         <script
           type="application/ld+json"

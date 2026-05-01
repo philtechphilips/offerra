@@ -90,7 +90,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                 >
                     <Sparkles className="h-3.5 w-3.5 text-blue-600 animate-pulse" />
                     <span className="text-[11px] font-black text-zinc-900">
-                        {user?.credits || 0} AI credits
+                        Free Mode Active
                     </span>
                 </motion.button>
 

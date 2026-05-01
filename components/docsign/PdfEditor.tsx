@@ -57,6 +57,7 @@ interface Field {
     color: string;
     isBold: boolean;
     isItalic: boolean;
+    owner_type?: 'owner' | 'guest';
 }
 
 const CUSTOM_FONTS_META: Record<string, string> = ADDITIONAL_FONTS.reduce((acc, f) => {
@@ -98,6 +99,8 @@ interface PdfEditorProps {
     initialFields?: Field[];
     onSaved?: () => void;
     onClose?: () => void;
+    guestToken?: string;
+    onGuestSubmitted?: () => void;
 }
 
 // Sub-component for individual page rendering
@@ -114,7 +117,10 @@ interface PdfPageProps {
     onCanvasClick: (page: number, x: number, y: number, dataValue?: string) => void;
     onOpenSignature: (fieldId: string) => void;
     activeTool: Tool;
+    canEditField: (field: Field) => boolean;
 }
+
+type ResizeHandle = 'nw' | 'ne' | 'se' | 'sw';
 
 const PdfPage = React.memo(({ 
     pdf, 
@@ -128,7 +134,8 @@ const PdfPage = React.memo(({
     onFieldPageMove,
     onCanvasClick,
     onOpenSignature,
-    activeTool
+    activeTool,
+    canEditField
 }: PdfPageProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const inkCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -140,6 +147,7 @@ const PdfPage = React.memo(({
     const [interaction, setInteraction] = useState<{
         id: string;
         type: 'move' | 'resize';
+        handle?: ResizeHandle;
         startX: number;
         startY: number;
         startFieldX: number;
@@ -233,15 +241,17 @@ const PdfPage = React.memo(({
         onCanvasClick(pageNumber, x, y);
     };
 
-    const startInteraction = (id: string, type: 'move' | 'resize', e: React.MouseEvent) => {
+    const startInteraction = (id: string, type: 'move' | 'resize', e: React.MouseEvent, handle?: ResizeHandle) => {
         e.stopPropagation();
         onFieldClick(id);
         const field = fields.find(f => f.id === id);
         if (!field) return;
+        if (!canEditField(field)) return;
 
         setInteraction({
             id,
             type,
+            handle,
             startX: e.clientX,
             startY: e.clientY,
             startFieldX: field.x,
@@ -264,10 +274,56 @@ const PdfPage = React.memo(({
             if (interaction.type === 'move') {
                 onFieldPageMove(interaction.id, e);
             } else {
-                // Resize logic
+                if (!interaction.handle) return;
+
+                const pageWidth = rect.width / scale;
+                const pageHeight = rect.height / scale;
+
+                const startCenterX = interaction.startFieldX * pageWidth;
+                const startCenterY = interaction.startFieldY * pageHeight;
+
+                let left = startCenterX - interaction.startWidth / 2;
+                let right = startCenterX + interaction.startWidth / 2;
+                let top = startCenterY - interaction.startHeight / 2;
+                let bottom = startCenterY + interaction.startHeight / 2;
+
+                const moveWest = interaction.handle.includes('w');
+                const moveEast = interaction.handle.includes('e');
+                const moveNorth = interaction.handle.includes('n');
+                const moveSouth = interaction.handle.includes('s');
+
+                const deltaX = dx / scale;
+                const deltaY = dy / scale;
+
+                if (moveWest) left += deltaX;
+                if (moveEast) right += deltaX;
+                if (moveNorth) top += deltaY;
+                if (moveSouth) bottom += deltaY;
+
+                const minWidth = 50;
+                const minHeight = 20;
+
+                if (right - left < minWidth) {
+                    if (moveWest) left = right - minWidth;
+                    else right = left + minWidth;
+                }
+
+                if (bottom - top < minHeight) {
+                    if (moveNorth) top = bottom - minHeight;
+                    else bottom = top + minHeight;
+                }
+
+                const centerX = (left + right) / 2;
+                const centerY = (top + bottom) / 2;
+
+                const clampedX = Math.max(0, Math.min(1, centerX / pageWidth));
+                const clampedY = Math.max(0, Math.min(1, centerY / pageHeight));
+
                 onFieldUpdate(interaction.id, {
-                    width: Math.max(50, interaction.startWidth + dx / scale),
-                    height: Math.max(20, interaction.startHeight + dy / scale)
+                    x: clampedX,
+                    y: clampedY,
+                    width: right - left,
+                    height: bottom - top,
                 });
             }
         };
@@ -318,7 +374,8 @@ const PdfPage = React.memo(({
                     onMouseDown={(e) => startInteraction(field.id, 'move', e)}
                     className={cn(
                         "absolute group transition-shadow",
-                        selectedFieldId === field.id ? "z-30 ring-2 ring-blue-500 rounded" : "z-20 ring-1 ring-transparent hover:ring-zinc-200"
+                        selectedFieldId === field.id ? "z-30 ring-2 ring-blue-500 rounded" : "z-20 ring-1 ring-transparent hover:ring-zinc-200",
+                        !canEditField(field) && "opacity-80"
                     )}
                     style={{ 
                         left: `${field.x * 100}%`, 
@@ -331,13 +388,32 @@ const PdfPage = React.memo(({
                     {field.type === 'text' || field.type === 'date' ? (
                         <div className="w-full h-full relative group/field">
                             <textarea
-                                autoFocus
                                 value={field.value}
-                                onChange={(e) => onFieldUpdate(field.id, { value: e.target.value })}
+                                onChange={(e) => {
+                                    if (!canEditField(field)) return;
+                                    onFieldUpdate(field.id, { value: e.target.value });
+                                }}
                                 onFocus={() => onFieldClick(field.id)}
+                                onMouseDown={(e) => {
+                                    if (activeTool === 'hand') {
+                                        e.preventDefault();
+                                    } else {
+                                        e.stopPropagation();
+                                    }
+                                }}
+                                onClick={(e) => {
+                                    if (activeTool === 'hand') {
+                                        e.preventDefault();
+                                    } else {
+                                        e.stopPropagation();
+                                    }
+                                }}
+                                readOnly={activeTool === 'hand' || !canEditField(field)}
+                                tabIndex={activeTool === 'hand' || !canEditField(field) ? -1 : 0}
                                 spellCheck={false}
                                 className={cn(
                                     "w-full h-full bg-transparent p-1 outline-none resize-none overflow-hidden leading-tight transition-all",
+                                    activeTool === 'hand' && "pointer-events-none select-none",
                                     field.isBold && "font-bold",
                                     field.isItalic && "italic"
                                 )}
@@ -355,15 +431,22 @@ const PdfPage = React.memo(({
                                         <input 
                                             type="date"
                                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                            onChange={(e) => onFieldUpdate(field.id, { value: e.target.value })}
+                                            onChange={(e) => {
+                                                if (!canEditField(field)) return;
+                                                onFieldUpdate(field.id, { value: e.target.value });
+                                            }}
                                         />
                                     </div>
                                 </div>
                             )}
                         </div>
                     ) : field.type === 'checkbox' ? (
-                        <div 
-                            onClick={(e) => { e.stopPropagation(); onFieldUpdate(field.id, { value: field.value === 'true' ? 'false' : 'true' }); }}
+                        <div
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (!canEditField(field)) return;
+                                onFieldUpdate(field.id, { value: field.value === 'true' ? 'false' : 'true' });
+                            }}
                             className={cn(
                                 "w-full h-full flex items-center justify-center border border-zinc-300 rounded-md cursor-pointer transition-all",
                                 field.value === 'true' ? "bg-blue-600 border-blue-600" : "bg-white hover:bg-zinc-50"
@@ -375,18 +458,19 @@ const PdfPage = React.memo(({
                         <div className="w-full h-full flex items-center justify-center bg-blue-50/10 border border-dashed border-blue-200 rounded animate-in fade-in">
                             <span className="text-xs font-black text-blue-400 opacity-50 uppercase tracking-widest">Initials</span>
                             {field.value ? (
-                                <img src={field.value} alt="Initials" className="max-w-full max-h-full object-contain pointer-events-none p-1" />
+                                <img src={field.value} alt="Initials" className="w-full h-full object-fill pointer-events-none p-1" />
                             ) : null}
                         </div>
                     ) : field.type === 'signature' ? (
                         <div 
                             className="w-full h-full flex items-center justify-center p-1 bg-transparent"
                             onClick={(e) => { 
+                                if (!canEditField(field)) return;
                                 if (!field.value) onOpenSignature(field.id);
                             }}
                         >
                             {field.value ? (
-                                <img src={field.value} className="w-full h-full object-contain pointer-events-none" />
+                                <img src={field.value} className="w-full h-full object-fill pointer-events-none" />
                             ) : (
                                 <div className="flex flex-col items-center justify-center w-full h-full border border-blue-200 border-dashed rounded-lg bg-blue-50/50">
                                     <PenTool className="h-4 w-4 text-blue-500 opacity-50" />
@@ -395,26 +479,43 @@ const PdfPage = React.memo(({
                         </div>
                     ) : field.type === 'drawing' ? (
                         <div className="w-full h-full pointer-events-none">
-                             <img src={field.value} alt="Drawing" className="w-full h-full object-contain" />
+                             <img src={field.value} alt="Drawing" className="w-full h-full object-fill" />
                         </div>
                     ) : (
                         <div className="w-full h-full" />
                     )}
 
-                    {/* Resize handle */}
-                    {selectedFieldId === field.id && (
-                        <div 
-                            onMouseDown={(e) => startInteraction(field.id, 'resize', e)}
-                            className="absolute -bottom-1 -right-1 h-3 w-3 bg-blue-600 rounded-full cursor-nwse-resize border-2 border-white shadow-sm z-40"
-                        />
+                    {/* Resize handles */}
+                    {selectedFieldId === field.id && canEditField(field) && (
+                        <>
+                            <div
+                                onMouseDown={(e) => startInteraction(field.id, 'resize', e, 'nw')}
+                                className="absolute -top-1 -left-1 h-3 w-3 bg-blue-600 rounded-full cursor-nwse-resize border-2 border-white shadow-sm z-40"
+                            />
+                            <div
+                                onMouseDown={(e) => startInteraction(field.id, 'resize', e, 'ne')}
+                                className="absolute -top-1 -right-1 h-3 w-3 bg-blue-600 rounded-full cursor-nesw-resize border-2 border-white shadow-sm z-40"
+                            />
+                            <div
+                                onMouseDown={(e) => startInteraction(field.id, 'resize', e, 'se')}
+                                className="absolute -bottom-1 -right-1 h-3 w-3 bg-blue-600 rounded-full cursor-nwse-resize border-2 border-white shadow-sm z-40"
+                            />
+                            <div
+                                onMouseDown={(e) => startInteraction(field.id, 'resize', e, 'sw')}
+                                className="absolute -bottom-1 -left-1 h-3 w-3 bg-blue-600 rounded-full cursor-nesw-resize border-2 border-white shadow-sm z-40"
+                            />
+                        </>
                     )}
 
                     {/* Delete button */}
                     <button 
-                        onClick={(e) => onFieldRemove(field.id, e)}
+                        onClick={(e) => {
+                            if (!canEditField(field)) return;
+                            onFieldRemove(field.id, e);
+                        }}
                         className={cn(
                             "absolute -top-3 -right-3 h-6 w-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg transition-all",
-                            selectedFieldId === field.id ? "opacity-100 scale-100" : "opacity-0 scale-50"
+                            selectedFieldId === field.id && canEditField(field) ? "opacity-100 scale-100" : "opacity-0 scale-50"
                         )}
                     >
                         <Trash2 className="h-3 w-3" />
@@ -437,22 +538,45 @@ const Tooltip = ({ children, content }: { children: React.ReactNode, content: st
     </div>
 );
 
-export default function PdfEditor({ documentId, pdfUrl, initialFields = [], onSaved, onClose }: PdfEditorProps) {
+export default function PdfEditor({ documentId, pdfUrl, initialFields = [], onSaved, onClose, guestToken, onGuestSubmitted }: PdfEditorProps) {
     const containerRef = useRef<HTMLDivElement>(null);
+    const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const lastSavedFieldsRef = useRef<string>(JSON.stringify(initialFields || []));
     
+    const currentActor: 'owner' | 'guest' = guestToken ? 'guest' : 'owner';
     const [pdf, setPdf] = useState<any>(null);
     const [numPages, setNumPages] = useState(0);
-    const [fields, setFields] = useState<Field[]>(initialFields);
+    const [fields, setFields] = useState<Field[]>(
+        (initialFields || []).map((field) => ({
+            ...field,
+            owner_type: field.owner_type ?? 'owner',
+        }))
+    );
     const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
     const [scale, setScale] = useState(1.4);
     const [isSaving, setIsSaving] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
     const [isAutofilling, setIsAutofilling] = useState(false);
     const [showSignatureModal, setShowSignatureModal] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
     const [activeTool, setActiveTool] = useState<Tool>('hand');
     const [watermark, setWatermark] = useState<'DRAFT' | 'CONFIDENTIAL' | null>(null);
+    const [autoSaveState, setAutoSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+    const [lastAutoSavedAt, setLastAutoSavedAt] = useState<Date | null>(null);
+    const [changeVersion, setChangeVersion] = useState(0);
 
     const selectedField = useMemo(() => fields.find(f => f.id === selectedFieldId), [fields, selectedFieldId]);
+    const canEditField = useCallback(
+        (field?: Field | null) => {
+            if (!field) return false;
+            return (field.owner_type ?? 'owner') === currentActor;
+        },
+        [currentActor]
+    );
+
+    const markDirty = useCallback(() => {
+        setChangeVersion(prev => prev + 1);
+    }, []);
 
     // Initial load
     useEffect(() => {
@@ -503,15 +627,24 @@ export default function PdfEditor({ documentId, pdfUrl, initialFields = [], onSa
             return;
         }
 
+        newField.owner_type = currentActor;
         setFields([...fields, newField]);
+        markDirty();
         setSelectedFieldId(id);
         if (activeTool === 'signature' || activeTool === 'initials') setShowSignatureModal(true);
         setActiveTool('hand');
     };
 
     const updateField = useCallback((id: string, updates: Partial<Field>) => {
-        setFields(prev => prev.map(f => f.id === id ? { ...f, ...updates } : f));
-    }, []);
+        setFields(prev =>
+            prev.map(f => {
+                if (f.id !== id) return f;
+                if (!canEditField(f)) return f;
+                return { ...f, ...updates };
+            })
+        );
+        markDirty();
+    }, [markDirty, canEditField]);
 
     const handleFieldPageMove = useCallback((id: string, e: MouseEvent) => {
         const elements = document.elementsFromPoint(e.clientX, e.clientY);
@@ -526,14 +659,19 @@ export default function PdfEditor({ documentId, pdfUrl, initialFields = [], onSa
             const x = (e.clientX - canvasRect.left) / canvasRect.width;
             const y = (e.clientY - canvasRect.top) / canvasRect.height;
 
-            setFields(prev => prev.map(f => f.id === id ? { 
-                ...f, 
-                page: pageNum, 
-                x: Math.max(0, Math.min(1, x)), 
-                y: Math.max(0, Math.min(1, y)) 
-            } : f));
+            setFields(prev => prev.map(f => {
+                if (f.id !== id) return f;
+                if (!canEditField(f)) return f;
+                return {
+                    ...f,
+                    page: pageNum,
+                    x: Math.max(0, Math.min(1, x)),
+                    y: Math.max(0, Math.min(1, y))
+                };
+            }));
+            markDirty();
         }
-    }, []);
+    }, [markDirty, canEditField]);
 
     // Arrow Key Nudging
     useEffect(() => {
@@ -554,6 +692,7 @@ export default function PdfEditor({ documentId, pdfUrl, initialFields = [], onSa
             if (dx !== 0 || dy !== 0) {
                 const field = fields.find(f => f.id === selectedFieldId);
                 if (field) {
+                    if (!canEditField(field)) return;
                     e.preventDefault();
                     updateField(selectedFieldId, { 
                         x: Math.max(0, Math.min(1, field.x + dx)), 
@@ -565,10 +704,13 @@ export default function PdfEditor({ documentId, pdfUrl, initialFields = [], onSa
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [selectedFieldId, fields, updateField]);
+    }, [selectedFieldId, fields, updateField, canEditField]);
 
     const handleSignatureSave = (dataUrl: string) => {
-        if (selectedFieldId) updateField(selectedFieldId, { value: dataUrl });
+        if (!selectedFieldId) return;
+        const target = fields.find((f) => f.id === selectedFieldId);
+        if (!canEditField(target)) return;
+        updateField(selectedFieldId, { value: dataUrl });
     };
 
     const handleAutofill = async () => {
@@ -646,9 +788,12 @@ export default function PdfEditor({ documentId, pdfUrl, initialFields = [], onSa
         }
     };
 
-    const saveDocument = async () => {
+    const saveDocument = async (showToast = true, closeEditor = false, finalize = false) => {
         setIsSaving(true);
-        const tid = toast.loading("Saving PDF file...");
+        const isGuestFinalSubmit = Boolean(guestToken && finalize);
+        const tid = showToast
+            ? toast.loading(isGuestFinalSubmit ? "Submitting signed document..." : "Saving PDF file...")
+            : null;
         try {
             const response = await api.get(pdfUrl, { responseType: 'arraybuffer' });
             const pdfDoc = await PDFDocument.load(response.data);
@@ -773,19 +918,194 @@ export default function PdfEditor({ documentId, pdfUrl, initialFields = [], onSa
             const pdfBytes = await pdfDoc.save();
             const base64 = Buffer.from(pdfBytes).toString('base64');
 
-            await api.post(`/documents/${documentId}/save-signed`, { 
+            const endpoint = guestToken ? `/sign/${guestToken}` : `/documents/${documentId}/save-signed`;
+
+            await api.post(endpoint, { 
                 pdf_base64: base64, 
                 fields: fields,
-                field_data: fields.reduce((acc, f) => ({ ...acc, [f.id]: f.value }), {}) 
+                field_data: fields.reduce((acc, f) => ({ ...acc, [f.id]: f.value }), {}),
+                finalize,
             });
-            toast.success("Document saved successfully!", { id: tid });
-            if (onSaved) onSaved();
-            if (onClose) onClose();
+            lastSavedFieldsRef.current = JSON.stringify(fields);
+            if (showToast && tid) {
+                toast.success(
+                    isGuestFinalSubmit ? "Document submitted successfully!" : "Document saved successfully!",
+                    { id: tid }
+                );
+            }
+            if (!showToast) {
+                setAutoSaveState('saved');
+                setLastAutoSavedAt(new Date());
+            }
+            if (!guestToken && onSaved) onSaved();
+            if (isGuestFinalSubmit && onGuestSubmitted) onGuestSubmitted();
+            if (closeEditor && onClose) onClose();
         } catch (error: any) {
             console.error("Save error:", error);
-            toast.error(`Saving failed: ${error.message || 'Unknown error'}`, { id: tid });
+            if (showToast && tid) {
+                toast.error(`Saving failed: ${error.message || 'Unknown error'}`, { id: tid });
+            } else {
+                setAutoSaveState('error');
+                toast.error("Auto-save failed.");
+            }
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    // Global autosave: any field mutation triggers debounced save.
+    useEffect(() => {
+        if (!isLoaded) return;
+        if (isSaving || isDownloading || isAutofilling) return;
+
+        const currentFieldsHash = JSON.stringify(fields);
+        if (currentFieldsHash === lastSavedFieldsRef.current) return;
+
+        setAutoSaveState('saving');
+
+        if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+        autoSaveTimerRef.current = setTimeout(() => {
+            void saveDocument(false, false);
+        }, 900);
+
+        return () => {
+            if (autoSaveTimerRef.current) {
+                clearTimeout(autoSaveTimerRef.current);
+            }
+        };
+    }, [changeVersion, fields, isLoaded, isSaving, isDownloading, isAutofilling]);
+
+    const downloadDocument = async () => {
+        setIsDownloading(true);
+        const tid = toast.loading("Preparing download...");
+        try {
+            const response = await api.get(pdfUrl, { responseType: 'arraybuffer' });
+            const pdfDoc = await PDFDocument.load(response.data);
+            const pdfPages = pdfDoc.getPages();
+
+            const fonts: Record<string, any> = {};
+            const getFont = async (name: string, bold = false, italic = false) => {
+                const fontKey = name;
+                if (CUSTOM_FONTS_META[name]) {
+                    if (!fonts[fontKey]) {
+                        const fontBytes = await fetch(CUSTOM_FONTS_META[name]).then(res => res.arrayBuffer());
+                        fonts[fontKey] = await pdfDoc.embedFont(fontBytes);
+                    }
+                    return fonts[fontKey];
+                }
+                let standardKey = name;
+                if (name === 'Helvetica') {
+                    if (bold && italic) standardKey = StandardFonts.HelveticaBoldOblique;
+                    else if (bold) standardKey = StandardFonts.HelveticaBold;
+                    else if (italic) standardKey = StandardFonts.HelveticaOblique;
+                    else standardKey = StandardFonts.Helvetica;
+                } else if (name === 'Times-Roman') {
+                    if (bold && italic) standardKey = StandardFonts.TimesRomanBoldItalic;
+                    else if (bold) standardKey = StandardFonts.TimesRomanBold;
+                    else if (italic) standardKey = StandardFonts.TimesRomanItalic;
+                    else standardKey = StandardFonts.TimesRoman;
+                } else {
+                    if (bold && italic) standardKey = StandardFonts.CourierBoldOblique;
+                    else if (bold) standardKey = StandardFonts.CourierBold;
+                    else if (italic) standardKey = StandardFonts.CourierOblique;
+                    else standardKey = StandardFonts.Courier;
+                }
+                if (!fonts[standardKey]) fonts[standardKey] = await pdfDoc.embedFont(standardKey as any);
+                return fonts[standardKey];
+            };
+
+            if (watermark) {
+                pdfPages.forEach(page => {
+                    const { width: pWidth, height: pHeight } = page.getSize();
+                    const helveticaFont = fonts['Helvetica'] || pdfDoc.embedStandardFont(StandardFonts.HelveticaBold);
+                    page.drawText(watermark, {
+                        x: pWidth / 2 - 150,
+                        y: pHeight / 2 - 100,
+                        size: 80,
+                        font: helveticaFont,
+                        color: rgb(0.95, 0.95, 0.95),
+                        opacity: 0.15,
+                        rotate: degrees(45),
+                    });
+                });
+            }
+
+            for (const field of fields) {
+                if (!field.value || field.value === 'false') continue;
+                const pageNum = field.page - 1;
+                const page = pdfPages[pageNum];
+                const { height: pHeight } = page.getSize();
+                const drawX = field.x * page.getWidth();
+                const drawY = pHeight - (field.y * pHeight);
+                try {
+                    if (field.type === 'text' || field.type === 'date') {
+                        const font = await getFont(field.fontFamily, field.isBold, field.isItalic);
+                        const hexToRgb = (hex: string) => {
+                            const r = parseInt(hex.slice(1, 3), 16) / 255;
+                            const g = parseInt(hex.slice(3, 5), 16) / 255;
+                            const b = parseInt(hex.slice(5, 7), 16) / 255;
+                            return rgb(r, g, b);
+                        };
+                        page.drawText(field.value, {
+                            x: drawX - (field.width / 4),
+                            y: drawY - (field.height / 4),
+                            size: field.fontSize,
+                            font,
+                            color: hexToRgb(field.color || '#000000'),
+                        });
+                    } else if (field.type === 'checkbox') {
+                        const boxSize = 14;
+                        page.drawSquare({
+                            x: drawX - (boxSize / 2),
+                            y: drawY - (boxSize / 2),
+                            size: boxSize,
+                            borderColor: rgb(0.7, 0.7, 0.7),
+                            borderWidth: 1,
+                            color: rgb(0.1, 0.4, 0.8),
+                        });
+                        page.drawText('X', {
+                            x: drawX - 4,
+                            y: drawY - 4,
+                            size: 10,
+                            color: rgb(1, 1, 1),
+                        });
+                    } else if (field.type === 'signature' || field.type === 'initials' || field.type === 'drawing') {
+                        const sigImage = field.value.includes('image/jpeg') || field.value.includes('image/jpg')
+                            ? await pdfDoc.embedJpg(field.value)
+                            : await pdfDoc.embedPng(field.value);
+                        page.drawImage(sigImage, {
+                            x: drawX - (field.width / 2),
+                            y: drawY - (field.height / 2),
+                            width: field.width,
+                            height: field.height,
+                        });
+                    }
+                } catch (e) {
+                    console.error("Field embed error:", e);
+                }
+            }
+
+            const pdfBytes = await pdfDoc.save();
+            const byteArray = pdfBytes instanceof Uint8Array ? pdfBytes : new Uint8Array(pdfBytes);
+            const arrayBuffer = byteArray.buffer.slice(
+                byteArray.byteOffset,
+                byteArray.byteOffset + byteArray.byteLength
+            ) as ArrayBuffer;
+            const blob = new Blob([arrayBuffer], { type: "application/pdf" });
+            const url = URL.createObjectURL(blob);
+            const anchor = document.createElement("a");
+            anchor.href = url;
+            anchor.download = `signed-document-${documentId || "doc"}.pdf`;
+            document.body.appendChild(anchor);
+            anchor.click();
+            anchor.remove();
+            URL.revokeObjectURL(url);
+            toast.success("Download started.", { id: tid });
+        } catch (error: any) {
+            console.error("Download error:", error);
+            toast.error(`Download failed: ${error.message || 'Unknown error'}`, { id: tid });
+        } finally {
+            setIsDownloading(false);
         }
     };
 
@@ -798,10 +1118,24 @@ export default function PdfEditor({ documentId, pdfUrl, initialFields = [], onSa
                         <ChevronLeft className="h-5 w-5" />
                     </button>
                     <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 px-2 py-1 rounded">DocSign Pro</span>
+                    <span
+                        className={cn(
+                            "text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded",
+                            autoSaveState === 'saving' && "text-amber-600 bg-amber-50",
+                            autoSaveState === 'saved' && "text-emerald-600 bg-emerald-50",
+                            autoSaveState === 'error' && "text-red-600 bg-red-50",
+                            autoSaveState === 'idle' && "text-zinc-500 bg-zinc-50"
+                        )}
+                    >
+                        {autoSaveState === 'saving' && 'Auto-saving...'}
+                        {autoSaveState === 'saved' && `Auto-saved${lastAutoSavedAt ? ` ${lastAutoSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}`}
+                        {autoSaveState === 'error' && 'Auto-save failed'}
+                        {autoSaveState === 'idle' && 'Auto-save ready'}
+                    </span>
                 </div>
 
                 {/* Floating Properties Toolbar */}
-                {selectedField && selectedField.type === 'text' && (
+                {selectedField && selectedField.type === 'text' && canEditField(selectedField) && (
                     <div className="flex items-center gap-1 bg-zinc-800 p-1.5 rounded-2xl border border-zinc-700 shadow-2xl">
                         <div className="flex items-center gap-2 px-3 border-r border-zinc-700">
                             <TypeIcon className="h-3.5 w-3.5 text-zinc-500" />
@@ -876,12 +1210,29 @@ export default function PdfEditor({ documentId, pdfUrl, initialFields = [], onSa
                     >
                         <Sparkles className="h-3.5 w-3.5 fill-emerald-600/20" /> AI Magic
                     </button>
+                    <button
+                        onClick={downloadDocument}
+                        disabled={isDownloading}
+                        className="h-10 px-5 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-700 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-zinc-100 transition-all"
+                    >
+                        {isDownloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} Download
+                    </button>
                     <button 
-                        onClick={saveDocument} 
+                        onClick={() => saveDocument(true, false)}
+                        disabled={isSaving}
                         className="h-10 px-6 rounded-xl bg-zinc-900 text-white text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-black transition-all active:scale-95 shadow-xl shadow-zinc-900/10"
                     >
                         {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Save
                     </button>
+                    {guestToken && (
+                        <button
+                            onClick={() => saveDocument(true, false, true)}
+                            disabled={isSaving}
+                            className="h-10 px-6 rounded-xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-blue-700 transition-all active:scale-95 shadow-xl shadow-blue-600/20"
+                        >
+                            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldAlert className="h-4 w-4" />} Submit
+                        </button>
+                    )}
                 </div>
                 </div>
             </div>
@@ -995,12 +1346,21 @@ export default function PdfEditor({ documentId, pdfUrl, initialFields = [], onSa
                                 fields={fields.filter(f => f.page === pageNum)}
                                 selectedFieldId={selectedFieldId}
                                 onFieldClick={setSelectedFieldId}
-                                onFieldRemove={(id, e) => { e?.stopPropagation(); setFields(prev => prev.filter(f => f.id !== id)); }}
+                                onFieldRemove={(id, e) => {
+                                    e?.stopPropagation();
+                                    setFields(prev => {
+                                        const target = prev.find((f) => f.id === id);
+                                        if (!canEditField(target)) return prev;
+                                        return prev.filter(f => f.id !== id);
+                                    });
+                                    markDirty();
+                                }}
                                 onFieldUpdate={updateField}
                                 onFieldPageMove={handleFieldPageMove}
                                 onCanvasClick={handleCanvasClick}
                                 onOpenSignature={(id) => { setSelectedFieldId(id); setShowSignatureModal(true); }}
                                 activeTool={activeTool}
+                                canEditField={canEditField}
                             />
                         ))}
                     </div>

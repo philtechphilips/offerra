@@ -440,8 +440,8 @@ export default function ProfilePage() {
                             <ShieldCheck className="h-3 w-3" />
                             {user?.plan?.name || "Starter Pack"}
                         </span>
-                        <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-zinc-50 text-zinc-500 border border-zinc-100">
-                            {user?.credits ?? 0} credits
+                        <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100">
+                            Free mode active
                         </span>
                         {activeCv ? (
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100">

@@ -11,7 +11,6 @@ import {
     Clock,
     LineChart,
     Target,
-    Compass,
     Settings,
     LogOut,
     Command,
@@ -180,10 +179,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                             <div className="h-6 w-6 rounded-lg bg-emerald-50 flex items-center justify-center">
                                 <Zap className="h-3 w-3 text-emerald-600 fill-emerald-600" />
                             </div>
-                            <span className="text-[11px] font-bold text-zinc-500 group-hover/credit:text-emerald-600 transition-colors">Balance</span>
+                            <span className="text-[11px] font-bold text-zinc-500 group-hover/credit:text-emerald-600 transition-colors">Mode</span>
                         </div>
                         <span className="text-[11px] font-black text-emerald-600">
-                            {user?.credits || 0} <span className="text-[8px] opacity-70">Cr</span>
+                            Free Active
                         </span>
                     </Link>
                 </div>

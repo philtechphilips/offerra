@@ -13,12 +13,27 @@ import {
     Plus,
     Loader2,
     Search,
-    History
+    History,
+    Share2
 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/app/lib/api";
 import { cn } from "@/app/lib/utils";
-import PdfEditor from "@/components/docsign/PdfEditor";
+import dynamic from "next/dynamic";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { useInfiniteScroll } from "@/app/lib/useInfiniteScroll";
+
+const PdfEditor = dynamic(() => import("@/components/docsign/PdfEditor"), {
+    ssr: false,
+    loading: () => (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-zinc-900/10 backdrop-blur-sm">
+            <div className="bg-white p-10 rounded-[3rem] shadow-2xl flex flex-col items-center border border-zinc-100">
+                <Loader2 className="h-10 w-10 animate-spin text-blue-600 mb-4" />
+                <p className="text-xs font-black text-zinc-400 uppercase tracking-widest">Opening Secure Editor...</p>
+            </div>
+        </div>
+    )
+});
 
 interface Document {
     id: string;
@@ -26,32 +41,70 @@ interface Document {
     status: 'pending' | 'signed';
     created_at: string;
     signed_at: string | null;
-    metadata?: { fields: any[] };
+    signed_path?: string | null;
+    metadata?: { 
+        fields?: any[];
+        html_content?: string;
+    };
 }
 
 export default function DocSignPage() {
     const [documents, setDocuments] = useState<Document[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
     const [isUploading, setIsUploading] = useState(false);
+    const [isSharingDocId, setIsSharingDocId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
+    
+    // Standard PDF Editing
     const [editingDocId, setEditingDocId] = useState<string | null>(null);
     const [editingDocUrl, setEditingDocUrl] = useState<string | null>(null);
     const [editingFields, setEditingFields] = useState<any[]>([]);
 
-    const fetchDocuments = async () => {
+    const [isDeletingDocument, setIsDeletingDocument] = useState(false);
+    const [isClearingHistory, setIsClearingHistory] = useState(false);
+    const [confirmModal, setConfirmModal] = useState<{ title: string; description: string; confirmLabel?: string; onConfirm: () => void } | null>(null);
+
+    const fetchDocuments = async (page = 1, reset = false) => {
+        if (reset || page === 1) setIsLoading(true);
+        else setIsLoadingMore(true);
+
         try {
-            const res = await api.get('/documents');
-            setDocuments(res.data);
+            const res = await api.get('/documents', {
+                params: {
+                    page,
+                    per_page: 12,
+                },
+            });
+
+            const data: Document[] = res.data?.data || [];
+            const meta = res.data?.meta;
+
+            setDocuments(prev => (page === 1 ? data : [...prev, ...data]));
+            setHasMore(!!meta?.has_more);
+            setCurrentPage(meta?.current_page || page);
         } catch (error) {
             console.error("Failed to fetch documents");
         } finally {
             setIsLoading(false);
+            setIsLoadingMore(false);
         }
     };
 
     useEffect(() => {
-        fetchDocuments();
+        fetchDocuments(1, true);
     }, []);
+
+    const { sentinelRef } = useInfiniteScroll({
+        hasMore,
+        isLoading: isLoading || isLoadingMore,
+        onLoadMore: () => {
+            if (!hasMore) return;
+            fetchDocuments(currentPage + 1, false);
+        },
+    });
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -70,7 +123,7 @@ export default function DocSignPage() {
             const res = await api.post('/documents/upload', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            setDocuments([res.data.document, ...documents]);
+            setDocuments(prev => [res.data.document, ...prev]);
             toast.success("Document uploaded! Click 'Sign' to start.");
         } catch (error) {
             toast.error("Upload failed. Please try again.");
@@ -80,14 +133,25 @@ export default function DocSignPage() {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this document?")) return;
-        
+        setConfirmModal({
+            title: "Delete Document",
+            description: "Are you sure you want to delete this document? This action cannot be undone.",
+            confirmLabel: "Delete Document",
+            onConfirm: () => doDelete(id),
+        });
+    };
+
+    const doDelete = async (id: string) => {
+        setConfirmModal(null);
+        setIsDeletingDocument(true);
         try {
             await api.delete(`/documents/${id}`);
             setDocuments(documents.filter(d => d.id !== id));
             toast.success("Document deleted.");
         } catch (error) {
             toast.error("Failed to delete document.");
+        } finally {
+            setIsDeletingDocument(false);
         }
     };
 
@@ -116,23 +180,83 @@ export default function DocSignPage() {
         }
     };
 
-    const startSigning = (doc: Document) => {
-        // We always use original as the background and overlay the saved fields
-        // so that previous changes remain interactive/movable.
-        const url = `${process.env.NEXT_PUBLIC_API_URL}/documents/${doc.id}/download?type=original`;
-        setEditingDocId(doc.id);
+    const startSigning = async (doc: Document) => {
+        let fresh: Document;
+        try {
+            const res = await api.get(`/documents/${doc.id}`);
+            fresh = res.data;
+            setDocuments((prev) => prev.map((d) => (d.id === fresh.id ? { ...d, ...fresh } : d)));
+        } catch {
+            toast.error("Could not load the latest version of this document.");
+            return;
+        }
+
+        if (fresh.metadata?.html_content) {
+            toast.error(
+                "This document was created with a retired template format. Delete it or export the HTML elsewhere; only PDF documents are supported in DocSign now."
+            );
+            return;
+        }
+
+        const hasSignedCopy = !!fresh.signed_path;
+        const pdfType = hasSignedCopy ? "signed" : "original";
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/documents/${fresh.id}/download?type=${pdfType}`;
+
+        const rawFields = fresh.metadata?.fields || [];
+        const overlayFields = hasSignedCopy
+            ? rawFields.filter((f: { owner_type?: string }) => (f?.owner_type ?? "owner") !== "guest")
+            : rawFields;
+
+        setEditingDocId(fresh.id);
         setEditingDocUrl(url);
-        setEditingFields(doc.metadata?.fields || []);
+        setEditingFields(overlayFields);
+    };
+
+    const handleShareAnonymous = async (doc: Document) => {
+        setIsSharingDocId(doc.id);
+        const tid = toast.loading("Creating share link...");
+        try {
+            const res = await api.post(`/documents/${doc.id}/share-anonymous`);
+            const signUrl = res.data?.sign_url;
+            if (!signUrl) throw new Error("Missing sign URL");
+
+            if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+                await navigator.share({
+                    title: `Sign document: ${doc.name}`,
+                    text: "Please review and sign this document.",
+                    url: signUrl,
+                });
+                toast.success("Share opened successfully.", { id: tid });
+            } else {
+                await navigator.clipboard.writeText(signUrl);
+                toast.success("Anonymous signing link copied to clipboard!", { id: tid });
+            }
+        } catch (error) {
+            toast.error("Failed to create share link.", { id: tid });
+        } finally {
+            setIsSharingDocId(null);
+        }
     };
 
     const handleClearHistory = async () => {
-        if (!confirm("Are you sure you want to clear your AI auto-fill history? This cannot be undone.")) return;
-        
+        setConfirmModal({
+            title: "Clear AI History",
+            description: "Are you sure you want to clear your AI auto-fill history? This cannot be undone.",
+            confirmLabel: "Clear History",
+            onConfirm: doClearHistory,
+        });
+    };
+
+    const doClearHistory = async () => {
+        setConfirmModal(null);
+        setIsClearingHistory(true);
         try {
             await api.post('/documents/clear-memory');
             toast.success("Field memory cleared successfully.");
         } catch (error) {
             toast.error("Failed to clear history.");
+        } finally {
+            setIsClearingHistory(false);
         }
     };
 
@@ -252,6 +376,14 @@ export default function DocSignPage() {
                                     </div>
 
                                     <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                                        <button
+                                            onClick={() => handleShareAnonymous(doc)}
+                                            disabled={isSharingDocId === doc.id}
+                                            className="h-9 w-9 rounded-xl flex items-center justify-center text-zinc-400 hover:bg-white hover:text-emerald-600 border border-transparent hover:border-zinc-100 shadow-sm transition-all disabled:opacity-50"
+                                            title="Share for anonymous signing"
+                                        >
+                                            {isSharingDocId === doc.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
+                                        </button>
                                         <button 
                                             onClick={() => handleDownload(doc.id, doc.name, doc.status)}
                                             className="h-9 w-9 rounded-xl flex items-center justify-center text-zinc-400 hover:bg-white hover:text-blue-600 border border-transparent hover:border-zinc-100 shadow-sm transition-all"
@@ -279,6 +411,11 @@ export default function DocSignPage() {
                                     </div>
                                 </div>
                             ))}
+                            {hasMore && (
+                                <div ref={sentinelRef} className="py-6 flex items-center justify-center">
+                                    {isLoadingMore && <Loader2 className="h-5 w-5 animate-spin text-blue-600" />}
+                                </div>
+                            )}
                         </div>
                     ) : (
                         <div className="flex flex-col items-center justify-center py-32 text-center px-6">
@@ -299,18 +436,33 @@ export default function DocSignPage() {
                 </div>
             </div>
 
-            {/* PDF Editor Modal */}
-            <AnimatePresence>
-                {editingDocId && editingDocUrl && (
-                    <PdfEditor
+            {/* PDF Editor Overlay */}
+            {editingDocId && editingDocUrl && (
+                <div className="fixed inset-0 z-[60] bg-white flex flex-col">
+                    <PdfEditor 
                         documentId={editingDocId}
                         pdfUrl={editingDocUrl}
                         initialFields={editingFields}
-                        onClose={() => { setEditingDocId(null); setEditingDocUrl(null); setEditingFields([]); }}
-                        onSaved={() => fetchDocuments()}
+                        onSaved={() => {
+                            fetchDocuments(1, true);
+                        }}
+                        onClose={() => {
+                            setEditingDocId(null);
+                            setEditingDocUrl(null);
+                        }}
                     />
-                )}
-            </AnimatePresence>
+                </div>
+            )}
+
+            <ConfirmModal
+                isOpen={!!confirmModal}
+                onClose={() => setConfirmModal(null)}
+                onConfirm={() => confirmModal?.onConfirm()}
+                title={confirmModal?.title ?? ""}
+                description={confirmModal?.description ?? ""}
+                confirmLabel={confirmModal?.confirmLabel}
+                isLoading={isDeletingDocument || isClearingHistory}
+            />
         </div>
     );
 }
