@@ -50,6 +50,7 @@ jobs:
             source "$NVM_DIR/nvm.sh"
 
             echo "--- Restarting app ---"
-            pm2 restart offerra-ui || pm2 start npm --name "offerra-ui" -- start
+            pm2 restart offerra || pm2 start npm --name "offerra" -- start
+            pm2 save
 
             echo "--- Deployment successful ---"
