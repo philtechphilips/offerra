@@ -15,6 +15,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
+import { apiAbsoluteUrl } from "@/app/lib/apiOrigin";
 
 const PdfEditor = dynamic(() => import("@/components/docsign/PdfEditor"), {
     ssr: false,
@@ -59,8 +60,9 @@ export default function GuestSignPage() {
     useEffect(() => {
         const fetchRequest = async () => {
             try {
-                const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ?? "";
-                const response = await fetch(`${backendUrl}/api/sign/${token}`);
+                const response = await fetch(apiAbsoluteUrl(`/api/sign/${encodeURIComponent(token)}`), {
+                    credentials: "omit",
+                });
                 if (!response.ok) throw new Error("Request invalid or expired.");
 
                 const data = await response.json();
@@ -72,7 +74,7 @@ export default function GuestSignPage() {
                     setFileUrl(null);
                 } else {
                     setLegacyVirtual(false);
-                    setFileUrl(`${backendUrl}/api/sign/${token}/file`);
+                    setFileUrl(apiAbsoluteUrl(`/api/sign/${encodeURIComponent(token)}/file`));
                 }
             } catch (err: any) {
                 console.error(err);

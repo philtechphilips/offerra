@@ -10,6 +10,7 @@ import {
     Mail, Link2, Sparkles, User, Cpu
 } from "lucide-react";
 import { cn } from "@/app/lib/utils";
+import { apiAbsoluteUrl } from "@/app/lib/apiOrigin";
 
 interface PublicProfile {
     user: {
@@ -412,13 +413,14 @@ export default function PublicProfilePage() {
     const [notFound, setNotFound] = useState(false);
 
     useEffect(() => {
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') ?? '';
-        fetch(`${backendUrl}/api/u/${username}`)
-            .then(res => {
-                if (!res.ok) throw new Error('not found');
+        const url = apiAbsoluteUrl(`/api/u/${encodeURIComponent(username)}`);
+
+        fetch(url, { credentials: "omit" })
+            .then((res) => {
+                if (!res.ok) throw new Error("not found");
                 return res.json();
             })
-            .then(data => setProfile(data))
+            .then((data) => setProfile(data))
             .catch(() => setNotFound(true))
             .finally(() => setLoading(false));
     }, [username]);
