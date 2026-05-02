@@ -208,6 +208,10 @@ export default function SettingsPage() {
                                         </div>
                                     </SettingCard>
 
+                                    {/*
+                                    Danger Zone (account deletion) is temporarily disabled.
+                                    Re-enable this block when self-serve account deletion is ready.
+
                                     <div className="p-8 rounded-[2.5rem] border border-red-100 bg-red-50/20 text-center space-y-4">
                                         <h3 className="text-sm font-black text-red-600 uppercase tracking-widest">Danger Zone</h3>
                                         <p className="text-[11px] font-medium text-zinc-500 max-w-sm mx-auto">Once you delete your account, all your AI-optimized resumes and tracking history will be permanently removed.</p>
@@ -224,6 +228,7 @@ export default function SettingsPage() {
                                             Delete Account
                                         </button>
                                     </div>
+                                    */}
                                 </div>
                             )}
 

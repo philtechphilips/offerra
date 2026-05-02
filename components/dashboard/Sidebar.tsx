@@ -48,11 +48,11 @@ interface SidebarProps {
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
     const pathname = usePathname();
     const { clearAuth, user } = useAuthStore();
-    const { jobs, fetchJobs } = useJobStore();
+    const { stats, fetchStats } = useJobStore();
 
     useEffect(() => {
-        fetchJobs();
-    }, [fetchJobs]);
+        fetchStats();
+    }, [fetchStats]);
 
     // Close mobile sidebar on navigation
     useEffect(() => {
@@ -106,12 +106,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                                     pathname === item.href ? "text-white/80" : "text-zinc-400 group-hover:text-zinc-600"
                                 )} />
                                 {item.name === 'Overview' ? 'Summary' : item.name}
-                                {item.name === 'Applications' && jobs.length > 0 && (
+                                {item.name === 'Applications' && stats.total > 0 && (
                                     <span className={cn(
                                         "ml-auto h-5 min-w-5 px-1 rounded-full flex items-center justify-center text-[9px] font-black",
                                         pathname === item.href ? "bg-white/20 text-white" : "bg-blue-50 text-blue-600"
                                     )}>
-                                        {jobs.length}
+                                        {stats.total}
                                     </span>
                                 )}
                             </Link>

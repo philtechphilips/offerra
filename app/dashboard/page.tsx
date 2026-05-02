@@ -25,7 +25,7 @@ import { useJobStore } from "@/app/store/jobStore";
 
 export default function DashboardPage() {
     const { user, isLoggedIn, token, _hasHydrated } = useAuthStore();
-    const { jobs, fetchJobs, isLoading } = useJobStore();
+    const { jobs, stats, fetchJobs, isLoading } = useJobStore();
     const router = useRouter();
     const [userName, setUserName] = useState("Pro User");
 
@@ -58,27 +58,25 @@ export default function DashboardPage() {
         }));
     }, [jobs]);
 
-    // Stats calculation
-    // Stats calculation
-    const totalApplied = jobs.length;
-    const interviews = jobs.filter(j => j.status === 'interview').length;
-    const offers = jobs.filter(j => j.status === 'offer').length;
+    // Aggregate stats come from the backend so they aren't capped by pagination.
+    const totalApplied = stats.total;
+    const interviews = stats.by_status.interview;
+    const offers = stats.by_status.offer;
     const offerRate = totalApplied > 0 ? ((offers / totalApplied) * 100).toFixed(0) : "0";
-    const activePipeline = jobs.filter(j => j.status !== 'rejected').length;
 
-    // Momentum Calculation (Last 7 days vs previous 7 days)
+    // Momentum: 7d vs previous 7d window from backend
     const momentum = useMemo(() => {
-        const now = new Date();
-        const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        const prev7Days = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+        const currentPeriodCount = stats.momentum.recent_7d;
+        const previousPeriodCount = stats.momentum.previous_7d;
 
-        const currentPeriodCount = jobs.filter(j => new Date(j.created_at) >= last7Days).length;
-        const previousPeriodCount = jobs.filter(j => {
-            const date = new Date(j.created_at);
-            return date >= prev7Days && date < last7Days;
-        }).length;
-
-        if (previousPeriodCount === 0) return { val: currentPeriodCount > 0 ? "+100%" : "0%", trend: "Stable", color: "text-zinc-400", bg: "bg-zinc-50" };
+        if (previousPeriodCount === 0) {
+            return {
+                val: currentPeriodCount > 0 ? "+100%" : "0%",
+                trend: "Stable",
+                color: "text-zinc-400",
+                bg: "bg-zinc-50"
+            };
+        }
 
         const diff = ((currentPeriodCount - previousPeriodCount) / previousPeriodCount) * 100;
         const prefix = diff >= 0 ? "+" : "";
@@ -88,7 +86,7 @@ export default function DashboardPage() {
             color: diff >= 0 ? "text-emerald-500" : "text-amber-500",
             bg: diff >= 0 ? "bg-emerald-50" : "bg-amber-50"
         };
-    }, [jobs]);
+    }, [stats.momentum.recent_7d, stats.momentum.previous_7d]);
 
     const dynamicStats = [
         { label: 'Total Jobs', val: totalApplied.toString(), icon: Briefcase, color: "text-blue-600", bg: "bg-blue-50", path: '/dashboard/applications' },
@@ -97,9 +95,9 @@ export default function DashboardPage() {
     ];
 
     const pipelineStages = [
-        { label: 'Applied', count: jobs.filter(j => j.status === 'applied').length, color: 'bg-blue-500' },
-        { label: 'Interview', count: jobs.filter(j => j.status === 'interview').length, color: 'bg-amber-500' },
-        { label: 'Offers', count: jobs.filter(j => j.status === 'offer').length, color: 'bg-emerald-500' },
+        { label: 'Applied', count: stats.by_status.applied, color: 'bg-blue-500' },
+        { label: 'Interview', count: stats.by_status.interview, color: 'bg-amber-500' },
+        { label: 'Offers', count: stats.by_status.offer, color: 'bg-emerald-500' },
     ];
 
     // Simple dynamic AI Insight logic
@@ -216,7 +214,7 @@ export default function DashboardPage() {
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: 0.2 + (idx * 0.05) }}
                                             className="group flex items-center justify-between p-5 rounded-2xl transition-all hover:bg-zinc-50/50 cursor-pointer"
-                                            onClick={() => router.push(`/dashboard/applications/${app.id}`)}
+                                            onClick={() => router.push(`/dashboard/applications?view=${app.id}`)}
                                         >
                                             <div className="flex items-center gap-5">
                                                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-zinc-50 to-white border border-zinc-100 text-sm font-black text-brand-blue-dark group-hover:border-blue-200 transition-all">
@@ -295,7 +293,7 @@ export default function DashboardPage() {
                                     <motion.div
                                         key={stage.label}
                                         initial={{ width: 0 }}
-                                        animate={{ width: jobs.length > 0 ? `${(stage.count / jobs.length) * 100}%` : '0%' }}
+                                        animate={{ width: totalApplied > 0 ? `${(stage.count / totalApplied) * 100}%` : '0%' }}
                                         transition={{ delay: 0.5 + (i * 0.1), duration: 1 }}
                                         className={cn("h-full rounded-full mr-0.5 last:mr-0", stage.color)}
                                     />

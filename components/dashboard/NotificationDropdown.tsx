@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNotificationStore, Notification } from "@/app/store/notificationStore";
 import { cn } from "@/app/lib/utils";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
  
  function timeAgo(date: Date) {
      const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
@@ -24,6 +25,7 @@ export function NotificationDropdown() {
     const { notifications, unreadCount, fetchNotifications, markAsRead, markAllAsRead } = useNotificationStore();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const router = useRouter();
 
     useEffect(() => {
         fetchNotifications();
@@ -156,7 +158,13 @@ export function NotificationDropdown() {
 
                         {/* Footer */}
                         <div className="p-4 border-t border-zinc-50 text-center bg-zinc-50/30">
-                            <button className="text-[11px] font-black text-zinc-400 hover:text-blue-600 transition-colors">
+                            <button
+                                onClick={() => {
+                                    setIsOpen(false);
+                                    router.push("/dashboard/activity");
+                                }}
+                                className="text-[11px] font-black text-zinc-400 hover:text-blue-600 transition-colors"
+                            >
                                 View all activity
                             </button>
                         </div>

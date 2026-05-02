@@ -20,6 +20,7 @@ interface NotificationState {
     fetchNotifications: () => Promise<void>;
     markAsRead: (id: string) => Promise<void>;
     markAllAsRead: () => Promise<void>;
+    deleteNotification: (id: string) => Promise<void>;
 }
 
 export const useNotificationStore = create<NotificationState>((set, get) => ({
@@ -66,5 +67,21 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
         } catch (err) {
             console.error('Failed to mark all as read', err);
         }
-    }
+    },
+
+    deleteNotification: async (id) => {
+        try {
+            await api.delete(`/notifications/${id}`);
+            set((state) => {
+                const target = state.notifications.find((n) => n.id === id);
+                const wasUnread = target && target.read_at === null;
+                return {
+                    notifications: state.notifications.filter((n) => n.id !== id),
+                    unreadCount: wasUnread ? Math.max(0, state.unreadCount - 1) : state.unreadCount,
+                };
+            });
+        } catch (err) {
+            console.error('Failed to delete notification', err);
+        }
+    },
 }));

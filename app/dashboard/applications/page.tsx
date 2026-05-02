@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Search,
@@ -28,6 +29,7 @@ import { cn } from "@/app/lib/utils";
 import { toast } from "sonner";
 import { useJobStore, type JobApplication } from "@/app/store/jobStore";
 import KanbanBoard from "@/components/dashboard/KanbanBoard";
+import { RichText } from "@/app/lib/richText";
 
 const statusColors: Record<JobApplication['status'], string> = {
     tracking: "bg-zinc-100 text-zinc-500",
@@ -83,7 +85,7 @@ export default function ApplicationsPage() {
         fetchJobs, loadMore, setSearch, setStatusFilter
     } = useJobStore();
 
-    const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
+    const [viewMode, setViewMode] = useState<'list' | 'kanban'>('kanban');
 
     // Modal states
     const [showModal, setShowModal] = useState(false);
@@ -107,11 +109,43 @@ export default function ApplicationsPage() {
 
     const observerTarget = useRef<HTMLTableRowElement>(null);
     const searchParams = useSearchParams();
+    const router = useRouter();
+    const handledViewIdRef = useRef<string | null>(null);
 
     useEffect(() => {
         const status = searchParams.get('status');
         if (status) setStatusFilter(status);
     }, [searchParams, setStatusFilter]);
+
+    useEffect(() => {
+        const viewId = searchParams.get('view');
+        if (!viewId || handledViewIdRef.current === viewId) return;
+
+        handledViewIdRef.current = viewId;
+
+        const local = jobs.find((j) => String(j.id) === String(viewId));
+        if (local) {
+            setViewingJob(local);
+            return;
+        }
+
+        let cancelled = false;
+        (async () => {
+            try {
+                const res = await api.get<JobApplication>(`/jobs/${viewId}`);
+                if (!cancelled) setViewingJob(res.data);
+            } catch (err: any) {
+                if (!cancelled) {
+                    toast.error(err.response?.data?.message || "Could not load that application.");
+                    router.replace('/dashboard/applications');
+                }
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [searchParams, jobs, router]);
 
     useEffect(() => {
         const timeoutId = setTimeout(() => { fetchJobs(); }, 300);
@@ -159,6 +193,17 @@ export default function ApplicationsPage() {
 
     const openDeleteConfirm = (job: JobApplication) => { setDeletingJob(job); setOpenDropdownId(null); };
     const openDetailDrawer = (job: JobApplication) => { setViewingJob(job); setOpenDropdownId(null); };
+
+    const closeDetailDrawer = () => {
+        setViewingJob(null);
+        handledViewIdRef.current = null;
+        if (searchParams.get('view')) {
+            const params = new URLSearchParams(searchParams.toString());
+            params.delete('view');
+            const qs = params.toString();
+            router.replace(qs ? `/dashboard/applications?${qs}` : '/dashboard/applications');
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -656,7 +701,7 @@ export default function ApplicationsPage() {
             <AnimatePresence>
                 {viewingJob && (
                     <>
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-blue-950/30 backdrop-blur-sm" onClick={() => setViewingJob(null)} />
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-blue-950/30 backdrop-blur-sm" onClick={closeDetailDrawer} />
                         <motion.div
                             initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
                             transition={{ type: "spring", damping: 30, stiffness: 300 }}
@@ -668,11 +713,11 @@ export default function ApplicationsPage() {
                                         <Building2 className="h-5 w-5 text-zinc-400" />
                                     </div>
                                     <div className="min-w-0">
-                                        <h2 className="text-base font-black text-brand-blue-black truncate">{viewingJob.title}</h2>
+                                        <h2 className="text-base font-black text-brand-blue-black truncate">{viewingJob?.title}</h2>
                                         <p className="text-sm font-bold text-zinc-400 mt-0.5">{viewingJob.company}</p>
                                     </div>
                                 </div>
-                                <button onClick={() => setViewingJob(null)} className="h-9 w-9 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-400 hover:bg-zinc-100 transition-all shrink-0 ml-4">
+                                <button onClick={closeDetailDrawer} className="h-9 w-9 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-400 hover:bg-zinc-100 transition-all shrink-0 ml-4">
                                     <X className="h-4 w-4" />
                                 </button>
                             </div>
@@ -683,10 +728,10 @@ export default function ApplicationsPage() {
                                 <span className="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-zinc-100 text-zinc-500">{viewingJob.type}</span>
                                 {viewingJob.location && <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-zinc-100 text-zinc-500"><MapPin className="h-2.5 w-2.5" />{viewingJob.location}</span>}
                                 {viewingJob.salary && <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600"><Banknote className="h-2.5 w-2.5" />{viewingJob.salary}</span>}
-                                {viewingJob.follow_up_date && <FollowUpBadge date={viewingJob.follow_up_date} />}
+                                {viewingJob?.follow_up_date && <FollowUpBadge date={viewingJob?.follow_up_date} />}
                                 {viewingJob.cv_match_score != null && (
                                     <span className={cn("px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest", viewingJob.cv_match_score >= 70 ? "bg-emerald-50 text-emerald-600" : viewingJob.cv_match_score >= 40 ? "bg-amber-50 text-amber-600" : "bg-red-50 text-red-500")}>
-                                        {viewingJob.cv_match_score}% match
+                                        {viewingJob?.cv_match_score ? `${viewingJob.cv_match_score}% match` : "No match"}
                                     </span>
                                 )}
                             </div>
@@ -705,7 +750,10 @@ export default function ApplicationsPage() {
                                     <div>
                                         <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-3">Job Description</h3>
                                         <div className="bg-zinc-50 rounded-2xl p-5 border border-zinc-100">
-                                            <p className="text-xs font-medium text-zinc-600 leading-relaxed whitespace-pre-wrap">{viewingJob.description}</p>
+                                            <RichText
+                                                content={viewingJob.description}
+                                                className="text-xs font-medium text-zinc-600 leading-relaxed"
+                                            />
                                         </div>
                                     </div>
                                 ) : (
@@ -732,7 +780,7 @@ export default function ApplicationsPage() {
                                         <ExternalLink className="h-3.5 w-3.5" />Open Job Posting
                                     </a>
                                 )}
-                                <button onClick={() => { setViewingJob(null); openEditModal(viewingJob); }} className="flex-1 btn-secondary h-11 text-xs flex items-center justify-center gap-2">
+                                <button onClick={() => { closeDetailDrawer(); openEditModal(viewingJob); }} className="flex-1 btn-secondary h-11 text-xs flex items-center justify-center gap-2">
                                     <Pencil className="h-3.5 w-3.5" />Edit
                                 </button>
                             </div>

@@ -17,7 +17,7 @@ import { CoverLetterFeature } from "@/components/landing/CoverLetterFeature";
 import { DocSignFeature } from "@/components/landing/DocSignFeature";
 import { KanbanFeature } from "@/components/landing/KanbanFeature";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, CheckCircle2, Globe, MapPin, Twitter, Linkedin, Github, MessageCircle } from "lucide-react";
+import { Globe, Sparkles, Gift } from "lucide-react";
 import { cn } from "@/app/lib/utils";
 
 const COMMON_FEATURES = [
@@ -46,6 +46,7 @@ export default function Home() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currency, setCurrency] = useState<'USD' | 'NGN'>('USD');
+  const [isFreeMode, setIsFreeMode] = useState(false);
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -72,8 +73,18 @@ export default function Home() {
       }
     };
 
+    const fetchBillingStatus = async () => {
+      try {
+        const response = await api.get("/settings/billing-status");
+        setIsFreeMode(!response.data?.billing_enabled);
+      } catch (err) {
+        console.error("Failed to fetch billing status", err);
+      }
+    };
+
     fetchPlans();
     detectCountry();
+    fetchBillingStatus();
   }, []);
 
   return (
@@ -158,9 +169,49 @@ export default function Home() {
                 Transparent plans.
               </motion.h2>
               <p className="text-xl font-medium text-zinc-400 tracking-tight mb-10">Scale your career with the right tools.</p>
-              
+
+              {isFreeMode && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="max-w-2xl mx-auto mb-12 rounded-3xl border border-blue-200 bg-blue-50/60 p-6 sm:p-8 text-left"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="h-12 w-12 rounded-2xl bg-white border border-blue-100 flex items-center justify-center shrink-0 shadow-sm">
+                      <Gift className="h-5 w-5 text-[#1C4ED8]" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="px-2 py-0.5 rounded-full bg-[#1C4ED8] text-white text-[9px] font-black uppercase tracking-widest">
+                          Free Mode
+                        </span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#1C4ED8]">
+                          For a limited time
+                        </span>
+                      </div>
+                      <h3 className="text-xl sm:text-2xl font-black tracking-tight text-brand-blue-black leading-tight">
+                        Offerra is fully free right now.
+                      </h3>
+                      <p className="text-sm font-medium text-zinc-500 mt-2 leading-relaxed">
+                        Every Offerra feature is unlocked at no cost — no card, no credits, no caps. Sign up and use everything while we polish the pricing experience.
+                      </p>
+                      <div className="mt-5">
+                        <button
+                          onClick={() => window.location.href = '/login'}
+                          className="inline-flex items-center gap-2 rounded-2xl bg-[#1C4ED8] hover:bg-blue-700 text-white px-6 py-3 text-[10px] font-black uppercase tracking-[0.2em] transition-all"
+                        >
+                          <Sparkles className="h-3.5 w-3.5" />
+                          Start Free
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
               {/* Currency Selector */}
-              <div className="flex items-center justify-center mb-16">
+              <div className={cn("flex items-center justify-center mb-16", isFreeMode && "hidden")}>
                 <div className="inline-flex p-1 bg-zinc-50 rounded-2xl border border-zinc-100">
                   <button
                     onClick={() => setCurrency('USD')}
@@ -186,7 +237,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto">
+            <div className={cn("grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto", isFreeMode && "hidden")}>
               {!isLoading && plans.map((plan) => (
                 <div
                   key={plan.id}
@@ -210,16 +261,33 @@ export default function Home() {
                     "flex flex-col mb-6",
                     plan.is_popular ? "text-[#1C4ED8]" : "text-black"
                   )}>
-                    <div className="flex items-baseline gap-2">
+                    <div className="flex items-baseline gap-3 flex-wrap">
+                      {isFreeMode ? (
+                        <>
+                          <span className="text-4xl sm:text-7xl font-black tracking-tighter leading-none">
+                            Free
+                          </span>
+                          <span className={cn(
+                            "text-base sm:text-xl font-black tracking-tight line-through",
+                            plan.is_popular ? "opacity-50" : "text-zinc-300"
+                          )}>
+                            {currency === 'USD' ? '$' : '₦'}
+                            {Math.round(currency === 'USD' ? plan.price_usd : plan.price_ngn).toLocaleString()}
+                          </span>
+                        </>
+                      ) : (
                         <span className="text-4xl sm:text-7xl font-black tracking-tighter leading-none">
-                        {currency === 'USD' ? '$' : '₦'}
-                        {Math.round(currency === 'USD' ? plan.price_usd : plan.price_ngn).toLocaleString()}
+                          {currency === 'USD' ? '$' : '₦'}
+                          {Math.round(currency === 'USD' ? plan.price_usd : plan.price_ngn).toLocaleString()}
                         </span>
+                      )}
                     </div>
                     <div className={cn(
                       "mt-2 text-sm font-black uppercase tracking-widest",
                       plan.is_popular ? "opacity-60" : "text-zinc-400"
-                    )}>{plan.credits} Application Credits</div>
+                    )}>
+                      {isFreeMode ? "Unlimited while in free mode" : `${plan.credits} Application Credits`}
+                    </div>
                   </div>
                   <ul className={cn(
                     "space-y-4 mb-8 text-sm font-black grow",
@@ -238,13 +306,20 @@ export default function Home() {
                   <button
                     onClick={() => window.location.href = '/login'}
                     className={cn(
-                      "w-full rounded-2xl py-5 text-[10px] font-black uppercase tracking-[0.2em] transition-all",
+                      "w-full rounded-2xl py-5 text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2",
                       plan.is_popular
                         ? "bg-blue-600 text-white hover:bg-blue-700"
                         : "border border-zinc-200 hover:bg-zinc-50 text-black"
                     )}
                   >
-                    {plan.btn_text || (plan.price_usd === 0 ? "Get Started" : "Buy Credits")}
+                    {isFreeMode ? (
+                      <>
+                        <Sparkles className="h-3.5 w-3.5" />
+                        Start Free
+                      </>
+                    ) : (
+                      plan.btn_text || (plan.price_usd === 0 ? "Get Started" : "Buy Credits")
+                    )}
                   </button>
                 </div>
               ))}

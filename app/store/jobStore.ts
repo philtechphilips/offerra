@@ -28,15 +28,45 @@ interface PaginationMeta {
     has_more: boolean;
 }
 
+export interface JobStats {
+    total: number;
+    by_status: {
+        applied: number;
+        tracking: number;
+        interview: number;
+        rejected: number;
+        offer: number;
+    };
+    momentum: {
+        recent_7d: number;
+        previous_7d: number;
+    };
+    interview_insights: {
+        with_score: number;
+        avg_match_score: number;
+        high_match: number;
+    };
+}
+
+const EMPTY_STATS: JobStats = {
+    total: 0,
+    by_status: { applied: 0, tracking: 0, interview: 0, rejected: 0, offer: 0 },
+    momentum: { recent_7d: 0, previous_7d: 0 },
+    interview_insights: { with_score: 0, avg_match_score: 0, high_match: 0 },
+};
+
 interface JobState {
     jobs: JobApplication[];
     meta: PaginationMeta | null;
+    stats: JobStats;
     isLoading: boolean;
     isLoadingMore: boolean;
+    isLoadingStats: boolean;
     search: string;
     statusFilter: string;
     fetchJobs: (reset?: boolean) => Promise<void>;
     loadMore: () => Promise<void>;
+    fetchStats: () => Promise<void>;
     setSearch: (search: string) => void;
     setStatusFilter: (status: string) => void;
     updateJobStatus: (jobId: string, newStatus: JobApplication['status']) => Promise<void>;
@@ -45,8 +75,10 @@ interface JobState {
 export const useJobStore = create<JobState>()((set, get) => ({
     jobs: [],
     meta: null,
+    stats: EMPTY_STATS,
     isLoading: false,
     isLoadingMore: false,
+    isLoadingStats: false,
     search: '',
     statusFilter: 'all',
 
@@ -65,6 +97,9 @@ export const useJobStore = create<JobState>()((set, get) => ({
                 meta: response.data.meta,
                 isLoading: false,
             });
+
+            // Refresh stats alongside the list so totals stay in sync.
+            get().fetchStats();
         } catch (err) {
             set({ isLoading: false });
         }
@@ -96,6 +131,18 @@ export const useJobStore = create<JobState>()((set, get) => ({
         }
     },
 
+    fetchStats: async () => {
+        if (get().isLoadingStats) return;
+        set({ isLoadingStats: true });
+
+        try {
+            const response = await api.get('/jobs/stats');
+            set({ stats: response.data, isLoadingStats: false });
+        } catch (err) {
+            set({ isLoadingStats: false });
+        }
+    },
+
     setSearch: (search: string) => {
         set({ search });
     },
@@ -116,6 +163,8 @@ export const useJobStore = create<JobState>()((set, get) => ({
 
         try {
             await api.put(`/jobs/${jobId}`, { status: newStatus });
+            // Refresh aggregate counts so dashboard / sidebar reflect the new status.
+            get().fetchStats();
         } catch (err) {
             // Revert on failure
             set({ jobs: previousJobs });

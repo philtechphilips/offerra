@@ -129,3 +129,75 @@ body {
   animation: float 5s ease-in-out infinite;
 }
 
+.rich-text {
+  white-space: normal;
+}
+.rich-text p { margin: 0 0 0.75em; }
+.rich-text p:last-child { margin-bottom: 0; }
+.rich-text br { display: block; content: ""; margin-top: 0.25em; }
+.rich-text a {
+  color: #1c4ed8;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-word;
+}
+.rich-text a:hover { color: #1d3fbf; }
+.rich-text strong, .rich-text b { font-weight: 700; color: #0a1733; }
+.rich-text em, .rich-text i { font-style: italic; }
+.rich-text ul, .rich-text ol {
+  margin: 0 0 0.75em;
+  padding-left: 1.25rem;
+}
+.rich-text ul { list-style: disc; }
+.rich-text ol { list-style: decimal; }
+.rich-text li { margin: 0.15em 0; }
+.rich-text h1, .rich-text h2, .rich-text h3,
+.rich-text h4, .rich-text h5, .rich-text h6 {
+  font-weight: 800;
+  color: #0a1733;
+  margin: 0.9em 0 0.4em;
+  line-height: 1.25;
+}
+.rich-text h1 { font-size: 1.05rem; }
+.rich-text h2 { font-size: 0.95rem; }
+.rich-text h3, .rich-text h4, .rich-text h5, .rich-text h6 { font-size: 0.85rem; }
+.rich-text blockquote {
+  border-left: 3px solid #e4e4e7;
+  padding: 0.1em 0 0.1em 0.75rem;
+  color: #52525b;
+  margin: 0 0 0.75em;
+}
+.rich-text code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: #f4f4f5;
+  border-radius: 4px;
+  padding: 1px 4px;
+  font-size: 0.9em;
+}
+.rich-text pre {
+  background: #0a1733;
+  color: #e4e4e7;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  margin: 0 0 0.75em;
+}
+.rich-text pre code { background: transparent; padding: 0; color: inherit; }
+.rich-text hr {
+  border: 0;
+  border-top: 1px solid #e4e4e7;
+  margin: 0.9em 0;
+}
+.rich-text table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0 0 0.75em;
+  font-size: 0.85em;
+}
+.rich-text th, .rich-text td {
+  border: 1px solid #e4e4e7;
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+}
+.rich-text th { background: #fafafa; font-weight: 700; }
+

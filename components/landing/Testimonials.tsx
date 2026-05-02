@@ -5,24 +5,33 @@ import { Quote, Sparkles } from "lucide-react";
 
 const testimonials = [
     {
-        name: "Alex Rivera",
+        name: "Adaeze Okonkwo",
         role: "Software Engineer",
-        image: "https://api.uifaces.co/our-content/donated/x18pUX9Q.jpg",
-        text: "I was tracking applications in a spreadsheet before this. Offerra keeps everything in one place and the AI resume tips actually helped me tighten up my CV for each role."
+        text: "I was tracking applications in a spreadsheet before this. Offerra keeps everything in one place and the AI resume tips actually helped me tighten up my CV for each role.",
+        accent: { bg: "bg-blue-50", text: "text-blue-600", ring: "ring-blue-100" },
     },
     {
-        name: "Sarah Kim",
+        name: "Tunde Bakare",
         role: "Product Designer",
-        image: "https://api.uifaces.co/our-content/donated/vY_H-H6A.jpg",
-        text: "The interview prep section gave me good questions to practice with before my last two interviews. It's a solid way to organize your prep without overthinking it."
+        text: "The interview prep section gave me good questions to practice with before my last two interviews. It's a solid way to organize your prep without overthinking it.",
+        accent: { bg: "bg-emerald-50", text: "text-emerald-600", ring: "ring-emerald-100" },
     },
     {
-        name: "Jameson Ward",
+        name: "Chinaza Eze",
         role: "DevOps Engineer",
-        image: "https://api.uifaces.co/our-content/donated/uk99-m-P.jpg",
-        text: "I liked that it auto-fills job details from listings. Saves the copy-paste work and helps me stay on top of where I've applied without losing track."
-    }
+        text: "I liked that it auto-fills job details from listings. Saves the copy-paste work and helps me stay on top of where I've applied without losing track.",
+        accent: { bg: "bg-amber-50", text: "text-amber-600", ring: "ring-amber-100" },
+    },
 ];
+
+function getInitials(name: string): string {
+    return name
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase() ?? "")
+        .join("");
+}
 
 export function Testimonials() {
     return (
@@ -70,10 +79,15 @@ export function Testimonials() {
                             transition={{ duration: 0.8, delay: idx * 0.15, ease: [0.16, 1, 0.3, 1] }}
                         >
                             <Quote className="h-10 w-10 text-blue-600/10 mb-8 transition-transform group-hover:scale-110 group-hover:text-blue-600/20" />
-                            <p className="text-lg font-black tracking-tight text-black mb-10 leading-[1.3] uppercase tracking-[0.03em]">&quot;{test.text}&quot;</p>
+                            <p className="text-lg font-semibold text-black mb-10 leading-[1.3]  tracking-[0.03em]">&quot;{test.text}&quot;</p>
                             <div className="mt-auto flex items-center gap-5">
-                                <div className="h-12 w-12 rounded-2xl bg-zinc-100 overflow-hidden ring-4 ring-white border border-zinc-100">
-                                    <img src={test.image} alt={test.name} className="h-full w-full object-cover grayscale hover:grayscale-0 transition-all duration-500" />
+                                <div
+                                    className={`h-12 w-12 rounded-2xl flex items-center justify-center ring-4 ring-white border border-zinc-100 ${test.accent.bg}`}
+                                    aria-hidden="true"
+                                >
+                                    <span className={`text-sm font-black ${test.accent.text}`}>
+                                        {getInitials(test.name)}
+                                    </span>
                                 </div>
                                 <div className="leading-tight">
                                     <div className="text-sm font-black tracking-tight text-black uppercase tracking-[0.05em]">{test.name}</div>

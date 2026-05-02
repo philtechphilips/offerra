@@ -32,13 +32,20 @@ export function Header({ onMenuClick }: HeaderProps) {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, []);
 
-    // Debounce search update
+    // Keep the local input in sync when another component (e.g. the
+    // Applications page filter bar) updates the shared search term.
     useEffect(() => {
+        setLocalSearch(search);
+    }, [search]);
+
+    // Debounced push from this input to the shared store. Only fires when the
+    // local value actually differs from the store, so it never clobbers an
+    // external update with stale text.
+    useEffect(() => {
+        if (localSearch === search) return;
         const timer = setTimeout(() => {
-            if (localSearch !== search) {
-                setSearch(localSearch);
-                fetchJobs(true);
-            }
+            setSearch(localSearch);
+            fetchJobs(true);
         }, 500);
         return () => clearTimeout(timer);
     }, [localSearch, search, setSearch, fetchJobs]);

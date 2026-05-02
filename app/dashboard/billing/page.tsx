@@ -11,7 +11,9 @@ import {
     ChevronRight,
     Lock,
     ArrowRight,
-    Star
+    Star,
+    Rocket,
+    Gift,
 } from "lucide-react";
 import { useState, useEffect, Suspense } from "react";
 import { cn } from "@/app/lib/utils";
@@ -57,6 +59,7 @@ function BillingContent() {
     const [idempotencyKey, setIdempotencyKey] = useState<string>('');
     const [activeHistoryTab, setActiveHistoryTab] = useState<"payments" | "usage">("payments");
     const [isFreeMode, setIsFreeMode] = useState(false);
+    const [billingStatusLoaded, setBillingStatusLoaded] = useState(false);
 
     useEffect(() => {
         setIdempotencyKey(`pay_${crypto.randomUUID()}`);
@@ -164,6 +167,8 @@ function BillingContent() {
             setIsFreeMode(!response.data?.billing_enabled);
         } catch (err) {
             console.error("Failed to fetch billing status", err);
+        } finally {
+            setBillingStatusLoaded(true);
         }
     };
 
@@ -192,11 +197,109 @@ function BillingContent() {
     const getPrice = (plan: Plan) => region === "nigeria" ? plan.price_ngn : plan.price_usd;
     const getSymbol = () => region === "nigeria" ? "₦" : "$";
 
-    if (isLoading) return (
+    if (isLoading || !billingStatusLoaded) return (
         <div className="flex items-center justify-center min-h-[60vh]">
             <Loader2 className="h-10 w-10 text-blue-600 animate-spin" />
         </div>
     );
+
+    if (isFreeMode) {
+        return (
+            <div className="space-y-10 pb-20">
+                <header>
+                    <div className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 mb-4">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700">
+                            Free Mode Active
+                        </span>
+                    </div>
+                    <h1 className="text-3xl font-black tracking-tight text-brand-blue-black uppercase">
+                        Plans & Billing <span className="text-blue-600">— Coming Soon.</span>
+                    </h1>
+                    <p className="mt-2 text-sm font-medium text-zinc-400 max-w-xl">
+                        We're polishing the billing experience. While we're at it, every Offerra feature is fully free for you — no credits, no caps, no card needed.
+                    </p>
+                </header>
+
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="relative rounded-[2.5rem] border border-zinc-100 bg-white p-10 md:p-14 overflow-hidden"
+                >
+                    <div className="absolute -top-20 -right-20 h-64 w-64 bg-blue-100/40 rounded-full blur-[80px]" />
+                    <div className="absolute -bottom-24 -left-24 h-64 w-64 bg-emerald-100/40 rounded-full blur-[80px]" />
+
+                    <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10">
+                        <div className="lg:col-span-7 space-y-8">
+                            <div className="flex items-center gap-4">
+                                <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-200">
+                                    <Rocket className="h-6 w-6 text-white" />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-blue-600">In the works</p>
+                                    <h2 className="text-2xl font-black tracking-tight text-zinc-900 mt-1">Pricing is taking a short break</h2>
+                                </div>
+                            </div>
+
+                            <p className="text-sm font-medium text-zinc-500 leading-relaxed">
+                                Paid plans, top-ups, and AI credits are temporarily disabled while we rebuild the experience. There is nothing for you to do — just keep using Offerra. We'll let you know when plans go live again.
+                            </p>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {[
+                                    { icon: Sparkles, title: "Unlimited AI features", desc: "CV match, autofill, cover letters, prep — all unlocked." },
+                                    { icon: Gift, title: "No credits required", desc: "Use everything without spending a single credit." },
+                                    { icon: ShieldCheck, title: "No card on file", desc: "Nothing is being charged. We promise." },
+                                    { icon: Clock, title: "We'll keep you posted", desc: "You'll see a heads-up here before billing returns." },
+                                ].map((item) => (
+                                    <div key={item.title} className="flex items-start gap-3 p-4 rounded-2xl bg-zinc-50 border border-zinc-100">
+                                        <div className="h-9 w-9 rounded-xl bg-white border border-zinc-100 flex items-center justify-center shrink-0">
+                                            <item.icon className="h-4 w-4 text-blue-600" />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="text-xs font-black text-zinc-900 tracking-tight">{item.title}</p>
+                                            <p className="text-[11px] font-medium text-zinc-500 mt-1 leading-relaxed">{item.desc}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="lg:col-span-5">
+                            <div className="rounded-[2rem] bg-zinc-900 p-8 text-white relative overflow-hidden h-full flex flex-col">
+                                <div className="absolute top-0 right-0 p-6 opacity-10">
+                                    <Star size={80} className="fill-current" />
+                                </div>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-white/50 mb-2">Your account</p>
+                                <h4 className="text-3xl font-black tracking-tight mb-2">Free Tier</h4>
+                                <p className="text-xs font-medium text-white/60 leading-relaxed mb-8">
+                                    Hi {user?.name?.split(' ')[0] || 'there'} — your account is on the house while plans are paused.
+                                </p>
+
+                                <div className="space-y-3 mb-8">
+                                    {[
+                                        "Track unlimited applications",
+                                        "AI status detection",
+                                        "CV match & rewrites",
+                                        "Cover letter & interview prep",
+                                    ].map((feature) => (
+                                        <div key={feature} className="flex items-center gap-3">
+                                            <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                                            <span className="text-xs font-bold text-white/90">{feature}</span>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="mt-auto flex items-center gap-3 pt-6 border-t border-white/10 text-emerald-400">
+                                    <Sparkles className="h-4 w-4" />
+                                    <span className="text-[10px] font-black uppercase tracking-widest">Powering your search</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-10 pb-20">
@@ -209,13 +312,6 @@ function BillingContent() {
                     <p className="mt-2 text-sm font-medium text-zinc-400">
                         Purchase credits to power your job search. Use credits for AI status detection and CV optimizations.
                     </p>
-                    {isFreeMode && (
-                        <div className="mt-3 inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700">
-                                Free Mode Active
-                            </span>
-                        </div>
-                    )}
                 </div>
 
                 <div className="flex bg-zinc-100 p-1 rounded-2xl border border-zinc-200 shadow-inner">

@@ -1,49 +1,101 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { motion } from "framer-motion";
 import {
     Clock, Search, Building2, Calendar, MapPin,
-    Zap, Briefcase, TrendingUp, CheckCircle2,
-    AlertCircle, Loader2, Video, Users,
+    Zap, Briefcase, TrendingUp,
+    AlertCircle, Loader2, Video,
     ChevronRight, Sparkles
 } from "lucide-react";
-import { useJobStore } from "@/app/store/jobStore";
+import { useJobStore, type JobApplication } from "@/app/store/jobStore";
+import api from "@/app/lib/api";
 import { cn } from "@/app/lib/utils";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+interface PaginationMeta {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    has_more: boolean;
+}
+
 export default function InterviewsPage() {
-    const { jobs, fetchJobs, isLoading } = useJobStore();
+    const { stats, fetchStats } = useJobStore();
     const [search, setSearch] = useState("");
+    const [interviewJobs, setInterviewJobs] = useState<JobApplication[]>([]);
+    const [meta, setMeta] = useState<PaginationMeta | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
     const router = useRouter();
+    const observerTarget = useRef<HTMLDivElement>(null);
+
+    const fetchInterviews = useCallback(async (page = 1, replace = true) => {
+        if (replace) {
+            setIsLoading(true);
+        } else {
+            setIsLoadingMore(true);
+        }
+        try {
+            const response = await api.get('/jobs', {
+                params: {
+                    page: String(page),
+                    per_page: '15',
+                    status: 'interview',
+                    ...(search ? { search } : {}),
+                },
+            });
+            setMeta(response.data.meta);
+            setInterviewJobs(prev => replace ? response.data.data : [...prev, ...response.data.data]);
+        } catch (err) {
+            // Global handler shows error toast as needed
+        } finally {
+            setIsLoading(false);
+            setIsLoadingMore(false);
+        }
+    }, [search]);
 
     useEffect(() => {
-        fetchJobs();
-    }, [fetchJobs]);
+        fetchStats();
+    }, [fetchStats]);
 
-    const interviewJobs = useMemo(() => {
-        return jobs.filter(job =>
-            job.status === 'interview' &&
-            (job.title.toLowerCase().includes(search.toLowerCase()) ||
-                job.company.toLowerCase().includes(search.toLowerCase()))
+    // Debounced search refetch
+    useEffect(() => {
+        const t = setTimeout(() => {
+            fetchInterviews(1, true);
+        }, 300);
+        return () => clearTimeout(t);
+    }, [search, fetchInterviews]);
+
+    // Infinite scroll
+    useEffect(() => {
+        const target = observerTarget.current;
+        if (!target) return;
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting && meta?.has_more && !isLoadingMore && !isLoading) {
+                    const nextPage = (meta.current_page ?? 1) + 1;
+                    fetchInterviews(nextPage, false);
+                }
+            },
+            { rootMargin: "120px", threshold: 0.1 }
         );
-    }, [jobs, search]);
+        observer.observe(target);
+        return () => observer.unobserve(target);
+    }, [meta?.has_more, meta?.current_page, isLoadingMore, isLoading, fetchInterviews]);
 
-    const stats = useMemo(() => {
-        const interviewList = jobs.filter(j => j.status === 'interview');
-        const total = interviewList.length;
-        const higherMatch = interviewList.filter(j => j.cv_match_score && j.cv_match_score >= 70).length;
-        const avgMatch = total > 0
-            ? Math.round(interviewList.reduce((acc, curr) => acc + (curr.cv_match_score || 0), 0) / total)
-            : 0;
-        return [
-            { label: 'Active Interviews', val: total.toString(), icon: Clock, color: "text-amber-500", bg: "bg-amber-50" },
-            { label: 'High Match', val: higherMatch.toString(), icon: Zap, color: "text-blue-600", bg: "bg-blue-50" },
-            { label: 'Avg. Match', val: `${avgMatch}%`, icon: TrendingUp, color: "text-emerald-500", bg: "bg-emerald-50" },
-            { label: 'Success Rate', val: "🚀", icon: Sparkles, color: "text-indigo-600", bg: "bg-indigo-50" },
-        ];
-    }, [jobs]);
+    const total = stats.by_status.interview;
+    const higherMatch = stats.interview_insights.high_match;
+    const avgMatch = stats.interview_insights.avg_match_score;
+
+    const statTiles = useMemo(() => [
+        { label: 'Active Interviews', val: total.toString(), icon: Clock, color: "text-amber-500", bg: "bg-amber-50" },
+        { label: 'High Match', val: higherMatch.toString(), icon: Zap, color: "text-blue-600", bg: "bg-blue-50" },
+        { label: 'Avg. Match', val: `${avgMatch}%`, icon: TrendingUp, color: "text-emerald-500", bg: "bg-emerald-50" },
+        { label: 'Success Rate', val: "🚀", icon: Sparkles, color: "text-indigo-600", bg: "bg-indigo-50" },
+    ], [total, higherMatch, avgMatch]);
 
     const handleGeneratePrep = () => {
         if (interviewJobs.length > 0) {
@@ -82,7 +134,7 @@ export default function InterviewsPage() {
 
             {/* Stats row */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {stats.map((stat, i) => (
+                {statTiles.map((stat) => (
                     <div key={stat.label} className="bg-white border border-zinc-100 rounded-2xl p-4">
                         <div className="flex items-center justify-between mb-3">
                             <div className={cn("h-9 w-9 rounded-xl flex items-center justify-center", stat.bg)}>
@@ -106,11 +158,11 @@ export default function InterviewsPage() {
                             AI Strategy
                         </span>
                         <p className="text-base font-bold text-white/90 leading-relaxed max-w-lg">
-                            {interviewJobs.length > 0
-                                ? `You have ${interviewJobs.length} active interview round${interviewJobs.length > 1 ? 's' : ''}. Focus on the STAR method for ${interviewJobs[0].company} today.`
+                            {total > 0
+                                ? `You have ${total} active interview round${total > 1 ? 's' : ''}. Focus on the STAR method for ${interviewJobs[0]?.company ?? 'your next round'} today.`
                                 : "No active interviews yet. Update your application statuses to track them here."}
                         </p>
-                        {interviewJobs.length > 0 && (
+                        {total > 0 && (
                             <div className="flex flex-wrap gap-3 pt-1">
                                 <button
                                     onClick={handleGeneratePrep}
@@ -132,7 +184,7 @@ export default function InterviewsPage() {
                                 className="text-blue-600 transition-all duration-700"
                                 strokeWidth="6"
                                 strokeDasharray={263.9}
-                                strokeDashoffset={263.9 * (1 - (interviewJobs.length > 0 ? 0.85 : 0.2))}
+                                strokeDashoffset={263.9 * (1 - (total > 0 ? 0.85 : 0.2))}
                                 strokeLinecap="round"
                                 stroke="currentColor"
                                 fill="transparent"
@@ -141,7 +193,7 @@ export default function InterviewsPage() {
                                 cy="48"
                             />
                         </svg>
-                        <span className="absolute text-xl font-black text-zinc-900">{interviewJobs.length > 0 ? "85%" : "20%"}</span>
+                        <span className="absolute text-xl font-black text-zinc-900">{total > 0 ? "85%" : "20%"}</span>
                     </div>
                     <div className="text-center">
                         <p className="text-sm font-black text-zinc-900">Readiness Score</p>
@@ -161,7 +213,7 @@ export default function InterviewsPage() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
                         <h2 className="text-sm font-black text-zinc-900">Active Rounds</h2>
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-50 text-[10px] font-black text-blue-600">{interviewJobs.length}</span>
+                        <span className="flex h-5 min-w-5 px-1 items-center justify-center rounded-full bg-blue-50 text-[10px] font-black text-blue-600">{total}</span>
                     </div>
                     <div className="relative w-full sm:w-64">
                         <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-300" />
@@ -186,7 +238,7 @@ export default function InterviewsPage() {
                                 key={job.id}
                                 initial={{ opacity: 0, y: 16 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: idx * 0.04 }}
+                                transition={{ delay: Math.min(idx * 0.04, 0.4) }}
                                 className="group bg-white border border-zinc-100 rounded-2xl p-5 hover:border-blue-200 transition-all relative overflow-hidden"
                             >
                                 {/* Match badge */}
@@ -195,8 +247,8 @@ export default function InterviewsPage() {
                                         <span className={cn(
                                             "px-2 py-0.5 rounded-lg text-[10px] font-black border",
                                             job.cv_match_score >= 70 ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
-                                            job.cv_match_score >= 40 ? "bg-amber-50 text-amber-600 border-amber-100" :
-                                            "bg-zinc-50 text-zinc-400 border-zinc-100"
+                                                job.cv_match_score >= 40 ? "bg-amber-50 text-amber-600 border-amber-100" :
+                                                    "bg-zinc-50 text-zinc-400 border-zinc-100"
                                         )}>
                                             {job.cv_match_score}% match
                                         </span>
@@ -260,6 +312,18 @@ export default function InterviewsPage() {
                         </div>
                     )}
                 </div>
+
+                {/* Infinite scroll sentinel */}
+                {(meta?.has_more || isLoadingMore) && (
+                    <div ref={observerTarget} className="py-6 flex justify-center">
+                        {isLoadingMore && (
+                            <div className="flex items-center gap-3 text-zinc-400">
+                                <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+                                <span className="text-xs font-bold uppercase tracking-widest">Loading more...</span>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Tips */}
