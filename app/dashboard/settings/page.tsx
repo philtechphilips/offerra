@@ -250,6 +250,7 @@ export default function SettingsPage() {
                                         desc="Scans your inbox for interview invites and application status updates."
                                         onAction={handleToggleGmail}
                                         isGoogle={true}
+                                        comingSoon={true}
                                     />
                                     <div className="p-8 rounded-[2.5rem] bg-zinc-50/50 border border-dashed border-zinc-200 text-center">
                                         <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">More integrations coming soon</p>
@@ -316,7 +317,7 @@ function SettingCard({ title, icon: Icon, children }: { title: string; icon: any
     );
 }
 
-function IntegrationCard({ name, status, icon: Icon, color, bg, desc, onAction, isGoogle }: { 
+function IntegrationCard({ name, status, icon: Icon, color, bg, desc, onAction, isGoogle, comingSoon }: { 
     name: string; 
     status: 'connected' | 'disconnected'; 
     icon: any; 
@@ -325,6 +326,7 @@ function IntegrationCard({ name, status, icon: Icon, color, bg, desc, onAction, 
     desc: string;
     onAction: () => void;
     isGoogle?: boolean;
+    comingSoon?: boolean;
 }) {
     const [isLoading, setIsLoading] = useState(false);
 
@@ -353,16 +355,27 @@ function IntegrationCard({ name, status, icon: Icon, color, bg, desc, onAction, 
                         <h3 className="text-[13px] font-black text-brand-blue-black uppercase tracking-tight">{name}</h3>
                         <span className={cn(
                             "text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full",
-                            status === 'connected' ? "bg-emerald-50 text-emerald-600" : "bg-zinc-50 text-zinc-400"
+                            comingSoon ? "bg-amber-50 text-amber-600 border border-amber-100"
+                                : status === 'connected' ? "bg-emerald-50 text-emerald-600" : "bg-zinc-50 text-zinc-400"
                         )}>
-                            {status}
+                            {comingSoon ? "Coming soon" : status}
                         </span>
                     </div>
                     <p className="text-[11px] font-medium text-zinc-400 mt-1 max-w-sm line-clamp-2 md:line-clamp-none leading-relaxed">{desc}</p>
                 </div>
             </div>
 
-            {isGoogle && status === 'disconnected' ? (
+            {comingSoon ? (
+                <button
+                    type="button"
+                    disabled
+                    aria-disabled="true"
+                    title="Coming soon"
+                    className="h-12 px-8 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-zinc-50 text-zinc-400 border border-zinc-100 cursor-not-allowed w-full md:w-auto flex items-center justify-center gap-2"
+                >
+                    Coming soon
+                </button>
+            ) : isGoogle && status === 'disconnected' ? (
                 <button 
                     onClick={handleAction}
                     disabled={isLoading}

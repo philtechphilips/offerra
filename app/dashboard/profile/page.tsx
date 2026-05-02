@@ -652,7 +652,38 @@ export default function ProfilePage() {
                     {/* Right sidebar */}
                     <div className="space-y-6">
 
-                        {/* Gmail sync card */}
+                        {/* Gmail sync card — temporarily disabled, shown as "Coming soon".
+                            Restore the original UI below when the sync feature is ready. */}
+                        <div className="rounded-2xl border border-zinc-100 bg-white overflow-hidden">
+                            <div className="flex items-center gap-3 px-6 py-4 border-b border-zinc-50">
+                                <GmailLogo className="h-4 w-4" />
+                                <span className="text-sm font-black text-zinc-900">Gmail Sync</span>
+                                <span className="ml-auto text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-100">
+                                    Coming soon
+                                </span>
+                            </div>
+
+                            <div className="p-5 space-y-4">
+                                <p className="text-xs text-zinc-500 leading-relaxed">
+                                    We&apos;re polishing automated inbox scanning so it can detect interview invites and status updates reliably. You&apos;ll be able to connect your Gmail here soon.
+                                </p>
+
+                                <button
+                                    type="button"
+                                    disabled
+                                    aria-disabled="true"
+                                    title="Coming soon"
+                                    className="w-full h-10 rounded-lg bg-zinc-50 border border-zinc-200 text-xs font-bold text-zinc-400 flex items-center justify-center gap-2 cursor-not-allowed"
+                                >
+                                    <GoogleIcon />
+                                    Connect Gmail · Coming soon
+                                </button>
+
+                                <p className="text-[11px] text-zinc-400 text-center">Secure OAuth 2.0 · read-only access</p>
+                            </div>
+                        </div>
+
+                        {/* Original Gmail sync card — re-enable when sync is ready.
                         <div className="rounded-2xl border border-zinc-100 bg-white overflow-hidden">
                             <div className="flex items-center gap-3 px-6 py-4 border-b border-zinc-50">
                                 <GmailLogo className="h-4 w-4" />
@@ -730,6 +761,7 @@ export default function ProfilePage() {
                                 <p className="text-[11px] text-zinc-400 text-center">Secure OAuth 2.0 · read-only access</p>
                             </div>
                         </div>
+                        */}
 
                         {/* Social bios card */}
                         <div className="rounded-2xl border border-zinc-100 bg-white overflow-hidden">
