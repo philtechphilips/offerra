@@ -55,6 +55,32 @@ const EMPTY_STATS: JobStats = {
     interview_insights: { with_score: 0, avg_match_score: 0, high_match: 0 },
 };
 
+function normalizeStats(raw: unknown): JobStats {
+    const data = (raw && typeof raw === 'object') ? (raw as Partial<JobStats>) : {};
+    const byStatus = (data.by_status && typeof data.by_status === 'object') ? data.by_status : {} as Partial<JobStats['by_status']>;
+    const momentum = (data.momentum && typeof data.momentum === 'object') ? data.momentum : {} as Partial<JobStats['momentum']>;
+    const insights = (data.interview_insights && typeof data.interview_insights === 'object') ? data.interview_insights : {} as Partial<JobStats['interview_insights']>;
+    return {
+        total: Number(data.total ?? 0),
+        by_status: {
+            applied: Number(byStatus.applied ?? 0),
+            tracking: Number(byStatus.tracking ?? 0),
+            interview: Number(byStatus.interview ?? 0),
+            rejected: Number(byStatus.rejected ?? 0),
+            offer: Number(byStatus.offer ?? 0),
+        },
+        momentum: {
+            recent_7d: Number(momentum.recent_7d ?? 0),
+            previous_7d: Number(momentum.previous_7d ?? 0),
+        },
+        interview_insights: {
+            with_score: Number(insights.with_score ?? 0),
+            avg_match_score: Number(insights.avg_match_score ?? 0),
+            high_match: Number(insights.high_match ?? 0),
+        },
+    };
+}
+
 interface JobState {
     jobs: JobApplication[];
     meta: PaginationMeta | null;
@@ -92,9 +118,10 @@ export const useJobStore = create<JobState>()((set, get) => ({
             if (statusFilter && statusFilter !== 'all') params.status = statusFilter;
 
             const response = await api.get('/jobs', { params });
+            const data = Array.isArray(response.data?.data) ? response.data.data : [];
             set({
-                jobs: response.data.data,
-                meta: response.data.meta,
+                jobs: data,
+                meta: response.data?.meta ?? null,
                 isLoading: false,
             });
 
@@ -121,9 +148,10 @@ export const useJobStore = create<JobState>()((set, get) => ({
             if (statusFilter && statusFilter !== 'all') params.status = statusFilter;
 
             const response = await api.get('/jobs', { params });
+            const more = Array.isArray(response.data?.data) ? response.data.data : [];
             set({
-                jobs: [...jobs, ...response.data.data],
-                meta: response.data.meta,
+                jobs: [...(jobs ?? []), ...more],
+                meta: response.data?.meta ?? meta,
                 isLoadingMore: false,
             });
         } catch (err) {
@@ -137,7 +165,7 @@ export const useJobStore = create<JobState>()((set, get) => ({
 
         try {
             const response = await api.get('/jobs/stats');
-            set({ stats: response.data, isLoadingStats: false });
+            set({ stats: normalizeStats(response.data), isLoadingStats: false });
         } catch (err) {
             set({ isLoadingStats: false });
         }
@@ -152,7 +180,7 @@ export const useJobStore = create<JobState>()((set, get) => ({
     },
 
     updateJobStatus: async (jobId: string, newStatus: JobApplication['status']) => {
-        const previousJobs = get().jobs;
+        const previousJobs = get().jobs ?? [];
 
         // Optimistic update
         set({

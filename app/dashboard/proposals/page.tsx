@@ -62,7 +62,7 @@ export default function ProposalWriterPage() {
 
     const copyToClipboard = () => {
         if (!result) return;
-        navigator.clipboard.writeText(result.proposal);
+        navigator.clipboard.writeText(result?.proposal ?? '');
         setHasCopied(true);
         toast.success("Copied to clipboard!");
         setTimeout(() => setHasCopied(false), 2000);
@@ -197,7 +197,7 @@ export default function ProposalWriterPage() {
                                     <div className="p-6">
                                         <textarea
                                             readOnly
-                                            value={result.proposal}
+                                            value={result?.proposal ?? ''}
                                             className="w-full min-h-96 bg-zinc-50 border border-zinc-100 rounded-xl p-5 outline-none text-sm text-zinc-700 leading-relaxed resize-none"
                                         />
                                     </div>

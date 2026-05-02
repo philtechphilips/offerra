@@ -68,7 +68,8 @@ export default function SettingsPage() {
                 ai_tone: aiTone,
                 notifications_enabled: notifications
             });
-            setUser(response.data.user);
+            const u = response.data?.user ?? response.data;
+            if (u) setUser(u);
             toast.success("Settings updated successfully!");
         } catch (err: any) {
             toast.error(err.response?.data?.message || "Failed to update settings");
@@ -97,7 +98,8 @@ export default function SettingsPage() {
             // Disconnect
             try {
                 const response = await api.post("/auth/google/disconnect");
-                setUser(response.data.user);
+                const u = response.data?.user ?? response.data;
+                if (u) setUser(u);
                 toast.success("Gmail disconnected");
             } catch (err) {
                 toast.error("Failed to disconnect Gmail");
@@ -106,7 +108,12 @@ export default function SettingsPage() {
             // Connect
             try {
                 const response = await api.get("/auth/google/redirect");
-                window.location.href = response.data.url;
+                const url = response.data?.url;
+                if (url) {
+                    window.location.href = url;
+                } else {
+                    toast.error("Could not start Google connection.");
+                }
             } catch (err) {
                 toast.error("Failed to initiate Google connection");
             }

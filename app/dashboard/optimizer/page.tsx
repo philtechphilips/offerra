@@ -144,15 +144,15 @@ export default function ResumeOptimizerPage() {
                 email: parsed.email || "email@example.com",
                 phone: parsed.phone || "",
                 location: parsed.location || "",
-                jobTitle: parsed.current_title || (optimized.experience_optimization[0]?.original_title) || "",
+                jobTitle: parsed.current_title || (optimized.experience_optimization?.[0]?.original_title) || "",
                 links: extraLinks,
-                summary: optimized.optimized_summary,
-                skills: optimized.key_skills_to_highlight,
-                experience: optimized.experience_optimization.map(exp => ({
-                    company: exp.company,
-                    title: exp.original_title,
-                    duration: exp.duration || "",
-                    bullets: exp.tailored_bullets
+                summary: optimized.optimized_summary ?? "",
+                skills: optimized.key_skills_to_highlight ?? [],
+                experience: (optimized.experience_optimization ?? []).map(exp => ({
+                    company: exp?.company ?? "",
+                    title: exp?.original_title ?? "",
+                    duration: exp?.duration || "",
+                    bullets: exp?.tailored_bullets ?? [],
                 })),
                 customSections: (optimized as any).additional_sections || []
             };

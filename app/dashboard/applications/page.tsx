@@ -39,6 +39,12 @@ const statusColors: Record<JobApplication['status'], string> = {
     offer: "bg-emerald-50 text-emerald-600",
 };
 
+const DEFAULT_STATUS_COLOR = "bg-zinc-100 text-zinc-500";
+
+function statusClass(status: string | null | undefined) {
+    return statusColors[(status as JobApplication['status'])] ?? DEFAULT_STATUS_COLOR;
+}
+
 const emptyForm = {
     title: "",
     company: "",
@@ -53,7 +59,9 @@ const emptyForm = {
 };
 
 function FollowUpBadge({ date }: { date: string }) {
+    if (!date) return null;
     const followUp = new Date(date);
+    if (isNaN(followUp.getTime())) return null;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     followUp.setHours(0, 0, 0, 0);
@@ -175,18 +183,18 @@ export default function ApplicationsPage() {
     const openEditModal = (job: JobApplication) => {
         setEditingJob(job);
         setFormData({
-            title: job.title,
-            company: job.company,
-            location: job.location,
-            url: job.job_url,
-            salary: job.salary || "",
-            type: job.type,
-            is_remote: job.is_remote,
-            status: job.status,
-            follow_up_date: job.follow_up_date || "",
-            follow_up_note: job.follow_up_note || "",
+            title: job?.title ?? "",
+            company: job?.company ?? "",
+            location: job?.location ?? "",
+            url: job?.job_url ?? "",
+            salary: job?.salary ?? "",
+            type: job?.type ?? "Full-time",
+            is_remote: !!job?.is_remote,
+            status: (job?.status as JobApplication['status']) ?? 'applied',
+            follow_up_date: job?.follow_up_date ?? "",
+            follow_up_note: job?.follow_up_note ?? "",
         });
-        setShowFollowUpFields(!!(job.follow_up_date || job.follow_up_note));
+        setShowFollowUpFields(!!(job?.follow_up_date || job?.follow_up_note));
         setOpenDropdownId(null);
         setShowModal(true);
     };
@@ -395,9 +403,9 @@ export default function ApplicationsPage() {
                                                 <td className="px-8 py-6">
                                                     <span className={cn(
                                                         "px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest",
-                                                        statusColors[job.status]
+                                                        statusClass(job.status)
                                                     )}>
-                                                        {job.status}
+                                                        {job.status ?? 'tracking'}
                                                     </span>
                                                 </td>
                                                 <td className="px-8 py-6">
@@ -420,13 +428,13 @@ export default function ApplicationsPage() {
                                                             </span>
                                                             {job.cv_match_details && (
                                                                 <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-56 bg-white rounded-xl border border-zinc-100 p-3 opacity-0 invisible group-hover/match:opacity-100 group-hover/match:visible transition-all z-20 pointer-events-none">
-                                                                    {(job.cv_match_details.strengths || []).slice(0, 2).map((s, i) => (
+                                                                    {(job.cv_match_details?.strengths ?? []).slice(0, 2).map((s, i) => (
                                                                         <p key={`s-${i}`} className="text-[10px] text-emerald-600 font-semibold leading-relaxed">✓ {s}</p>
                                                                     ))}
-                                                                    {(job.cv_match_details.gaps || []).slice(0, 2).map((g, i) => (
+                                                                    {(job.cv_match_details?.gaps ?? []).slice(0, 2).map((g, i) => (
                                                                         <p key={`g-${i}`} className="text-[10px] text-red-400 font-semibold leading-relaxed">✗ {g}</p>
                                                                     ))}
-                                                                    {job.cv_match_details.tip && (
+                                                                    {job.cv_match_details?.tip && (
                                                                         <p className="text-[10px] text-blue-600 font-semibold mt-1 leading-relaxed">💡 {job.cv_match_details.tip}</p>
                                                                     )}
                                                                 </div>
@@ -766,9 +774,9 @@ export default function ApplicationsPage() {
                                     <div>
                                         <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-3">CV Match Analysis</h3>
                                         <div className="bg-zinc-50 rounded-2xl p-5 border border-zinc-100 space-y-3">
-                                            {(viewingJob.cv_match_details.strengths || []).map((s, i) => <p key={`s-${i}`} className="text-xs text-emerald-600 font-semibold leading-relaxed">✓ {s}</p>)}
-                                            {(viewingJob.cv_match_details.gaps || []).map((g, i) => <p key={`g-${i}`} className="text-xs text-red-400 font-semibold leading-relaxed">✗ {g}</p>)}
-                                            {viewingJob.cv_match_details.tip && <p className="text-xs text-blue-600 font-semibold leading-relaxed border-t border-zinc-100 pt-3">💡 {viewingJob.cv_match_details.tip}</p>}
+                                            {(viewingJob.cv_match_details?.strengths ?? []).map((s, i) => <p key={`s-${i}`} className="text-xs text-emerald-600 font-semibold leading-relaxed">✓ {s}</p>)}
+                                            {(viewingJob.cv_match_details?.gaps ?? []).map((g, i) => <p key={`g-${i}`} className="text-xs text-red-400 font-semibold leading-relaxed">✗ {g}</p>)}
+                                            {viewingJob.cv_match_details?.tip && <p className="text-xs text-blue-600 font-semibold leading-relaxed border-t border-zinc-100 pt-3">💡 {viewingJob.cv_match_details.tip}</p>}
                                         </div>
                                     </div>
                                 )}

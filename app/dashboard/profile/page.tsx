@@ -266,8 +266,9 @@ export default function ProfilePage() {
         setIsConnectingGmail(true);
         try {
             const res = await api.get('/auth/google/redirect');
-            if (res.data.url) {
-                window.location.href = res.data.url;
+            const url = res.data?.url;
+            if (url) {
+                window.location.href = url;
             }
         } catch (err) {
             toast.error("Failed to initiate Google connection.");
@@ -303,7 +304,8 @@ export default function ProfilePage() {
         setIsConnectingGmail(true);
         try {
             const res = await api.post('/auth/google/disconnect');
-            setUser(res.data.user);
+            const u = res.data?.user ?? res.data;
+            if (u) setUser(u);
             toast.success("Google account disconnected and access revoked.");
         } catch (err) {
             toast.error("Failed to disconnect Gmail.");
@@ -336,7 +338,8 @@ export default function ProfilePage() {
         setIsSavingProfile(true);
         try {
             const res = await api.put('/profile/settings', profileSettings);
-            setUser(res.data.user);
+            const u = res.data?.user ?? res.data;
+            if (u) setUser(u);
             toast.success("Public profile saved!");
         } catch (err: any) {
             toast.error(err.response?.data?.message || "Failed to save profile.");
@@ -350,15 +353,15 @@ export default function ProfilePage() {
         const loadingId = toast.loading("AI is analyzing your resume to deduce profile details...");
         try {
             const res = await api.post('/profile/deduce');
-            const deduced = res.data.deduced;
+            const deduced = res.data?.deduced ?? {};
             setProfileSettings(prev => ({
                 ...prev,
-                location: deduced.location || prev.location,
-                linkedin_url: deduced.linkedin_url || prev.linkedin_url,
-                github_url: deduced.github_url || prev.github_url,
-                twitter_url: deduced.twitter_url || prev.twitter_url,
-                portfolio_url: deduced.portfolio_url || prev.portfolio_url,
-                professional_headline: deduced.professional_headline || prev.professional_headline,
+                location: deduced?.location || prev.location,
+                linkedin_url: deduced?.linkedin_url || prev.linkedin_url,
+                github_url: deduced?.github_url || prev.github_url,
+                twitter_url: deduced?.twitter_url || prev.twitter_url,
+                portfolio_url: deduced?.portfolio_url || prev.portfolio_url,
+                professional_headline: deduced?.professional_headline || prev.professional_headline,
             }));
             toast.success("Profile fields autofilled! Don't forget to save.", { id: loadingId });
         } catch (err: any) {

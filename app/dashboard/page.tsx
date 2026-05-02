@@ -36,38 +36,46 @@ export default function DashboardPage() {
             return;
         }
         fetchJobs();
-        if (user) {
-            setUserName(user.name.split(' ')[0]);
+        const firstName = String(user?.name ?? '').trim().split(/\s+/)[0];
+        if (firstName) {
+            setUserName(firstName);
         }
     }, [isLoggedIn, token, user, router, _hasHydrated, fetchJobs]);
 
     // Derive real data from store
     const recentApplications = useMemo(() => {
-        return jobs.slice(0, 5).map(job => ({
-            id: job.id,
-            company: job.company,
-            role: job.title,
-            status: job.status,
-            time: new Date(job.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
-            bg: job.status === 'offer' ? 'bg-emerald-50' :
-                job.status === 'interview' ? 'bg-amber-50' :
-                    job.status === 'rejected' ? 'bg-red-50' : 'bg-blue-50',
-            color: job.status === 'offer' ? 'text-emerald-600' :
-                job.status === 'interview' ? 'text-amber-600' :
-                    job.status === 'rejected' ? 'text-red-600' : 'text-blue-600',
-        }));
+        const list = Array.isArray(jobs) ? jobs : [];
+        return list.slice(0, 5).map(job => {
+            const created = job?.created_at ? new Date(job.created_at) : null;
+            const time = created && !isNaN(created.getTime())
+                ? created.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+                : '—';
+            return {
+                id: job?.id ?? '',
+                company: job?.company ?? '',
+                role: job?.title ?? '',
+                status: job?.status ?? 'tracking',
+                time,
+                bg: job?.status === 'offer' ? 'bg-emerald-50' :
+                    job?.status === 'interview' ? 'bg-amber-50' :
+                        job?.status === 'rejected' ? 'bg-red-50' : 'bg-blue-50',
+                color: job?.status === 'offer' ? 'text-emerald-600' :
+                    job?.status === 'interview' ? 'text-amber-600' :
+                        job?.status === 'rejected' ? 'text-red-600' : 'text-blue-600',
+            };
+        });
     }, [jobs]);
 
     // Aggregate stats come from the backend so they aren't capped by pagination.
-    const totalApplied = stats.total;
-    const interviews = stats.by_status.interview;
-    const offers = stats.by_status.offer;
+    const totalApplied = stats?.total ?? 0;
+    const interviews = stats?.by_status?.interview ?? 0;
+    const offers = stats?.by_status?.offer ?? 0;
     const offerRate = totalApplied > 0 ? ((offers / totalApplied) * 100).toFixed(0) : "0";
 
     // Momentum: 7d vs previous 7d window from backend
     const momentum = useMemo(() => {
-        const currentPeriodCount = stats.momentum.recent_7d;
-        const previousPeriodCount = stats.momentum.previous_7d;
+        const currentPeriodCount = stats?.momentum?.recent_7d ?? 0;
+        const previousPeriodCount = stats?.momentum?.previous_7d ?? 0;
 
         if (previousPeriodCount === 0) {
             return {
@@ -86,7 +94,7 @@ export default function DashboardPage() {
             color: diff >= 0 ? "text-emerald-500" : "text-amber-500",
             bg: diff >= 0 ? "bg-emerald-50" : "bg-amber-50"
         };
-    }, [stats.momentum.recent_7d, stats.momentum.previous_7d]);
+    }, [stats?.momentum?.recent_7d, stats?.momentum?.previous_7d]);
 
     const dynamicStats = [
         { label: 'Total Jobs', val: totalApplied.toString(), icon: Briefcase, color: "text-blue-600", bg: "bg-blue-50", path: '/dashboard/applications' },
@@ -95,9 +103,9 @@ export default function DashboardPage() {
     ];
 
     const pipelineStages = [
-        { label: 'Applied', count: stats.by_status.applied, color: 'bg-blue-500' },
-        { label: 'Interview', count: stats.by_status.interview, color: 'bg-amber-500' },
-        { label: 'Offers', count: stats.by_status.offer, color: 'bg-emerald-500' },
+        { label: 'Applied', count: stats?.by_status?.applied ?? 0, color: 'bg-blue-500' },
+        { label: 'Interview', count: stats?.by_status?.interview ?? 0, color: 'bg-amber-500' },
+        { label: 'Offers', count: stats?.by_status?.offer ?? 0, color: 'bg-emerald-500' },
     ];
 
     // Simple dynamic AI Insight logic
@@ -218,7 +226,7 @@ export default function DashboardPage() {
                                         >
                                             <div className="flex items-center gap-5">
                                                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-zinc-50 to-white border border-zinc-100 text-sm font-black text-brand-blue-dark group-hover:border-blue-200 transition-all">
-                                                    {app.company[0]}
+                                                    {(app.company?.[0] ?? '?').toUpperCase()}
                                                 </div>
                                                 <div>
                                                     <div className="text-sm font-black text-brand-blue-black tracking-tight">{app.company}</div>

@@ -107,9 +107,12 @@ export function NotificationDropdown() {
 
                         {/* List */}
                         <div className="max-h-[420px] overflow-y-auto scrollbar-hide py-2">
-                            {notifications.length > 0 ? (
-                                notifications.map((n) => (
-                                    <div 
+                            {(notifications?.length ?? 0) > 0 ? (
+                                (notifications ?? []).map((n) => {
+                                    const data = n?.data ?? ({} as Notification['data']);
+                                    const created = n?.created_at ? new Date(n.created_at) : null;
+                                    return (
+                                    <div
                                         key={n.id}
                                         onClick={() => n.read_at === null && handleMarkAsRead(n.id)}
                                         className={cn(
@@ -118,23 +121,23 @@ export function NotificationDropdown() {
                                         )}
                                     >
                                         <div className="shrink-0 h-10 w-10 rounded-xl bg-white border border-zinc-100 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-                                            {getIcon(n.data.type || 'info')}
+                                            {getIcon(data.type || 'info')}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center justify-between gap-2 mb-1">
                                                 <h4 className="text-xs font-black text-brand-blue-black truncate tracking-tight">
-                                                    {n.data.title}
+                                                    {data.title ?? 'Notification'}
                                                 </h4>
                                                 <span className="text-[9px] font-bold text-zinc-300 shrink-0">
-                                                    {timeAgo(new Date(n.created_at))}
+                                                    {created && !isNaN(created.getTime()) ? timeAgo(created) : ''}
                                                 </span>
                                             </div>
                                             <p className="text-[11px] font-medium text-zinc-500 leading-relaxed mb-2">
-                                                {n.data.message}
+                                                {data.message ?? ''}
                                             </p>
-                                            {n.data.action_url && (
-                                                <Link 
-                                                    href={n.data.action_url}
+                                            {data.action_url && (
+                                                <Link
+                                                    href={data.action_url}
                                                     className="inline-flex items-center text-[10px] font-black text-blue-600 hover:underline"
                                                 >
                                                     View details
@@ -145,7 +148,8 @@ export function NotificationDropdown() {
                                             <div className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-blue-600" />
                                         )}
                                     </div>
-                                ))
+                                    );
+                                })
                             ) : (
                                 <div className="py-20 text-center">
                                     <div className="h-16 w-16 rounded-3xl bg-zinc-50 flex items-center justify-center mx-auto mb-4 border border-zinc-100">

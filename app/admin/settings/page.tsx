@@ -34,11 +34,13 @@ export default function AdminSettings() {
         setLoading(true);
         try {
             const response = await api.get("/admin/settings");
-            setSettings(response.data);
-            // Initialize edited settings
+            const list: Setting[] = Array.isArray(response.data)
+                ? response.data
+                : Array.isArray(response.data?.data) ? response.data.data : [];
+            setSettings(list);
             const initialMap: Record<string, string> = {};
-            response.data.forEach((s: Setting) => {
-                initialMap[s.key] = s.value;
+            list.forEach((s: Setting) => {
+                if (s?.key != null) initialMap[s.key] = s?.value ?? '';
             });
             setEditedSettings(initialMap);
         } catch (err) {

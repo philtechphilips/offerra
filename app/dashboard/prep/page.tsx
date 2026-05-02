@@ -180,7 +180,7 @@ function PrepContent() {
     const categories = useMemo(() => {
         if (!result?.prep_guide) return ["all"];
         const set = new Set<string>();
-        result.prep_guide.forEach((p) => {
+        (result.prep_guide ?? []).forEach((p) => {
             if (p.category?.trim()) set.add(p.category.trim());
         });
         return ["all", ...Array.from(set).sort()];
@@ -188,9 +188,9 @@ function PrepContent() {
 
     const filteredGuide = useMemo(() => {
         if (!result?.prep_guide) return [];
-        const rows = result.prep_guide.map((item, origIdx) => ({ item, origIdx }));
+        const rows = (result.prep_guide ?? []).map((item, origIdx) => ({ item, origIdx }));
         if (categoryFilter === "all") return rows;
-        return rows.filter(({ item }) => item.category.trim() === categoryFilter);
+        return rows.filter(({ item }) => (item?.category ?? '').trim() === categoryFilter);
     }, [result, categoryFilter]);
 
     const jdLength = jobDescription.trim().length;
@@ -259,10 +259,10 @@ function PrepContent() {
             "",
             "## Questions & answers",
         ];
-        result.prep_guide.forEach((item, idx) => {
-            lines.push(`\n### ${idx + 1}. [${item.category}] ${item.question}\n`);
-            lines.push(item.suggested_answer);
-            lines.push(`\n_Why this works:_ ${item.why_this_works}\n`);
+        (result.prep_guide ?? []).forEach((item, idx) => {
+            lines.push(`\n### ${idx + 1}. [${item?.category ?? ''}] ${item?.question ?? ''}\n`);
+            lines.push(item?.suggested_answer ?? '');
+            lines.push(`\n_Why this works:_ ${item?.why_this_works ?? ''}\n`);
         });
         await copyText("Full playbook", lines.join("\n"));
     };
@@ -488,7 +488,7 @@ function PrepContent() {
                         )}
                     </div>
 
-                    {result && result.general_tips.length > 0 && (
+                    {result && (result.general_tips?.length ?? 0) > 0 && (
                         <motion.div
                             initial={{ opacity: 0, y: 6 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -499,7 +499,7 @@ function PrepContent() {
                                 <span className="text-xs font-black text-amber-900">Session coaching tips</span>
                             </div>
                             <ul className="p-4 space-y-2.5">
-                                {result.general_tips.map((tip, i) => (
+                                {(result.general_tips ?? []).map((tip, i) => (
                                     <li key={i} className="flex gap-2.5 text-xs text-amber-950/80 leading-relaxed">
                                         <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white text-[10px] font-black text-amber-700 border border-amber-100">
                                             {i + 1}
@@ -588,7 +588,7 @@ function PrepContent() {
                                     const expanded = isExpanded(origIdx);
                                     return (
                                         <div
-                                            key={`${origIdx}-${item.question.slice(0, 40)}`}
+                                            key={`${origIdx}-${(item.question ?? '').slice(0, 40)}`}
                                             className={cn(
                                                 "rounded-2xl border bg-white overflow-hidden transition-all shadow-sm",
                                                 expanded ? "border-blue-200 ring-1 ring-blue-100" : "border-zinc-100 hover:border-zinc-200"

@@ -32,9 +32,12 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
         set({ isLoading: true });
         try {
             const response = await api.get('/notifications');
-            set({ 
-                notifications: response.data.notifications, 
-                unreadCount: response.data.unread_count 
+            const list = Array.isArray(response.data?.notifications)
+                ? response.data.notifications
+                : [];
+            set({
+                notifications: list,
+                unreadCount: Number(response.data?.unread_count ?? 0),
             });
         } catch (err) {
             console.error('Failed to fetch notifications', err);

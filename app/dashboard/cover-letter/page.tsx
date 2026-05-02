@@ -62,7 +62,7 @@ export default function CoverLetterWriterPage() {
 
     const copyToClipboard = () => {
         if (!result) return;
-        navigator.clipboard.writeText(result.cover_letter);
+        navigator.clipboard.writeText(result?.cover_letter ?? '');
         setHasCopied(true);
         toast.success("Copied to clipboard!");
         setTimeout(() => setHasCopied(false), 2000);
@@ -83,7 +83,7 @@ export default function CoverLetterWriterPage() {
                     </style>
                 </head>
                 <body>
-                    <div class="content">${result.cover_letter}</div>
+                    <div class="content">${result?.cover_letter ?? ''}</div>
                     <script>window.onload = function() { window.print(); window.close(); }</script>
                 </body>
             </html>
@@ -229,7 +229,7 @@ export default function CoverLetterWriterPage() {
                                     <div className="p-6">
                                         <textarea
                                             readOnly
-                                            value={result.cover_letter}
+                                            value={result?.cover_letter ?? ''}
                                             className="w-full min-h-96 bg-zinc-50 border border-zinc-100 rounded-xl p-5 outline-none text-sm text-zinc-700 leading-relaxed resize-none"
                                             style={{ fontFamily: '"Georgia", serif' }}
                                         />

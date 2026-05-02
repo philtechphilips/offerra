@@ -47,8 +47,10 @@ export default function InterviewsPage() {
                     ...(search ? { search } : {}),
                 },
             });
-            setMeta(response.data.meta);
-            setInterviewJobs(prev => replace ? response.data.data : [...prev, ...response.data.data]);
+            const newMeta = response.data?.meta ?? null;
+            const list = Array.isArray(response.data?.data) ? response.data.data : [];
+            setMeta(newMeta);
+            setInterviewJobs(prev => replace ? list : [...prev, ...list]);
         } catch (err) {
             // Global handler shows error toast as needed
         } finally {
@@ -86,9 +88,9 @@ export default function InterviewsPage() {
         return () => observer.unobserve(target);
     }, [meta?.has_more, meta?.current_page, isLoadingMore, isLoading, fetchInterviews]);
 
-    const total = stats.by_status.interview;
-    const higherMatch = stats.interview_insights.high_match;
-    const avgMatch = stats.interview_insights.avg_match_score;
+    const total = stats?.by_status?.interview ?? 0;
+    const higherMatch = stats?.interview_insights?.high_match ?? 0;
+    const avgMatch = stats?.interview_insights?.avg_match_score ?? 0;
 
     const statTiles = useMemo(() => [
         { label: 'Active Interviews', val: total.toString(), icon: Clock, color: "text-amber-500", bg: "bg-amber-50" },

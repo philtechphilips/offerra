@@ -207,7 +207,7 @@ export default function KanbanBoard({ onEdit, onDelete, onView }: KanbanBoardPro
     return (
         <div className="flex gap-4 overflow-x-auto pb-4 min-h-[60vh]">
             {COLUMNS.map((col) => {
-                const colJobs = jobs.filter(j => j.status === col.status);
+                const colJobs = (jobs ?? []).filter(j => j?.status === col.status);
                 const isOver = dragOverCol === col.status;
 
                 return (

@@ -17,8 +17,11 @@ export function Header({ onMenuClick }: HeaderProps) {
     const [localSearch, setLocalSearch] = useState(search);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const initials = user?.name ? user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() : "PU";
-    const displayName = user?.name || "Pro User";
+    const safeName = String(user?.name ?? '').trim();
+    const initials = safeName
+        ? safeName.split(/\s+/).map((n) => n[0] ?? '').join('').substring(0, 2).toUpperCase() || 'PU'
+        : 'PU';
+    const displayName = safeName || 'Pro User';
 
     // Keyboard shortcut Cmd+K
     useEffect(() => {

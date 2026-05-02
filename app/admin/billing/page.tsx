@@ -47,7 +47,10 @@ export default function AdminBilling() {
         setLoading(true);
         try {
             const response = await api.get("/admin/plans");
-            setPlans(response.data);
+            const list = Array.isArray(response.data)
+                ? response.data
+                : Array.isArray(response.data?.data) ? response.data.data : [];
+            setPlans(list);
         } catch (err) {
             console.error("Failed to fetch plans", err);
             toast.error("Error loading plans");
@@ -195,14 +198,14 @@ export default function AdminBilling() {
                                 <div className="flex flex-col justify-between gap-4">
                                     <div className="space-y-1.5">
                                         <p className="text-[10px] font-black text-zinc-300 uppercase tracking-widest mb-2">Features</p>
-                                        {plan.features.slice(0, 3).map((f, i) => (
+                                        {(plan.features ?? []).slice(0, 3).map((f, i) => (
                                             <div key={i} className="flex items-center gap-2 text-xs text-zinc-600">
                                                 <div className="h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
                                                 {f}
                                             </div>
                                         ))}
-                                        {plan.features.length > 3 && (
-                                            <p className="text-[10px] text-zinc-400">+{plan.features.length - 3} more</p>
+                                        {(plan.features?.length ?? 0) > 3 && (
+                                            <p className="text-[10px] text-zinc-400">+{(plan.features?.length ?? 0) - 3} more</p>
                                         )}
                                     </div>
 

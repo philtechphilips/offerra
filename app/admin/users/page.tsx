@@ -61,14 +61,17 @@ export default function UserManagement() {
 
         try {
             const response = await api.get(`/admin/users?page=${targetPage}&per_page=20&search=${search}`);
-            const fetchedUsers = response.data.data || [];
+            const data = response.data ?? {};
+            const fetchedUsers = Array.isArray(data.data) ? data.data : [];
             setUsers(prev => (targetPage === 1 ? fetchedUsers : [...prev, ...fetchedUsers]));
+            const currentPage = Number(data.current_page ?? targetPage);
+            const lastPage = Number(data.last_page ?? currentPage);
             setPagination({
-                current_page: response.data.current_page,
-                last_page: response.data.last_page,
-                total: response.data.total
+                current_page: currentPage,
+                last_page: lastPage,
+                total: Number(data.total ?? fetchedUsers.length),
             });
-            setHasMore(response.data.current_page < response.data.last_page);
+            setHasMore(currentPage < lastPage);
         } catch (err) {
             console.error("Failed to fetch users", err);
             toast.error("Error loading users");
@@ -210,7 +213,7 @@ export default function UserManagement() {
                                     <td className="px-5 py-4">
                                         <div className="flex items-center gap-3">
                                             <div className="h-9 w-9 rounded-xl bg-blue-50 flex items-center justify-center font-black text-blue-600 text-xs shrink-0">
-                                                {u.name.substring(0, 2).toUpperCase()}
+                                                {String(u?.name ?? '?').substring(0, 2).toUpperCase()}
                                             </div>
                                             <div>
                                                 <p className="text-xs font-black text-zinc-900 uppercase truncate max-w-44">{u.name}</p>
@@ -260,7 +263,11 @@ export default function UserManagement() {
                                     <td className="px-5 py-4">
                                         <div className="flex items-center gap-1.5 text-[11px] text-zinc-400">
                                             <Calendar className="h-3.5 w-3.5 text-zinc-300" />
-                                            {new Date(u.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                            {(() => {
+                                                if (!u?.created_at) return '—';
+                                                const d = new Date(u.created_at);
+                                                return isNaN(d.getTime()) ? '—' : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+                                            })()}
                                         </div>
                                     </td>
                                     <td className="px-5 py-4 text-right">

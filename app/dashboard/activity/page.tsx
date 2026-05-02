@@ -263,8 +263,11 @@ export default function ActivityPage() {
                     <div className="divide-y divide-zinc-50">
                         <AnimatePresence initial={false}>
                             {items.map((n) => {
-                                const type = n.data.type || "info";
+                                const data = n?.data ?? ({} as Notification['data']);
+                                const type = data.type || "info";
                                 const isUnread = n.read_at === null;
+                                const created = n?.created_at ? new Date(n.created_at) : null;
+                                const validDate = created && !isNaN(created.getTime());
                                 return (
                                     <motion.div
                                         key={n.id}
@@ -285,14 +288,14 @@ export default function ActivityPage() {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-start justify-between gap-3 mb-1">
                                                 <h3 className="text-sm font-black text-brand-blue-black tracking-tight truncate">
-                                                    {n.data.title}
+                                                    {data.title ?? 'Notification'}
                                                 </h3>
                                                 <span className="shrink-0 text-[10px] font-bold text-zinc-300">
-                                                    {timeAgo(new Date(n.created_at))}
+                                                    {validDate ? timeAgo(created!) : ''}
                                                 </span>
                                             </div>
                                             <p className="text-xs font-medium text-zinc-500 leading-relaxed">
-                                                {n.data.message}
+                                                {data.message ?? ''}
                                             </p>
                                             <div className="flex items-center flex-wrap gap-2 mt-3">
                                                 <span
@@ -308,9 +311,9 @@ export default function ActivityPage() {
                                                         New
                                                     </span>
                                                 )}
-                                                {n.data.action_url && (
+                                                {data.action_url && (
                                                     <Link
-                                                        href={n.data.action_url}
+                                                        href={data.action_url}
                                                         onClick={() => isUnread && handleMarkAsRead(n.id)}
                                                         className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest text-blue-600 hover:bg-blue-50 transition-colors"
                                                     >

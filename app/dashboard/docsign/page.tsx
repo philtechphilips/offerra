@@ -123,7 +123,10 @@ export default function DocSignPage() {
             const res = await api.post('/documents/upload', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            setDocuments(prev => [res.data.document, ...prev]);
+            const doc = res.data?.document ?? res.data;
+            if (doc && typeof doc === 'object') {
+                setDocuments(prev => [doc, ...prev]);
+            }
             toast.success("Document uploaded! Click 'Sign' to start.");
         } catch (error) {
             toast.error("Upload failed. Please try again.");
@@ -260,8 +263,8 @@ export default function DocSignPage() {
         }
     };
 
-    const filteredDocs = documents.filter(d => 
-        d.name.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredDocs = (documents ?? []).filter(d =>
+        String(d?.name ?? '').toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (

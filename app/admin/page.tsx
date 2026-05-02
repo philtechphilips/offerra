@@ -64,11 +64,12 @@ export default function AdminDashboard() {
         const fetchStats = async () => {
             try {
                 const response = await api.get("/admin/stats");
-                setStats(response.data.stats);
-                setDistribution(response.data.distribution);
-                setTopCompanies(response.data.top_companies || []);
-                setPopularPlans(response.data.popular_plans || []);
-                setDailyRevenue(response.data.daily_revenue || []);
+                const data = response.data ?? {};
+                setStats(data.stats ?? null);
+                setDistribution(Array.isArray(data.distribution) ? data.distribution : []);
+                setTopCompanies(Array.isArray(data.top_companies) ? data.top_companies : []);
+                setPopularPlans(Array.isArray(data.popular_plans) ? data.popular_plans : []);
+                setDailyRevenue(Array.isArray(data.daily_revenue) ? data.daily_revenue : []);
             } catch (err) {
                 console.error("Failed to fetch admin stats", err);
             } finally {
@@ -214,25 +215,31 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="flex items-end gap-2 h-40">
-                        {dailyRevenue.slice(-14).map((day) => {
-                            const maxRev = Math.max(...dailyRevenue.map(d => d.total));
-                            const height = (day.total / maxRev) * 100;
-                            return (
-                                <div key={day.date} className="flex-1 flex flex-col items-center gap-2 group">
-                                    <div className="relative w-full">
-                                        <motion.div
-                                            initial={{ height: 0 }}
-                                            animate={{ height: `${height}%` }}
-                                            className="w-full bg-blue-100 group-hover:bg-blue-600 rounded-t-lg transition-colors min-h-1"
-                                        />
-                                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-zinc-900 text-white text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                                            ${day.total}
+                        {(() => {
+                            const safeDaily = (dailyRevenue ?? []).filter(d => d && typeof d === 'object');
+                            const totals = safeDaily.map(d => Number(d?.total ?? 0));
+                            const maxRev = totals.length ? Math.max(...totals, 1) : 1;
+                            return safeDaily.slice(-14).map((day) => {
+                                const total = Number(day?.total ?? 0);
+                                const height = (total / maxRev) * 100;
+                                const dateLabel = String(day?.date ?? '').split('-').slice(1).join('/');
+                                return (
+                                    <div key={day?.date ?? Math.random()} className="flex-1 flex flex-col items-center gap-2 group">
+                                        <div className="relative w-full">
+                                            <motion.div
+                                                initial={{ height: 0 }}
+                                                animate={{ height: `${height}%` }}
+                                                className="w-full bg-blue-100 group-hover:bg-blue-600 rounded-t-lg transition-colors min-h-1"
+                                            />
+                                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-zinc-900 text-white text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                                                ${total}
+                                            </div>
                                         </div>
+                                        <span className="text-[8px] font-black text-zinc-300 uppercase rotate-45 mt-3">{dateLabel}</span>
                                     </div>
-                                    <span className="text-[8px] font-black text-zinc-300 uppercase rotate-45 mt-3">{day.date.split('-').slice(1).join('/')}</span>
-                                </div>
-                            );
-                        })}
+                                );
+                            });
+                        })()}
                     </div>
                 </div>
             )}
@@ -256,11 +263,11 @@ export default function AdminDashboard() {
                     <div className="grid grid-cols-2 gap-4">
                         <div className="bg-white/10 rounded-2xl p-5 border border-white/10">
                             <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1">+30d Users</p>
-                            <h5 className="text-3xl font-black">+{stats?.growth.users_30d}</h5>
+                            <h5 className="text-3xl font-black">+{stats?.growth?.users_30d ?? 0}</h5>
                         </div>
                         <div className="bg-white/10 rounded-2xl p-5 border border-white/10">
                             <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1">+30d Jobs</p>
-                            <h5 className="text-3xl font-black">+{stats?.growth.jobs_30d}</h5>
+                            <h5 className="text-3xl font-black">+{stats?.growth?.jobs_30d ?? 0}</h5>
                         </div>
                     </div>
                 </div>

@@ -68,7 +68,8 @@ function BillingContent() {
     const refreshUser = async () => {
         try {
             const response = await api.get("/user");
-            setUser(response.data);
+            const u = response.data?.user ?? response.data;
+            if (u) setUser(u);
         } catch (err) {
             console.error("Failed to refresh user", err);
         }
@@ -77,7 +78,8 @@ function BillingContent() {
     const fetchTransactions = async () => {
         try {
             const response = await api.get("/user/transactions");
-            setTransactions(response.data.transactions || []);
+            const list = response.data?.transactions;
+            setTransactions(Array.isArray(list) ? list : []);
         } catch (err) {
             console.error("Failed to fetch transactions", err);
         }
@@ -86,7 +88,8 @@ function BillingContent() {
     const fetchCreditLogs = async () => {
         try {
             const response = await api.get("/user/credit-logs");
-            setCreditLogs(response.data.logs || []);
+            const list = response.data?.logs;
+            setCreditLogs(Array.isArray(list) ? list : []);
         } catch (err) {
             console.error("Failed to fetch credit logs", err);
         }
@@ -124,14 +127,15 @@ function BillingContent() {
                 }
             });
 
-            if (response.data.status === 'disabled') {
-                toast.info(response.data.message || "Offerra is fully free for now.");
+            const data = response.data ?? {};
+            if (data.status === 'disabled') {
+                toast.info(data.message || "Offerra is fully free for now.");
                 return;
             }
 
-            if (response.data.authorization_url) {
-                window.location.href = response.data.authorization_url;
-            } else if (response.data.status === 'success') {
+            if (data.authorization_url) {
+                window.location.href = data.authorization_url;
+            } else if (data.status === 'success') {
                 toast.success("Plan updated!");
                 refreshUser();
                 fetchTransactions();
@@ -149,10 +153,13 @@ function BillingContent() {
     const fetchPlans = async () => {
         try {
             const response = await api.get("/plans");
-            setPlans(response.data);
-            if (response.data.length > 0) {
-                const pro = response.data.find((p: Plan) => p.name.includes("Pro") || p.is_popular);
-                setSelectedPlanId(pro ? pro.id : response.data[0].id);
+            const list: Plan[] = Array.isArray(response.data)
+                ? response.data
+                : Array.isArray(response.data?.data) ? response.data.data : [];
+            setPlans(list);
+            if (list.length > 0) {
+                const pro = list.find((p: Plan) => (p?.name ?? '').includes("Pro") || p?.is_popular);
+                setSelectedPlanId(pro ? pro.id : list[0].id);
             }
         } catch (err) {
             console.error("Failed to fetch plans", err);
@@ -193,8 +200,8 @@ function BillingContent() {
         detectLocation();
     }, []);
 
-    const activePlan = plans.find(p => p.id === selectedPlanId);
-    const getPrice = (plan: Plan) => region === "nigeria" ? plan.price_ngn : plan.price_usd;
+    const activePlan = plans.find(p => p?.id === selectedPlanId);
+    const getPrice = (plan: Plan) => Number((region === "nigeria" ? plan?.price_ngn : plan?.price_usd) ?? 0);
     const getSymbol = () => region === "nigeria" ? "₦" : "$";
 
     if (isLoading || !billingStatusLoaded) return (
@@ -375,7 +382,7 @@ function BillingContent() {
                                 </div>
 
                                 <ul className="space-y-4 mb-10 flex-grow">
-                                    {plan.features.map((feature) => (
+                                    {(plan.features ?? []).map((feature) => (
                                         <li key={feature} className="flex items-center gap-3">
                                             <CheckCircle2 className={cn(
                                                 "h-4 w-4 shrink-0",
@@ -384,7 +391,7 @@ function BillingContent() {
                                             <span className="text-[11px] font-bold text-zinc-700 leading-tight">{feature}</span>
                                         </li>
                                     ))}
-                                    {plan.not_included?.map((feature) => (
+                                    {(plan.not_included ?? []).map((feature) => (
                                         <li key={feature} className="flex items-center gap-3 opacity-30">
                                             <div className="h-1 w-1 rounded-full bg-zinc-400 ml-1.5 mr-1" />
                                             <span className="text-[11px] font-bold text-zinc-400 leading-tight">{feature}</span>
@@ -508,10 +515,10 @@ function BillingContent() {
                                                         </div>
                                                     </td>
                                                     <td className="py-5 text-xs text-zinc-900">
-                                                        {tx.currency} {Number(tx.amount).toLocaleString()}
+                                                        {String(tx?.currency ?? '')} {Number(tx?.amount ?? 0).toLocaleString()}
                                                     </td>
                                                     <td className="py-5">
-                                                        <code className="text-[10px] text-zinc-400 bg-zinc-50 px-2 py-1 rounded-md">{tx.reference.substring(0, 8)}...</code>
+                                                        <code className="text-[10px] text-zinc-400 bg-zinc-50 px-2 py-1 rounded-md">{String(tx?.reference ?? '').substring(0, 8)}{tx?.reference ? '...' : ''}</code>
                                                     </td>
                                                     <td className="py-5 text-right">
                                                         <span className={cn(
@@ -565,9 +572,9 @@ function BillingContent() {
                                                     <td className="py-5 text-right">
                                                         <span className={cn(
                                                             "text-sm font-black",
-                                                            log.amount > 0 ? "text-emerald-500" : "text-red-500"
+                                                            Number(log?.amount ?? 0) > 0 ? "text-emerald-500" : "text-red-500"
                                                         )}>
-                                                            {log.amount > 0 ? `+${log.amount}` : log.amount}
+                                                            {Number(log?.amount ?? 0) > 0 ? `+${log.amount}` : (log?.amount ?? 0)}
                                                         </span>
                                                     </td>
                                                 </tr>
