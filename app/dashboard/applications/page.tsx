@@ -272,7 +272,7 @@ export default function ApplicationsPage() {
             {/* Page Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-black tracking-tight text-brand-blue-black font-black">My jobs</h1>
+                    <h1 className="text-3xl font-black tracking-tight text-brand-blue-black">My jobs</h1>
                     <p className="mt-2 text-sm font-medium text-zinc-400">
                         {meta ? `You have ${meta.total} jobs you are currently tracking.` : 'Loading your jobs...'}
                     </p>

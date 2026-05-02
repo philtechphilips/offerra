@@ -19,7 +19,7 @@ export default function ForgotPasswordPage() {
         try {
             await api.post("/forgot-password", { email });
             setIsSent(true);
-            toast.success("Success! Check your email for a reset link.");
+            toast.success("If we find your email, we'll send a reset link shortly.");
         } catch (err: any) {
             toast.error(err.response?.data?.message || "Something went wrong. Please try again.");
         } finally {
@@ -41,8 +41,8 @@ export default function ForgotPasswordPage() {
                     </div>
                     <h1 className="text-3xl font-black text-black mb-4 tracking-tight">Check your email</h1>
                     <p className="text-zinc-500 font-medium text-sm mb-10 leading-relaxed">
-                        We've sent a password reset link to <span className="text-black font-bold">{email}</span>.
-                        Please check your inbox (and spam folder) to reset your password.
+                        If we find an account for <span className="text-black font-bold">{email}</span>,
+                        we&apos;ll send a reset link shortly. Please check your inbox (and spam folder).
                     </p>
                     <Link
                         href="/login"
